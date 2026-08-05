@@ -290,7 +290,7 @@ export const contact = {
   label: ['Get in touch', 'Contact'],
   title: 'Tell us about the project',
   titleLines: ['Tell us about', 'the project'],
-  email: 'wedesign0203@gmail.com',
+  email: 'contact@jpmediagroups.com',
   phone: '+1 (385) 867-7440',
   locations: 'Colombia · United States',
 };
