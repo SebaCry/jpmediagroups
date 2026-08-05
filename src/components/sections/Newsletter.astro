@@ -1,0 +1,180 @@
+---
+import Icon from '../Icon.astro';
+import WallLabel from '../WallLabel.astro';
+import { newsletter } from '../../content/site';
+---
+
+<section class="section">
+  <div class="shell news">
+    <div>
+      <WallLabel items={['Newsletter', 'Occasional']} />
+      <h2 data-reveal="lines" class="news__title display-title">
+        <span data-line class="block">{newsletter.title}</span>
+      </h2>
+      <p class="news__body lead">{newsletter.body}</p>
+    </div>
+
+    <div data-reveal="rise">
+      {/* The WordPress form posted to MetForm, which does not exist on a static
+          host. `action` is left for the client's provider — see README. */}
+      <form class="subscribe" method="post" action="#" data-newsletter novalidate>
+        <label class="sr-only" for="newsletter-email">Email address</label>
+        <input
+          id="newsletter-email"
+          type="email"
+          name="email"
+          class="subscribe__field"
+          placeholder="you@company.com"
+          required
+          autocomplete="email"
+        />
+        <button type="submit" class="subscribe__submit" data-magnetic="0.2">
+          <span>Subscribe</span>
+          <Icon name="arrow-right" class="h-4 w-4" />
+        </button>
+        <span class="subscribe__rule" aria-hidden="true"></span>
+      </form>
+
+      <p class="subscribe__msg" role="status" aria-live="polite" data-newsletter-msg></p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .news {
+    display: grid;
+    gap: 2.5rem;
+    align-items: end;
+  }
+  @media (min-width: 1024px) {
+    .news {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr);
+      gap: 4rem;
+      margin-inline-start: var(--rail);
+    }
+  }
+
+  .news__title {
+    font-size: var(--text-h2);
+    font-weight: 800;
+  }
+  .news__body {
+    margin-top: 1rem;
+    max-width: 40ch;
+  }
+
+  .subscribe {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-block: 0.5rem;
+  }
+
+  .subscribe__field {
+    flex: 1;
+    min-width: 0;
+    padding-block: 0.75rem;
+    background: transparent;
+    border: 0;
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: 1.0625rem;
+    outline: none;
+  }
+  .subscribe__field::placeholder {
+    color: var(--color-muted);
+  }
+  .subscribe__field:focus-visible {
+    outline: none;
+  }
+
+  .subscribe__rule {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 1px;
+    background: var(--color-hairline);
+  }
+  .subscribe__rule::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    height: 1.5px;
+    border-radius: 2px;
+    background: var(--gradient-brand);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--duration-layout) var(--ease-signature);
+  }
+  .subscribe:focus-within .subscribe__rule::after {
+    transform: scaleX(1);
+  }
+
+  .subscribe__submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-block: 0.75rem;
+    font-family: var(--font-display);
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--color-ink);
+    transition:
+      color var(--duration-micro) var(--ease-soft),
+      gap var(--duration-micro) var(--ease-signature);
+  }
+  .subscribe__submit:hover,
+  .subscribe__submit:focus-visible {
+    color: var(--color-signal-deep);
+    gap: 0.875rem;
+  }
+
+  .subscribe__msg {
+    margin-top: 1rem;
+    min-height: 1.5rem;
+    font-size: 0.9375rem;
+    color: var(--color-muted);
+  }
+  .subscribe__msg[data-state='error'] {
+    color: var(--color-counter);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .subscribe__rule::after,
+    .subscribe__submit {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  // Client-side validation only. Point `action` at a provider before launch.
+  function setupNewsletter() {
+    const form = document.querySelector<HTMLFormElement>('[data-newsletter]');
+    const msg = document.querySelector<HTMLElement>('[data-newsletter-msg]');
+    if (!form || !msg) return;
+
+    form.addEventListener('submit', (e) => {
+      const field = form.querySelector<HTMLInputElement>('input[type="email"]');
+      if (!field) return;
+
+      if (!field.value.trim() || !field.checkValidity()) {
+        e.preventDefault();
+        msg.dataset.state = 'error';
+        msg.textContent = !field.value.trim()
+          ? 'Enter your email address.'
+          : 'That email address does not look right.';
+        field.focus();
+        return;
+      }
+      if (form.getAttribute('action') === '#') {
+        e.preventDefault();
+        msg.dataset.state = 'error';
+        msg.textContent = 'Newsletter endpoint not configured yet.';
+      }
+    });
+  }
+
+  document.addEventListener('astro:page-load', setupNewsletter);
+</script>

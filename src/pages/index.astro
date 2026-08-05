@@ -1,0 +1,36 @@
+---
+/**
+ * Home.
+ *
+ * Section set is deliberately short while the client's material is still
+ * coming in: hero, the studio statement, what they do, the people, one quote,
+ * and contact in the footer. Work, Packages and Newsletter are built and
+ * tested — they are held back below until there are real cases, real prices
+ * and a real mailing list to point them at.
+ *
+ * The page is hung like a gallery: light and quiet, cut by two inverted bands
+ * (the studio statement and contact) so the scroll has rhythm rather than one
+ * uniform stack.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/sections/Hero.astro';
+import Marquee from '../components/sections/Marquee.astro';
+import About from '../components/sections/About.astro';
+import Services from '../components/sections/Services.astro';
+import Team from '../components/sections/Team.astro';
+import Testimonial from '../components/sections/Testimonial.astro';
+
+// Held back until the content exists — re-add the import and the tag together:
+//   import Work from '../components/sections/Work.astro';
+//   import Plans from '../components/sections/Plans.astro';
+//   import Newsletter from '../components/sections/Newsletter.astro';
+---
+
+<BaseLayout>
+  <Hero />
+  <Marquee source="cities" />
+  <About />
+  <Services />
+  <Team />
+  <!-- <Testimonial /> -->
+</BaseLayout>

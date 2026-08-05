@@ -1,0 +1,123 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import { Image } from 'astro:assets';
+import introMark from '../assets/images/logo-lockup-inverse.png';
+import '../styles/global.css';
+import { meta } from '../content/site';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { isDev } from '../lib/env';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title = meta.title, description = meta.description } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+
+/** Turns on the magenta "PENDIENTE" outlines around theme-demo copy. */
+const devPlaceholders = isDev ? '' : undefined;
+---
+
+<!doctype html>
+<html lang="en" class="no-js" data-dev-placeholders={devPlaceholders}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#edefec" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    {/* Display and body are preloaded so `swap` never actually swaps. DM Mono
+        only sets small labels, so it is left to load normally. */}
+    <link rel="preload" href="/fonts/syne-var.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/archivo-var.woff2" as="font" type="font/woff2" crossorigin />
+
+    {/* Flip `no-js` before first paint so the reveal states are never mis-set,
+        and arm the opening curtain.
+
+        The curtain is opt-in: CSS keeps it hidden unless `data-intro` is set,
+        which only happens here. The failsafe timer matters — if the motion
+        module fails to load, the panel still lifts and the page is usable. */}
+    <script is:inline>
+      document.documentElement.classList.remove('no-js');
+      (function () {
+        try {
+          if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+          if (sessionStorage.getItem('jpmg-intro')) return;
+        } catch (e) {
+          return;
+        }
+        var root = document.documentElement;
+        root.setAttribute('data-intro', '');
+        setTimeout(function () {
+          root.removeAttribute('data-intro');
+        }, 3200);
+      })();
+    </script>
+
+    <ClientRouter />
+  </head>
+
+  <!-- Background and colour come from `html` in global.css — deliberately not
+       repeated here. -->
+  <body class="antialiased">
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    {/* Opening curtain. Inert unless <html data-intro> is set. */}
+    <div class="intro" data-intro-curtain aria-hidden="true">
+      <span class="intro__mark" data-intro-mark>
+        <Image src={introMark} alt="" widths={[240, 420]} loading="eager" />
+      </span>
+      <span class="intro__bar" data-intro-bar></span>
+    </div>
+
+    {/* Follows the pointer across the dark bands. Purely decorative. */}
+    <div class="spotlight" data-spotlight aria-hidden="true"></div>
+
+    <Header />
+
+    {/* `data-pagefind-body` scopes the search index to page content. Without
+        it Pagefind indexes every <body>, so the nav and footer would match on
+        every query and drown the real results. */}
+    {/* No `transition:animate` here on purpose: an element-level fade on top of
+        the document-level view transition cross-faded twice and read as a
+        blink. The whole-page transition is styled in ui.css instead. */}
+    <main id="main" data-pagefind-body>
+      <slot />
+    </main>
+
+    <Footer />
+
+    <script>
+      import { initMotion, destroyMotion } from '../lib/motion';
+
+      // View Transitions swap the DOM without a reload, so triggers and the
+      // smooth-scroll instance are torn down and rebuilt on every navigation.
+      //
+      // Rebuilding on `astro:after-swap` rather than `astro:page-load` is what
+      // removes the flash between pages: after-swap runs before the browser
+      // paints the incoming DOM, so the reveal states are already applied.
+      // page-load fires after paint, which meant you saw every section render
+      // in full, get hidden, then animate back in.
+      document.addEventListener('astro:before-swap', destroyMotion);
+      document.addEventListener('astro:after-swap', initMotion);
+
+      // after-swap never fires for the very first page, so start it directly.
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMotion, { once: true });
+      } else {
+        initMotion();
+      }
+    </script>
+  </body>
+</html>

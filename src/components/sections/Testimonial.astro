@@ -1,0 +1,64 @@
+---
+import WallLabel from '../WallLabel.astro';
+import { testimonial } from '../../content/site';
+---
+
+<section class="section" data-placeholder={testimonial.status}>
+  <div class="shell">
+    <figure class="quote" data-reveal="rise" data-skew>
+      <WallLabel items={testimonial.label} />
+
+      <blockquote class="quote__text">
+        <p>{testimonial.quote}</p>
+      </blockquote>
+
+      <figcaption class="quote__by">
+        <span class="quote__name">{testimonial.name}</span>
+        <span class="wall-label__sep" aria-hidden="true">/</span>
+        <span class="quote__role">{testimonial.role}</span>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .quote {
+    margin: 0;
+    max-width: 40rem;
+  }
+
+  .quote__text {
+    margin: 0;
+  }
+  .quote__text p {
+    font-family: var(--font-display);
+    font-size: var(--text-h2);
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+
+  .quote__by {
+    display: flex;
+    align-items: baseline;
+    gap: 0.625rem;
+    margin-top: 1.75rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .quote__name {
+    color: var(--color-ink);
+  }
+  .quote__role {
+    color: var(--color-muted);
+  }
+
+  @media (min-width: 1024px) {
+    .quote {
+      margin-inline-start: var(--rail);
+    }
+  }
+</style>

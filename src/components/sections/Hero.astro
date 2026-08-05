@@ -1,0 +1,156 @@
+---
+import { Image } from 'astro:assets';
+import WallLabel from '../WallLabel.astro';
+import Icon from '../Icon.astro';
+import horizon from '../../assets/plates/plate-horizon.webp';
+import { hero, studio } from '../../content/site';
+---
+
+<section data-hero data-parallax-scope class="hero" aria-label="Introduction">
+  <div class="shell">
+    <div class="hero__inner">
+    <WallLabel items={[...hero.label, studio.cities.join(' · ')]} class="hero__label" />
+
+    <h1 class="hero__title">
+      {/* The visual copy is split into characters at runtime, which is noise to
+          a screen reader — so it is hidden and the sentence is exposed once. */}
+      <span class="sr-only">{hero.lines.map((l) => l.text).join(' ')} {hero.kicker}</span>
+
+      <span aria-hidden="true">
+        {
+          /* Plain lines are split into characters and staggered. The accent
+             lines are NOT: gradient text is clipped to the element's own text,
+             and per-character spans each carry their own transform, which
+             breaks the clip and renders them invisible. They rise as whole
+             lines instead — which also lands the accent as one gesture. */
+          hero.lines.map((line) =>
+            line.accent ? (
+              <span data-hero-block class="hero__line hero__line--accent">
+                <span>{line.text}</span>
+              </span>
+            ) : (
+              <span data-hero-line class="hero__line">{line.text}</span>
+            ),
+          )
+        }
+      </span>
+    </h1>
+
+    <p data-hero-trail class="hero__kicker">{hero.kicker}</p>
+
+    <div data-hero-trail class="hero__actions">
+      <a href={hero.primaryCta.href} class="btn btn--primary" data-magnetic="0.22">
+        <span class="btn__label">{hero.primaryCta.label}</span>
+        <span class="btn__fill" aria-hidden="true"></span>
+      </a>
+      <a href={hero.secondaryCta.href} class="btn btn--ghost" data-magnetic="0.18">
+        {hero.secondaryCta.label}
+        <Icon name="arrow-right" class="h-4 w-4" />
+      </a>
+      </div>
+    </div>
+  </div>
+
+  {/* The identity gradient laid down as a horizon. It is the only large field
+      of colour on the page — everything after this is salt and ink. */}
+  <div class="hero__horizon" data-scroll-zoom aria-hidden="true">
+    <Image
+      src={horizon}
+      alt=""
+      widths={[900, 1440, 2000, 2400]}
+      sizes="100vw"
+      loading="eager"
+      fetchpriority="high"
+      class="h-full w-full object-cover"
+    />
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 65svh;
+    /* Clears the fixed header. Without it the wall label renders underneath
+       the nav — that collision is what the top of the page was showing. */
+    padding-top: calc(var(--header-height) + 3rem);
+    overflow: hidden;
+  }
+
+  .hero__inner {
+    position: relative;
+    z-index: 1;
+    padding-bottom: clamp(2.5rem, 8vh, 5rem);
+  }
+
+  .hero__label {
+    margin-bottom: 2rem;
+  }
+
+  .hero__title {
+    font-size: var(--text-display);
+    line-height: 0.94;
+    letter-spacing: -0.035em;
+    font-weight: 800;
+  }
+
+  .hero__line {
+    display: block;
+    overflow: hidden;
+    /* The authored line breaks are the composition. Never let them re-wrap —
+       a wrapped second line would also be clipped by the reveal mask. */
+    white-space: nowrap;
+    padding-block: 0.03em;
+  }
+
+  /* Two lines take the identity gradient, so it reads as emphasis rather than
+     as a wash. The gradient sits on the inner span, which is the element that
+     actually holds the text. */
+  .hero__line--accent > span {
+    display: block;
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    will-change: transform;
+  }
+
+  .hero__kicker {
+    margin-top: 1.5rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.875rem;
+    margin-top: 2.5rem;
+  }
+
+  /* A band, not a backdrop: the colour sits along the bottom edge like the
+     stroke in the logo, and the type stays on clean salt. */
+  .hero__horizon {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: clamp(70px, 12vh, 130px);
+    z-index: 0;
+    /* Feathered on both edges so it reads as a stroke laid along the bottom of
+       the page, not as a gradient background creeping up behind the type. */
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 70%, #000 92%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 70%, #000 92%, transparent);
+    opacity: 0.75;
+  }
+
+  @media (min-width: 1024px) {
+    .hero__inner {
+      margin-inline-start: var(--rail);
+    }
+  }
+</style>

@@ -1,0 +1,49 @@
+---
+/**
+ * Inline SVG icon.
+ *
+ * The glyphs were extracted from the two icon fonts the WordPress theme loads
+ * (Fontello + trx_addons) by reading their SVG font files and flipping each
+ * outline out of the font's y-up coordinate space. The search, close and
+ * spinner glyphs are the exact codepoints the theme's own search widget uses
+ * (\e9a6, \e9e1, \e830). Inlining them lets us drop all five icon webfonts the
+ * current site downloads.
+ */
+interface Props {
+  name: string;
+  class?: string;
+  /** Decorative by default. Pass a label when the icon is the only content. */
+  label?: string;
+}
+
+const { name, class: className = '', label } = Astro.props;
+
+const icons = import.meta.glob<string>('../assets/icons/*.svg', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+});
+
+const raw = icons[`../assets/icons/${name}.svg`];
+
+if (!raw) {
+  const available = Object.keys(icons)
+    .map((k) => k.split('/').pop()?.replace('.svg', ''))
+    .sort()
+    .join(', ');
+  throw new Error(`Icon "${name}" not found. Available: ${available}`);
+}
+
+// Drop whatever accessibility attributes the extracted file carried, then apply
+// exactly one correct set based on whether this instance is labelled.
+const cleaned = raw.replace(/\s(?:aria-hidden|focusable|role|aria-label)="[^"]*"/g, '');
+
+const attrs = [
+  `class="${className}"`,
+  label ? `role="img" aria-label="${label}"` : 'aria-hidden="true" focusable="false"',
+].join(' ');
+
+const svg = cleaned.replace(/^<svg\s/, `<svg ${attrs} `);
+---
+
+<Fragment set:html={svg} />

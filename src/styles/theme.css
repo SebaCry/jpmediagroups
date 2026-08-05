@@ -1,0 +1,136 @@
+/* ============================================================================
+   DESIGN TOKENS — JP Media Groups
+   ============================================================================
+   In Tailwind CSS 4 the configuration lives in CSS. This `@theme` block IS the
+   project's tailwind config: every token below is emitted as a custom property
+   AND generates the matching utilities (bg-salt, text-signal, font-display…).
+
+   DIRECTION — "Salt & Signal"
+   The page is a gallery wall: light, generous, quiet. Colour is rationed so the
+   client's photography is the only loud thing on screen.
+
+   The accents are not invented. They are sampled straight out of the JP Media
+   Groups logo gradient:
+
+       #2C6FC6  →  #2092E1  →  #34B4D7  →  #A0E36B
+        abyss       signal       cyan        verde
+
+   The neutrals come from the salt flats — a cool, mineral off-white rather
+   than a warm cream, so the blue-green identity stays clean on top of it.
+
+   ONE RULE WORTH KNOWING: blue on light, green on dark.
+   `verde` has ~1.4:1 contrast on `salt` and ~9:1 on `ink`, so it is only ever
+   used on the dark bands. `signal-deep` is the blue that is safe for text on
+   light. This mirrors the logo's own travel from deep blue to bright green.
+   ========================================================================= */
+
+@theme {
+  /* --- Surfaces -------------------------------------------------------- */
+  --color-salt: #edefec; /* page — the gallery wall */
+  --color-chalk: #fafbf9; /* raised surfaces, cards */
+  --color-ink: #12232b; /* text, and the inverted bands */
+  --color-ink-soft: #1b333d; /* raised surface inside a dark band */
+
+  /* --- Text ------------------------------------------------------------ */
+  --color-muted: #5c6b66; /* secondary text — 4.9:1 on salt */
+  --color-hairline: #d3d8d3; /* rules on light */
+  --color-hairline-dark: #2c4650; /* rules on ink */
+
+  /* --- Brand accents, sampled from the logo ---------------------------- */
+  --color-abyss: #2c6fc6;
+  --color-signal: #2092e1;
+  --color-cyan: #34b4d7;
+  --color-verde: #a0e36b;
+  /* Text-safe blue for links on light — 4.6:1 on salt. */
+  --color-signal-deep: #0f6bae;
+  /* The single counter-accent. Appears twice on the whole page. */
+  --color-counter: #d9576b;
+
+  /* The identity itself. Used for rules, the scroll thread, and nothing else. */
+  --gradient-brand: linear-gradient(
+    120deg,
+    #2c6fc6 0%,
+    #2092e1 34%,
+    #34b4d7 62%,
+    #a0e36b 100%
+  );
+
+  /* --- Typefaces -------------------------------------------------------
+     Syne was drawn for an art centre. It is wide, slightly eccentric, and
+     nothing like the condensed Bebas Neue the WordPress theme shipped with —
+     which is the point. Archivo carries the reading. DM Mono is reserved for
+     capture data and labels, where a monospace is doing real work.          */
+  --font-display: 'Syne', 'Syne Fallback', Georgia, serif;
+  --font-body: 'Archivo', 'Archivo Fallback', system-ui, -apple-system, sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* --- Type scale ------------------------------------------------------
+     Syne is a wide face, so the display sizes run tighter and heavier than a
+     normal grotesque would, and negative tracking keeps the big settings from
+     falling apart.                                                          */
+  /* Sized so the longest authored hero line ("Grow your Utah", 14 characters)
+     fits on one line at every width — the line breaks are a design decision,
+     and the hero lines are `nowrap`, so an oversized step overflows rather than
+     wraps. Syne ExtraBold averages ~0.8em per character, far wider than a
+     normal grotesque: at 360px that caps the size around 27px, which is what
+     the lower bound below is derived from. */
+  --text-display: clamp(1.65rem, 0.3rem + 5.2vw, 5rem);
+  --text-display--line-height: 0.94;
+  --text-display--letter-spacing: -0.035em;
+
+  /* Same reasoning as --text-display: Syne runs ~0.8em per character, so the
+     small end has to sit lower than a normal grotesque would need. */
+  --text-h1: clamp(1.9rem, 0.7rem + 4.5vw, 4rem);
+  --text-h1--line-height: 0.98;
+  --text-h1--letter-spacing: -0.03em;
+
+  --text-h2: clamp(1.875rem, 1.3rem + 2.4vw, 2.875rem);
+  --text-h2--line-height: 1.02;
+  --text-h2--letter-spacing: -0.025em;
+
+  --text-h3: clamp(1.5rem, 1.2rem + 1.3vw, 2rem);
+  --text-h3--line-height: 1.1;
+  --text-h3--letter-spacing: -0.02em;
+
+  --text-h4: clamp(1.25rem, 1.1rem + 0.7vw, 1.5rem);
+  --text-h4--line-height: 1.2;
+  --text-h4--letter-spacing: -0.015em;
+
+  --text-lead: clamp(1.0625rem, 1rem + 0.5vw, 1.375rem);
+  --text-lead--line-height: 1.6;
+
+  /* Wall-label type: small, wide-tracked mono. */
+  --text-label: 0.6875rem;
+  --text-label--line-height: 1.3;
+  --text-label--letter-spacing: 0.14em;
+
+  /* --- Motion ----------------------------------------------------------
+     Kept from the previous build because the curves were measured off the
+     live site and still hold: `signature` is the site's own easing.         */
+  --ease-signature: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-entrance: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-exit: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-soft: cubic-bezier(0.33, 1, 0.68, 1);
+  --ease-overshoot: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --duration-micro: 300ms;
+  --duration-layout: 600ms;
+  --duration-media: 800ms;
+  --duration-reveal: 1200ms;
+
+  /* --- Layout ---------------------------------------------------------- */
+  --container-shell: 1240px;
+  --spacing-gutter: 1.5rem;
+}
+
+:root {
+  --header-height: 5rem;
+  /* Width of the left rail that carries the wall labels and the scroll thread. */
+  --rail: 0px;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --rail: 168px;
+  }
+}

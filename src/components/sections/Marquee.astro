@@ -1,0 +1,132 @@
+---
+/**
+ * The letters carousel, kept from the WordPress site but given something true
+ * to say. It used to read "Your Startup Adventure Begins" — demo copy from a
+ * different niche. Now it runs the studio's actual reach, which is the most
+ * persuasive fact it has: four cities, two countries.
+ *
+ * The GSAP loop in lib/motion.ts translates the track by exactly half its
+ * width, so the strip is rendered twice. Scroll velocity leans on the speed and
+ * skews it slightly, which ties the motion to the page rather than leaving it
+ * looping on its own clock.
+ */
+import { studio } from '../../content/site';
+
+interface Props {
+  /** `cities` for the reach strip, `disciplines` for the capability strip. */
+  source?: 'cities' | 'disciplines';
+  reverse?: boolean;
+  speed?: number;
+}
+
+const { source = 'cities', reverse = false, speed = 9 } = Astro.props;
+const words = source === 'cities' ? studio.cities : studio.disciplines;
+const track = [...words, ...words, ...words, ...words];
+---
+
+<div
+  class="marquee"
+  data-marquee={speed}
+  data-marquee-reverse={reverse ? '' : undefined}
+  aria-hidden="true"
+>
+  <div class="marquee__track" data-marquee-track>
+    {
+      [...track, ...track].map((word) => (
+        <span class="marquee__item">
+          {word}
+          <span class="marquee__dot" />
+        </span>
+      ))
+    }
+  </div>
+</div>
+
+<span class="sr-only" data-pagefind-ignore>{words.join(', ')}</span>
+
+<style>
+  .marquee {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    padding-block: clamp(0.75rem, 2vw, 1.5rem);
+    border-block: 1px solid var(--color-hairline);
+    user-select: none;
+  }
+
+  .marquee__track {
+    display: flex;
+    width: max-content;
+    will-change: transform;
+  }
+
+  .marquee__item {
+    display: inline-flex;
+    align-items: center;
+    gap: clamp(1.5rem, 3vw, 3rem);
+    padding-right: clamp(1.5rem, 3vw, 3rem);
+    font-family: var(--font-display);
+    /* Ambient, not a headline. It sits between two loud sections and its job is
+       to keep the eye moving, so it stays close to body scale. */
+    font-size: clamp(1.0625rem, 1.4vw, 1.4rem);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    color: var(--color-muted);
+  }
+
+  /* The dot from the logo, used as the separator. */
+  .marquee__dot {
+    display: block;
+    width: 0.42em;
+    height: 0.42em;
+    border-radius: 999px;
+    background: var(--gradient-brand);
+  }
+
+  .marquee::before,
+  .marquee::after {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    width: clamp(2rem, 8vw, 8rem);
+    z-index: 1;
+    pointer-events: none;
+  }
+  .marquee::before {
+    left: 0;
+    background: linear-gradient(to right, var(--color-salt), transparent);
+  }
+  .marquee::after {
+    right: 0;
+    background: linear-gradient(to left, var(--color-salt), transparent);
+  }
+
+  :global(.band-ink) .marquee {
+    border-color: var(--color-hairline-dark);
+  }
+  :global(.band-ink) .marquee__item {
+    color: #fff;
+  }
+  :global(.band-ink) .marquee::before {
+    background: linear-gradient(to right, var(--color-ink), transparent);
+  }
+  :global(.band-ink) .marquee::after {
+    background: linear-gradient(to left, var(--color-ink), transparent);
+  }
+
+  /* Static, readable, one copy of each word. */
+  @media (prefers-reduced-motion: reduce) {
+    .marquee {
+      overflow-x: auto;
+    }
+    .marquee__track {
+      transform: none !important;
+    }
+    .marquee::before,
+    .marquee::after {
+      display: none;
+    }
+  }
+</style>

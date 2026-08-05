@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="g" x1="8" y1="4" x2="52" y2="60" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2C6FC6"/>
+      <stop offset="0.34" stop-color="#2092E1"/>
+      <stop offset="0.62" stop-color="#34B4D7"/>
+      <stop offset="1" stop-color="#A0E36B"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#12232B"/>
+  <!-- The J-stroke and dot from the JP Media Groups mark. -->
+  <path d="M38 14v16a10 10 0 0 1-10 10h-2a8 8 0 0 0-8 8v2"
+        fill="none" stroke="url(#g)" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="45" cy="46" r="5.5" fill="#A0E36B"/>
+</svg>

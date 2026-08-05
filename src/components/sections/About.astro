@@ -1,0 +1,191 @@
+---
+import { Image } from 'astro:assets';
+import WallLabel from '../WallLabel.astro';
+import plate from '../../assets/plates/plate-signal.webp';
+import { about, studio } from '../../content/site';
+---
+
+<section id="about" class="section band-ink" data-band data-parallax-scope>
+  <div class="shell">
+    <div class="about__head">
+      <WallLabel items={about.label} />
+      <h2 data-reveal="lines" class="about__title display-title">
+        {
+          about.titleLines.map((line, i) => (
+            <span data-line class:list={['block', i === about.accentLine && 'about__accent']}>
+              {line}
+            </span>
+          ))
+        }
+      </h2>
+    </div>
+
+    <div class="about__grid">
+      <div class="about__copy" data-reveal="rise">
+        {about.body.map((p) => <p>{p}</p>)}
+      </div>
+
+      <aside class="about__aside">
+        <figure class="about__figure" data-reveal="clip" data-scroll-zoom>
+          <Image
+            src={plate}
+            alt=""
+            widths={[420, 700, 1000]}
+            sizes="(min-width: 1024px) 32vw, 90vw"
+            loading="lazy"
+            class="h-full w-full object-cover"
+          />
+        </figure>
+
+        <dl class="about__stats" data-reveal="rise">
+          {
+            about.stats.map((s) => (
+              <div class="about__stat">
+                <dt class="about__stat-label">{s.label}</dt>
+                <dd class="about__stat-value">{s.value}</dd>
+              </div>
+            ))
+          }
+        </dl>
+
+        <p class="about__disciplines">{studio.disciplines.join(' · ')}</p>
+      </aside>
+    </div>
+
+    <blockquote class="about__mission" data-reveal="rise">
+      <p class="about__mission-text">{about.mission}</p>
+      <p class="about__closer">{about.closer}</p>
+    </blockquote>
+  </div>
+</section>
+
+<style>
+  /* max-width in `rem`, not `ch`. On a wrapper, `ch` resolves against the
+     wrapper's own 1rem font-size, not the 64px heading inside it — which is
+     what squeezed this column down to a few characters wide. */
+  /* No max-width: the heading is `.display-title`, so it already sizes itself
+     to its authored lines. Capping the wrapper only re-introduces wrapping. */
+  .about__head {
+    max-width: none;
+  }
+
+  .about__title {
+    font-size: var(--text-h1);
+    font-weight: 800;
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+  }
+
+  .about__accent {
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .about__grid {
+    display: grid;
+    gap: 3rem;
+    margin-top: 4rem;
+  }
+  @media (min-width: 1024px) {
+    .about__grid {
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.65fr);
+      gap: 5rem;
+    }
+  }
+
+  .about__copy {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 62ch;
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    color: #b9c9cc;
+  }
+  /* The opening paragraph carries the positioning, so it is set larger. */
+  .about__copy > p:first-child {
+    font-size: var(--text-lead);
+    line-height: 1.55;
+    color: #e2eaeb;
+  }
+
+  .about__aside {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .about__figure {
+    display: block;
+    margin: 0;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+  }
+
+  .about__stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    margin: 0;
+    background: var(--color-hairline-dark);
+    border: 1px solid var(--color-hairline-dark);
+  }
+  .about__stat {
+    padding: 1.125rem 1.25rem;
+    background: var(--color-ink);
+  }
+  .about__stat-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #8ba3a8;
+  }
+  .about__stat-value {
+    margin: 0.25rem 0 0;
+    font-family: var(--font-display);
+    font-size: var(--text-h3);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #fff;
+  }
+
+  .about__disciplines {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    line-height: 1.9;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #8ba3a8;
+  }
+
+  .about__mission {
+    margin: 4.5rem 0 0;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--color-hairline-dark);
+    max-width: 34rem;
+  }
+  .about__mission-text {
+    font-family: var(--font-display);
+    font-size: var(--text-h3);
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    color: #fff;
+  }
+  .about__closer {
+    margin-top: 1.25rem;
+    color: var(--color-verde);
+    font-size: 1.0625rem;
+  }
+
+  @media (min-width: 1024px) {
+    .about__head,
+    .about__grid,
+    .about__mission {
+      margin-inline-start: var(--rail);
+    }
+  }
+</style>

@@ -1,0 +1,347 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../assets/images/logo-lockup.png';
+import Icon from './Icon.astro';
+import SearchOverlay from './SearchOverlay.tsx';
+import { nav, socials, search, studio } from '../content/site';
+---
+
+{/* Permanently fixed. No hide-on-scroll, no transform — see the note in the
+    stylesheet below and in lib/motion.ts. */}
+<header data-header class="fixed inset-x-0 top-0 z-50" transition:persist="site-header">
+  <div class="header-shell">
+    <a href="/" class="shrink-0" aria-label="JP Media Groups — home">
+      <Image
+        src={logo}
+        alt="JP Media Groups"
+        widths={[220, 440]}
+        loading="eager"
+        class="h-7 w-auto sm:h-8"
+      />
+    </a>
+
+    <nav aria-label="Main" class="ml-auto hidden lg:block">
+      <ul class="flex items-center gap-9">
+        {
+          nav.map((item) => (
+            <li>
+              <a href={item.href} class="nav-link">
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="ml-auto flex items-center gap-1 lg:ml-8">
+      {
+        socials.map((s) => (
+          <a
+            href={s.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="icon-btn"
+            data-magnetic="0.3"
+            aria-label={s.name}
+          >
+            <Icon name={s.icon} class="h-[18px] w-[18px]" />
+          </a>
+        ))
+      }
+
+      <button type="button" class="icon-btn" data-search-open aria-label={search.label} aria-haspopup="dialog">
+        <Icon name="search" class="h-[18px] w-[18px]" />
+      </button>
+
+      <button
+        type="button"
+        class="icon-btn lg:hidden"
+        data-menu-toggle
+        aria-expanded="false"
+        aria-controls="mobile-panel"
+      >
+        <Icon name="menu" class="h-[18px] w-[18px]" />
+        <span class="sr-only">Menu</span>
+      </button>
+    </div>
+  </div>
+
+  {/* The brand stroke, drawn across the header as the page scrolls. It is the
+      logo's own gradient doing double duty as a reading-progress indicator. */}
+  <span class="header-thread" aria-hidden="true"><span data-scroll-thread></span></span>
+</header>
+
+<div id="mobile-panel" class="mobile-panel" data-mobile-panel hidden>
+  <div class="mobile-panel__backdrop" data-menu-close></div>
+
+  <div class="mobile-panel__sheet band-ink" role="dialog" aria-modal="true" aria-label="Menu">
+    <button type="button" class="icon-btn absolute right-5 top-5" data-menu-close aria-label="Close menu">
+      <Icon name="close" class="h-[18px] w-[18px]" />
+    </button>
+
+    <p class="wall-label mt-2">
+      <span>{studio.years} years</span>
+      <span class="wall-label__sep">/</span>
+      <span>{studio.cities.join(' · ')}</span>
+    </p>
+
+    <nav aria-label="Mobile" class="mt-8">
+      <ul class="flex flex-col">
+        {
+          nav.map((item, i) => (
+            <li class="overflow-hidden">
+              <a href={item.href} class="mobile-link" style={`--i:${i}`} data-menu-close>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="mt-10 border-t border-[var(--color-hairline-dark)] pt-8">
+      <a href="/contact/" class="btn btn--ghost" data-menu-close>Start a project</a>
+
+      <ul class="mt-8 flex gap-2">
+        {
+          socials.map((s) => (
+            <li>
+              <a
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="icon-btn"
+                aria-label={s.name}
+              >
+                <Icon name={s.icon} class="h-[18px] w-[18px]" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</div>
+
+<SearchOverlay client:idle placeholder={search.placeholder} closeLabel={search.closeLabel} />
+
+<style>
+  /* Solid and opaque at every scroll position and every breakpoint.
+     It used to start transparent and fade a background in past 40px, animated
+     alongside a transform — three properties changing at once, which is what
+     made it shimmer while resizing and read as see-through over the hero.
+     One fixed, opaque bar has no states to get wrong. */
+  .header-shell {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem var(--spacing-gutter);
+    background-color: var(--color-salt);
+    border-bottom: 1px solid var(--color-hairline);
+  }
+  @media (min-width: 1024px) {
+    .header-shell {
+      padding: 1.125rem 2.5rem;
+    }
+  }
+
+  /* --- Scroll thread ---------------------------------------------------- */
+  .header-thread {
+    display: block;
+    height: 2px;
+    background: transparent;
+  }
+  .header-thread > span {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: var(--gradient-brand);
+    transform-origin: left;
+  }
+
+  /* --- Nav -------------------------------------------------------------- */
+  .nav-link {
+    position: relative;
+    display: inline-block;
+    padding-block: 2px;
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+  }
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 1.5px;
+    border-radius: 2px;
+    background: var(--gradient-brand);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform var(--duration-micro) var(--ease-signature);
+  }
+  .nav-link:hover::after,
+  .nav-link:focus-visible::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  /* --- Icon buttons ----------------------------------------------------- */
+  .icon-btn {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    color: currentColor;
+    transition:
+      border-color var(--duration-micro) var(--ease-soft),
+      color var(--duration-micro) var(--ease-soft),
+      transform var(--duration-micro) var(--ease-overshoot);
+  }
+  .icon-btn:hover,
+  .icon-btn:focus-visible {
+    border-color: var(--color-hairline);
+    color: var(--color-signal-deep);
+    transform: scale(1.08);
+  }
+  :global(.band-ink) .icon-btn:hover,
+  :global(.band-ink) .icon-btn:focus-visible {
+    border-color: var(--color-hairline-dark);
+    color: var(--color-verde);
+  }
+
+  /* --- Mobile panel ----------------------------------------------------- */
+  .mobile-panel {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+  }
+  .mobile-panel[hidden] {
+    display: none;
+  }
+  .mobile-panel__backdrop {
+    position: absolute;
+    inset: 0;
+    background: color-mix(in srgb, var(--color-ink) 55%, transparent);
+    opacity: 0;
+    transition: opacity var(--duration-micro) var(--ease-soft);
+  }
+  .mobile-panel__sheet {
+    position: absolute;
+    inset-block: 0;
+    right: 0;
+    width: min(92vw, 400px);
+    padding: 2rem 1.75rem;
+    overflow-y: auto;
+    clip-path: inset(0 0 0 100%);
+    transition: clip-path var(--duration-layout) var(--ease-signature);
+  }
+  .mobile-panel.is-open .mobile-panel__backdrop {
+    opacity: 1;
+  }
+  .mobile-panel.is-open .mobile-panel__sheet {
+    clip-path: inset(0 0 0 0%);
+  }
+
+  .mobile-link {
+    display: block;
+    padding-block: 0.35rem;
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: var(--text-h3);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    transform: translateY(110%);
+    transition: transform var(--duration-layout) var(--ease-entrance);
+    transition-delay: calc(var(--i) * 55ms);
+  }
+  .mobile-panel.is-open .mobile-link {
+    transform: translateY(0);
+  }
+  .mobile-link:hover,
+  .mobile-link:focus-visible {
+    color: var(--color-verde);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mobile-panel__sheet,
+    .mobile-link,
+    .nav-link::after,
+    .icon-btn {
+      transition: none;
+      clip-path: none;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  function setupMenu() {
+    const panel = document.querySelector<HTMLElement>('[data-mobile-panel]');
+    const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+    if (!panel || !toggle) return;
+
+    let lastFocused: HTMLElement | null = null;
+
+    const focusables = () =>
+      Array.from(panel.querySelectorAll<HTMLElement>('a[href], button:not([disabled])')).filter(
+        (el) => el.offsetParent !== null,
+      );
+
+    const open = () => {
+      lastFocused = document.activeElement as HTMLElement;
+      panel.hidden = false;
+      requestAnimationFrame(() => panel.classList.add('is-open'));
+      toggle.setAttribute('aria-expanded', 'true');
+      document.documentElement.setAttribute('data-overlay-open', 'menu');
+      document.body.style.overflow = 'hidden';
+      document.dispatchEvent(new CustomEvent('overlay:open'));
+      focusables()[0]?.focus();
+    };
+
+    const close = () => {
+      panel.classList.remove('is-open');
+      toggle.setAttribute('aria-expanded', 'false');
+      document.documentElement.removeAttribute('data-overlay-open');
+      document.body.style.overflow = '';
+      document.dispatchEvent(new CustomEvent('overlay:close'));
+      lastFocused?.focus();
+      const done = () => {
+        panel.hidden = true;
+        panel.removeEventListener('transitionend', done);
+      };
+      panel.addEventListener('transitionend', done);
+      setTimeout(done, 700);
+    };
+
+    toggle.addEventListener('click', () =>
+      panel.classList.contains('is-open') ? close() : open(),
+    );
+    panel.querySelectorAll('[data-menu-close]').forEach((el) =>
+      el.addEventListener('click', close),
+    );
+
+    panel.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') return close();
+      if (e.key !== 'Tab') return;
+      const items = focusables();
+      if (!items.length) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+  }
+
+  document.addEventListener('astro:page-load', setupMenu);
+</script>

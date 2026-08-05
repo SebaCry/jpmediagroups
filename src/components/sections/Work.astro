@@ -1,0 +1,308 @@
+---
+import { Image } from 'astro:assets';
+import WallLabel from '../WallLabel.astro';
+import Icon from '../Icon.astro';
+import { work } from '../../content/site';
+import { plate } from '../../lib/images';
+
+// The expanding gallery needs something in every frame to demonstrate the
+// mechanic. Until real case studies land, each slot holds one of the abstract
+// plates — generated in-repo, so nothing here is licensed from anyone.
+const PLATES = [
+  'plate-signal.webp',
+  'plate-mineral.webp',
+  'plate-deep.webp',
+  'plate-counter.webp',
+  'plate-horizon.webp',
+];
+
+const items = work.items.map((item, i) => ({ ...item, plate: PLATES[i % PLATES.length] }));
+---
+
+<section id="work" class="section" data-placeholder={work.status}>
+  <div class="shell">
+    <WallLabel items={work.label} />
+    <h2 data-reveal="lines" class="work__title display-title">
+      {work.titleLines.map((line) => <span data-line class="block">{line}</span>)}
+    </h2>
+    <p class="work__note lead">{work.note}</p>
+  </div>
+
+  {/* Expanding gallery. Resting frames sit at 45% width and open to 100%; the
+      image frame shortens to make room for the caption and the title rises out
+      of its mask. Driven by an `is-active` class so pointer, keyboard focus and
+      tap all reach the same state. */}
+  <div class="gallery-wrap">
+    <ul class="gallery" data-gallery>
+      {
+        items.map((item, i) => (
+          <li class="gallery__item" class:list={[i === 0 && 'is-active']} data-gallery-item>
+            <button
+              type="button"
+              class="gallery__link"
+              data-gallery-trigger
+              aria-expanded={i === 0 ? 'true' : 'false'}
+            >
+              <span class="gallery__inner">
+                <span class="gallery__frame" data-reveal="clip">
+                  <Image
+                    src={plate(item.plate)}
+                    alt=""
+                    widths={[420, 720, 1100]}
+                    sizes="(min-width: 1024px) 45vw, 88vw"
+                    loading="lazy"
+                    class="gallery__img"
+                  />
+                </span>
+
+                <span class="gallery__body">
+                  <span class="gallery__meta">
+                    {item.discipline}
+                    <span class="wall-label__sep" aria-hidden="true"> / </span>
+                    {item.city}
+                  </span>
+                  <span class="gallery__title-box">
+                    <span class="gallery__name">{item.title}</span>
+                  </span>
+                  <span class="gallery__more">
+                    Case study pending
+                    <Icon name="arrow-right" class="h-3.5 w-3.5" />
+                  </span>
+                </span>
+              </span>
+            </button>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .work__title {
+    font-size: var(--text-h1);
+    font-weight: 800;
+  }
+  .work__note {
+    max-width: 52ch;
+    margin-top: 1.25rem;
+  }
+
+  .gallery-wrap {
+    margin-top: 3.5rem;
+    padding-inline: var(--spacing-gutter);
+  }
+
+  .gallery {
+    display: flex;
+    gap: 14px;
+    margin: 0 auto;
+    padding: 0;
+    max-width: var(--container-shell);
+    list-style: none;
+  }
+
+  .gallery__item {
+    width: 45%;
+    overflow: hidden;
+    transition: width var(--duration-layout) var(--ease-signature);
+  }
+  .gallery__item.is-active {
+    width: 100%;
+  }
+
+  .gallery__link {
+    display: block;
+    width: 100%;
+    text-align: left;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .gallery__inner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 560px;
+  }
+
+  .gallery__frame {
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 100%;
+    overflow: hidden;
+    transition: height var(--duration-layout) var(--ease-signature);
+  }
+  .gallery__item.is-active .gallery__frame {
+    height: 410px;
+  }
+
+  .gallery__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.06);
+    transition: transform var(--duration-media) var(--ease-signature);
+    will-change: transform;
+  }
+  .gallery__item.is-active .gallery__img {
+    transform: scale(1);
+  }
+
+  .gallery__body {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    padding-top: 1rem;
+  }
+
+  .gallery__meta {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+      opacity var(--duration-layout) var(--ease-signature),
+      transform var(--duration-layout) var(--ease-signature);
+  }
+  .gallery__item.is-active .gallery__meta {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .gallery__title-box {
+    display: block;
+    overflow: hidden;
+    margin-top: 0.35rem;
+  }
+  .gallery__name {
+    position: relative;
+    top: 1.2em;
+    display: block;
+    font-family: var(--font-display);
+    font-size: var(--text-h3);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    transition: top var(--duration-layout) var(--ease-signature);
+  }
+  .gallery__item.is-active .gallery__name {
+    top: 0;
+  }
+
+  .gallery__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.35rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-signal-deep);
+    opacity: 0;
+    transition: opacity 0.5s var(--ease-signature);
+  }
+  .gallery__item.is-active .gallery__more {
+    opacity: 1;
+  }
+
+  /* --- Mobile / tablet: a snap carousel, every card fully open ----------- */
+  @media (max-width: 1023px) {
+    .gallery-wrap {
+      padding-inline: 0;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+    }
+    .gallery-wrap::-webkit-scrollbar {
+      display: none;
+    }
+    .gallery {
+      gap: 12px;
+      padding-inline: var(--spacing-gutter);
+      max-width: none;
+      width: max-content;
+    }
+    .gallery__item,
+    .gallery__item.is-active {
+      width: min(78vw, 400px);
+      scroll-snap-align: center;
+    }
+    .gallery__inner {
+      height: 420px;
+    }
+    .gallery__frame,
+    .gallery__item.is-active .gallery__frame {
+      height: 320px;
+    }
+    .gallery__img,
+    .gallery__item.is-active .gallery__img {
+      transform: scale(1);
+    }
+    .gallery__meta,
+    .gallery__more {
+      opacity: 1;
+      transform: none;
+    }
+    .gallery__name {
+      top: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gallery__item,
+    .gallery__frame,
+    .gallery__img,
+    .gallery__name,
+    .gallery__meta,
+    .gallery__more {
+      transition: none;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .work__title,
+    .work__note,
+    :global(#work) > .shell > .wall-label {
+      margin-inline-start: var(--rail);
+    }
+  }
+</style>
+
+<script>
+  function setupGallery() {
+    document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((gallery) => {
+      const items = Array.from(gallery.querySelectorAll<HTMLElement>('[data-gallery-item]'));
+      if (!items.length) return;
+
+      const activate = (item: HTMLElement) => {
+        if (item.classList.contains('is-active')) return;
+        items.forEach((el) => {
+          const on = el === item;
+          el.classList.toggle('is-active', on);
+          el.querySelector('[data-gallery-trigger]')?.setAttribute('aria-expanded', String(on));
+        });
+      };
+
+      items.forEach((item) => {
+        const trigger = item.querySelector<HTMLElement>('[data-gallery-trigger]');
+        item.addEventListener('pointerenter', () => activate(item));
+        trigger?.addEventListener('focus', () => activate(item));
+        trigger?.addEventListener('click', () => activate(item));
+      });
+
+      gallery.addEventListener('pointerleave', () => activate(items[0]));
+    });
+  }
+
+  document.addEventListener('astro:page-load', setupGallery);
+</script>

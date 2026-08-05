@@ -1,0 +1,30 @@
+---
+/**
+ * The wall label — the page's signature device.
+ *
+ * A gallery hangs work with a small card stating what the thing is: title,
+ * medium, place, year. This studio shoots across five disciplines and four
+ * cities, so every block on the page gets the same treatment. The label is the
+ * only place the page says plainly what it is looking at, which is the job a
+ * wall label actually does — it is not decoration, and it is not numbered,
+ * because these sections are not a sequence.
+ */
+interface Props {
+  /** Two or three short facts. Rendered mono, separated by a hairline slash. */
+  items: string[];
+  class?: string;
+}
+
+const { items, class: className = '' } = Astro.props;
+---
+
+<p class:list={['wall-label', className]}>
+  {
+    items.map((item, i) => (
+      <>
+        {i > 0 && <span class="wall-label__sep" aria-hidden="true">/</span>}
+        <span>{item}</span>
+      </>
+    ))
+  }
+</p>

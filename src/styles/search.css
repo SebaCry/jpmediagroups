@@ -1,0 +1,270 @@
+/* ============================================================================
+   SEARCH OVERLAY
+   Styles for the Preact island in src/components/SearchOverlay.tsx.
+   Lives in plain CSS because the island renders client-side.
+
+   The panel unrolls from the top edge with a clip-path wipe while the field's
+   rule draws across in the identity gradient — the same gesture the nav links
+   and form fields use, so the whole page shares one idea about how a line
+   arrives.
+   ========================================================================= */
+
+.search-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+}
+.search-overlay.is-open {
+  pointer-events: auto;
+}
+
+.search-overlay__scrim {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--color-ink) 42%, transparent);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  transition: opacity var(--duration-micro) var(--ease-soft);
+}
+.search-overlay.is-open .search-overlay__scrim {
+  opacity: 1;
+}
+
+.search-overlay__panel {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  padding: clamp(2rem, 7vh, 5rem) var(--spacing-gutter) clamp(2rem, 5vh, 3.5rem);
+  background: var(--color-chalk);
+  border-bottom: 1px solid var(--color-hairline);
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path var(--duration-layout) var(--ease-signature);
+}
+.search-overlay.is-open .search-overlay__panel {
+  clip-path: inset(0 0 0% 0);
+}
+
+@media (min-width: 768px) {
+  .search-overlay__panel {
+    padding-inline: clamp(2rem, 7vw, 6rem);
+  }
+}
+
+/* --- Close ---------------------------------------------------------------- */
+.search-overlay__close {
+  position: absolute;
+  top: clamp(1rem, 3vh, 2rem);
+  right: var(--spacing-gutter);
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid var(--color-hairline);
+  transition:
+    border-color var(--duration-micro) var(--ease-soft),
+    transform var(--duration-micro) var(--ease-overshoot);
+}
+.search-overlay__close span {
+  position: absolute;
+  width: 16px;
+  height: 1.5px;
+  border-radius: 2px;
+  background: var(--color-ink);
+  transition: transform var(--duration-micro) var(--ease-signature);
+}
+.search-overlay__close span:first-child {
+  transform: rotate(45deg);
+}
+.search-overlay__close span:last-child {
+  transform: rotate(-45deg);
+}
+.search-overlay__close:hover,
+.search-overlay__close:focus-visible {
+  border-color: var(--color-signal-deep);
+  transform: scale(1.06);
+}
+.search-overlay__close:hover span:first-child {
+  transform: rotate(135deg);
+}
+.search-overlay__close:hover span:last-child {
+  transform: rotate(45deg);
+}
+
+/* --- Field ---------------------------------------------------------------- */
+.search-overlay__form {
+  position: relative;
+  margin-inline: auto;
+  max-width: var(--container-shell);
+}
+
+.search-overlay__field {
+  width: 100%;
+  padding-block: 0.4em 0.5em;
+  background: transparent;
+  border: 0;
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 1rem + 3.6vw, 3.25rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  outline: none;
+}
+.search-overlay__field::placeholder {
+  color: var(--color-hairline);
+  opacity: 1;
+}
+.search-overlay__field:focus-visible {
+  outline: none;
+}
+
+.search-overlay__rule {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--color-hairline);
+}
+.search-overlay__rule::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--gradient-brand);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--duration-layout) var(--ease-signature);
+}
+.search-overlay.is-open .search-overlay__rule::after {
+  transform: scaleX(1);
+}
+
+/* --- Status --------------------------------------------------------------- */
+.search-overlay__status {
+  margin-inline: auto;
+  margin-top: 1.25rem;
+  max-width: var(--container-shell);
+  min-height: 1.5rem;
+}
+.search-overlay__hint {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+}
+.search-overlay__hint--busy {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  color: var(--color-ink);
+}
+.search-overlay__hint--error {
+  color: var(--color-counter);
+}
+.search-overlay__hint code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  color: var(--color-ink);
+}
+
+.search-spinner {
+  width: 13px;
+  height: 13px;
+  border: 1.5px solid var(--color-hairline);
+  border-top-color: var(--color-signal);
+  border-radius: 999px;
+  animation: search-spin 700ms linear infinite;
+}
+@keyframes search-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+/* --- Results -------------------------------------------------------------- */
+.search-overlay__results {
+  margin-inline: auto;
+  margin-top: 1.5rem;
+  max-width: var(--container-shell);
+  max-height: min(44vh, 28rem);
+  overflow-y: auto;
+  list-style: none;
+  padding: 0;
+}
+
+.search-result {
+  border-top: 1px solid var(--color-hairline);
+  animation: search-hit var(--duration-layout) var(--ease-entrance) both;
+  animation-delay: calc(var(--i) * 55ms);
+}
+@keyframes search-hit {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+.search-result__link {
+  display: block;
+  padding: 1rem 0;
+  color: var(--color-muted);
+  transition:
+    padding-inline-start var(--duration-micro) var(--ease-signature),
+    color var(--duration-micro) var(--ease-soft);
+}
+.search-result__link:hover,
+.search-result__link:focus-visible {
+  padding-inline-start: 1rem;
+  color: var(--color-ink);
+}
+
+.search-result__title {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--text-h4);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--color-ink);
+  transition: color var(--duration-micro) var(--ease-soft);
+}
+.search-result__link:hover .search-result__title {
+  color: var(--color-signal-deep);
+}
+
+.search-result__excerpt {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+.search-result__excerpt mark {
+  background: color-mix(in srgb, var(--color-verde) 45%, transparent);
+  color: var(--color-ink);
+  padding-inline: 2px;
+}
+
+/* --- Reduced motion: the panel simply appears ----------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .search-overlay__panel,
+  .search-overlay__rule::after,
+  .search-result__link,
+  .search-overlay__close span {
+    transition: none;
+  }
+  .search-overlay__panel {
+    clip-path: none;
+    display: none;
+  }
+  .search-overlay.is-open .search-overlay__panel {
+    display: block;
+  }
+  .search-result {
+    animation: none;
+  }
+  .search-spinner {
+    animation-duration: 1.6s;
+  }
+}

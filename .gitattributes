@@ -1,0 +1,13 @@
+# Normalise line endings. The repo stores LF; Windows checkouts still get CRLF
+# locally. Without this, every file edited on Windows shows up as fully rewritten
+# in a diff, and the Linux build hosts see stray CR characters.
+* text=auto eol=lf
+
+# Never touch binaries.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.webp  binary
+*.avif  binary
+*.woff2 binary
+*.ico   binary

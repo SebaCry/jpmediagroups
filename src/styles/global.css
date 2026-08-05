@@ -1,0 +1,262 @@
+@import 'tailwindcss';
+@import './theme.css';
+@import './ui.css';
+@import './search.css';
+
+/* ============================================================================
+   FONTS — self-hosted, latin subset only (the site is English-only).
+   Syne and Archivo are variable, so each family is one file covering its whole
+   weight range. All three are preloaded, so `swap` never actually swaps.
+   ========================================================================= */
+
+@font-face {
+  font-family: 'Syne';
+  src: url('/fonts/syne-var.woff2') format('woff2-variations');
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Archivo';
+  src: url('/fonts/archivo-var.woff2') format('woff2-variations');
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DM Mono';
+  src: url('/fonts/dm-mono-400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ============================================================================
+   BASE
+   ========================================================================= */
+
+@layer base {
+  html {
+    background-color: var(--color-salt);
+    color: var(--color-ink);
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: auto;
+  }
+
+  /* Lenis drives scrolling; without JS the page scrolls natively. */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
+
+  body {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.65;
+    overflow-x: clip;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--color-ink);
+    margin: 0;
+  }
+
+  /* Deliberately NOT `text-wrap: balance` on headings. Every display heading
+     here carries authored line breaks as <span data-line> blocks, and balancing
+     fights them — it narrows the inline box and re-wraps lines that were meant
+     to stand. Balance is opt-in, for headings without authored breaks. */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  h1 { font-size: var(--text-h1); line-height: 0.98; letter-spacing: -0.03em; }
+  h2 { font-size: var(--text-h2); line-height: 1.02; letter-spacing: -0.025em; }
+  h3 { font-size: var(--text-h3); line-height: 1.1; letter-spacing: -0.02em; }
+  h4 { font-size: var(--text-h4); line-height: 1.2; letter-spacing: -0.015em; }
+
+  p {
+    margin: 0;
+    text-wrap: pretty;
+  }
+
+  a {
+    color: var(--color-signal-deep);
+    text-decoration: none;
+    transition: color var(--duration-micro) var(--ease-soft);
+  }
+  a:hover {
+    color: var(--color-abyss);
+  }
+
+  img,
+  svg,
+  video {
+    display: block;
+    max-width: 100%;
+  }
+
+  ::selection {
+    background: var(--color-verde);
+    color: var(--color-ink);
+  }
+
+  /* --- Focus -----------------------------------------------------------
+     Visible on every interactive element. Never removed.                   */
+  :focus-visible {
+    outline: 2px solid var(--color-signal-deep);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* On the dark bands the blue ring would disappear, so it flips to green —
+     the same blue-on-light / green-on-dark rule the palette runs on. */
+  .band-ink :focus-visible {
+    outline-color: var(--color-verde);
+  }
+
+  .skip-link {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    z-index: 200;
+    translate: -50% -120%;
+    padding: 0.75rem 1.5rem;
+    background: var(--color-ink);
+    color: var(--color-salt);
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    transition: translate var(--duration-micro) var(--ease-entrance);
+  }
+  .skip-link:focus-visible {
+    translate: -50% 0;
+  }
+}
+
+/* ============================================================================
+   MOTION PRIMITIVES
+   Hidden states are applied by GSAP, never here — if the motion module fails
+   to load, the page still renders complete. These classes only declare intent.
+   ========================================================================= */
+
+@layer components {
+  [data-reveal='clip'] {
+    will-change: clip-path;
+  }
+  [data-reveal='rise'] > * {
+    will-change: transform, opacity;
+  }
+
+  .line-mask {
+    display: block;
+    overflow: hidden;
+  }
+  .line-mask > span {
+    display: block;
+    will-change: transform;
+  }
+
+  .char {
+    display: inline-block;
+    will-change: transform, opacity;
+    transform-origin: 50% 100%;
+  }
+
+  [data-scroll-zoom] img {
+    will-change: transform;
+  }
+}
+
+/* ============================================================================
+   REDUCED MOTION — the full page, standing still.
+   ========================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  [data-reveal='clip'] {
+    clip-path: none !important;
+  }
+
+  [data-reveal] > *,
+  .char,
+  .line-mask > span {
+    opacity: 1 !important;
+    transform: none !important;
+    translate: none !important;
+    rotate: none !important;
+    scale: none !important;
+  }
+
+  [data-marquee] {
+    animation: none !important;
+  }
+  [data-marquee] > *:not(:first-child) {
+    display: none;
+  }
+}
+
+/* No-JS safety net. Every hidden state is applied by GSAP, so a page without
+   JS is already complete — these only guard against a half-initialised module. */
+html.no-js [data-reveal='clip'] {
+  clip-path: none !important;
+}
+html.no-js [data-reveal] > *,
+html.no-js .char,
+html.no-js .line-mask > span {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* ============================================================================
+   DEV-ONLY: pending-content marker.
+   `data-placeholder` marks anything still waiting on the client — bios, real
+   case studies, prices, testimonials. The badge only renders when BaseLayout
+   sets `data-dev-placeholders` on <html>, which happens only in `astro dev`.
+   ========================================================================= */
+
+/* html[data-dev-placeholders] [data-placeholder] {
+  position: relative;
+  outline: 1px dashed var(--color-counter);
+  outline-offset: 6px;
+}
+
+html[data-dev-placeholders] [data-placeholder]::after {
+  content: 'PENDIENTE — falta contenido del cliente';
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 90;
+  padding: 2px 8px;
+  background: var(--color-counter);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  pointer-events: none;
+} */

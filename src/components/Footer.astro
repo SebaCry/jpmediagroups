@@ -1,0 +1,187 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../assets/images/logo-lockup-inverse.png';
+import Icon from './Icon.astro';
+import WallLabel from './WallLabel.astro';
+import { contact, socials, studio, nav } from '../content/site';
+
+const year = 2026;
+---
+
+<footer id="contact" data-pagefind-ignore data-band class="band-ink">
+  <div class="shell section">
+    <div class="footer__top">
+      <div>
+        <WallLabel items={contact.label} />
+        <h2 data-reveal="lines" class="footer__title display-title">
+          {contact.titleLines.map((line) => <span data-line class="block">{line}</span>)}
+        </h2>
+
+        <a href="/contact/" class="btn btn--ghost mt-8" data-magnetic="0.2">
+          Start a project
+          <Icon name="arrow-right" class="h-4 w-4" />
+        </a>
+      </div>
+
+      <div class="footer__details" data-placeholder={contact.status}>
+        <div>
+          <p class="footer__label">Email</p>
+          <p class="footer__value">{contact.email}</p>
+        </div>
+        <div>
+          <p class="footer__label">Phone</p>
+          <p class="footer__value">{contact.phone}</p>
+        </div>
+        <div>
+          <p class="footer__label">Working from</p>
+          <p class="footer__value">{contact.locations}</p>
+        </div>
+      </div>
+    </div>
+
+    <hr class="rule my-12" />
+
+    <div class="footer__bottom">
+      <a href="/" aria-label="JP Media Groups — home">
+        <Image src={logo} alt="JP Media Groups" widths={[200, 400]} loading="lazy" class="h-8 w-auto" />
+      </a>
+
+      <nav aria-label="Footer">
+        <ul class="footer__nav">
+          {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+        </ul>
+      </nav>
+
+      <ul class="footer__socials">
+        {
+          socials.map((s) => (
+            <li>
+              <a
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="footer__social"
+                data-magnetic="0.3"
+                aria-label={s.name}
+              >
+                <Icon name={s.icon} class="h-[18px] w-[18px]" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <p class="footer__legal">
+      © {year} JP Media Groups. {studio.years} years across {studio.cities.join(', ')}.
+    </p>
+  </div>
+</footer>
+
+<style>
+  .footer__top {
+    display: grid;
+    gap: 3rem;
+  }
+  @media (min-width: 1024px) {
+    .footer__top {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: 5rem;
+    }
+  }
+
+  .footer__title {
+    font-size: var(--text-h1);
+    font-weight: 800;
+  }
+
+  .footer__details {
+    display: grid;
+    gap: 1.75rem;
+    align-content: start;
+  }
+  @media (min-width: 640px) {
+    .footer__details {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .footer__label {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #8ba3a8;
+  }
+  .footer__value {
+    margin-top: 0.35rem;
+    font-size: 1.0625rem;
+    color: #fff;
+  }
+
+  .footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+
+  .footer__nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 0.9375rem;
+  }
+  .footer__nav a {
+    color: #d8e0e2;
+  }
+  .footer__nav a:hover {
+    color: var(--color-verde);
+  }
+
+  .footer__socials {
+    display: flex;
+    gap: 0.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .footer__social {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--color-hairline-dark);
+    border-radius: 999px;
+    color: #fff;
+    transition:
+      background-color var(--duration-micro) var(--ease-soft),
+      border-color var(--duration-micro) var(--ease-soft),
+      color var(--duration-micro) var(--ease-soft);
+  }
+  .footer__social:hover,
+  .footer__social:focus-visible {
+    background: var(--color-verde);
+    border-color: var(--color-verde);
+    color: var(--color-ink);
+  }
+
+  .footer__legal {
+    margin-top: 2.5rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #7e969b;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .footer__social {
+      transition: none;
+    }
+  }
+</style>

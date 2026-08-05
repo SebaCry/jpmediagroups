@@ -1,0 +1,125 @@
+---
+import WallLabel from '../WallLabel.astro';
+import Icon from '../Icon.astro';
+import { plans } from '../../content/site';
+---
+
+<section id="plans" class="section" data-placeholder={plans.status}>
+  <div class="shell">
+    <WallLabel items={plans.label} />
+    <h2 data-reveal="lines" class="plans__title display-title">
+      {plans.titleLines.map((line) => <span data-line class="block">{line}</span>)}
+    </h2>
+
+    <ul class="plans__grid" data-reveal="rise">
+      {
+        plans.items.map((plan) => (
+          <li class:list={['plan', plan.featured && 'plan--featured']}>
+            <h3 class="plan__title">{plan.title}</h3>
+            <p class="plan__summary">{plan.summary}</p>
+
+            <p class="plan__price">{plan.price}</p>
+
+            <a href="/contact/" class="btn btn--ghost plan__cta" data-magnetic="0.16">
+              {plans.cta}
+              <Icon name="arrow-right" class="h-4 w-4" />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .plans__title {
+    font-size: var(--text-h1);
+    font-weight: 800;
+    margin-bottom: 3rem;
+  }
+
+  .plans__grid {
+    display: grid;
+    gap: 1px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background: var(--color-hairline);
+    border: 1px solid var(--color-hairline);
+  }
+  @media (min-width: 768px) {
+    .plans__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .plan {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 2rem 1.75rem;
+    background: var(--color-salt);
+    transition: background-color var(--duration-micro) var(--ease-soft);
+  }
+  .plan:hover {
+    background: var(--color-chalk);
+  }
+
+  /* The featured column gets the identity stroke along its top edge — the only
+     thing distinguishing it, so the emphasis stays quiet. */
+  .plan--featured {
+    position: relative;
+    background: var(--color-chalk);
+  }
+  .plan--featured::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: var(--gradient-brand);
+  }
+
+  .plan__title {
+    font-size: var(--text-h4);
+    font-weight: 700;
+  }
+
+  .plan__summary {
+    color: var(--color-muted);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+
+  .plan__price {
+    margin-top: auto;
+    padding-top: 1.5rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .plan__cta {
+    align-self: flex-start;
+    margin-top: 0.75rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .plan {
+      transition: none;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .plans__title,
+    .plans__grid,
+    :global(#plans) > .shell > .wall-label {
+      padding-left: 0;
+    }
+    .plans__title,
+    :global(#plans) > .shell > .wall-label {
+      margin-inline-start: var(--rail);
+    }
+  }
+</style>

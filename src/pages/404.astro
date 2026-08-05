@@ -1,0 +1,28 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import WallLabel from '../components/WallLabel.astro';
+import Marquee from '../components/sections/Marquee.astro';
+---
+
+<BaseLayout title="Page not found — JP Media Groups" description="That page does not exist.">
+  <section class="section flex min-h-svh flex-col justify-center pt-[var(--header-height)]">
+    <div class="shell">
+      <WallLabel items={['Error 404', 'Not found']} />
+      <h1 data-reveal="lines" class="display-title text-[length:var(--text-h1)] font-extrabold">
+        <span data-line class="block">This page</span>
+        <span data-line class="block">doesn't exist</span>
+      </h1>
+      <div data-reveal="rise" class="mt-8">
+        <p class="lead max-w-[44ch]">
+          The link may be outdated, or the page may have moved when the site was rebuilt.
+        </p>
+        <a href="/" class="btn btn--primary mt-8" data-magnetic="0.2">
+          <span class="btn__label">Back to home</span>
+          <span class="btn__fill" aria-hidden="true"></span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <Marquee source="cities" />
+</BaseLayout>

@@ -1,0 +1,237 @@
+---
+import { Image } from 'astro:assets';
+import WallLabel from '../WallLabel.astro';
+import { team } from '../../content/site';
+import { portrait } from '../../lib/images';
+
+// Each member resolves to a real portrait once the file lands in
+// src/assets/team/. Until then the slot renders an empty frame rather than a
+// stand-in face, so nobody mistakes a placeholder for a real person.
+const members = team.members.map((m) => ({ ...m, image: portrait(m.photo) }));
+const ready = members.filter((m) => m.image).length;
+---
+
+<section id="team" class="section" data-placeholder={ready === members.length ? undefined : team.status}>
+  <div class="shell">
+    <WallLabel items={[...team.label, `${ready}/${members.length} portraits`]} />
+
+    <h2 data-reveal="lines" class="team__title display-title">
+      {
+        team.titleLines.map((line, i) => (
+          <span data-line class:list={['block', i === team.accentLine && 'team__accent']}>
+            {line}
+          </span>
+        ))
+      }
+    </h2>
+  </div>
+
+  {/* The set-piece: on desktop this viewport pins and the track scrubs
+      sideways, which is what buys the portraits full height instead of a
+      quarter of a grid row. Without JS — and on touch — it stays a plain snap
+      carousel, so the behaviour degrades to something that already works
+      rather than to nothing. */}
+  <div class="team__viewport" data-pin-row>
+    <ul class="team__track" data-pin-track>
+      {
+        members.map((m) => (
+          <li class="member">
+            <figure class="member__figure">
+              {m.image ? (
+                <Image
+                  src={m.image}
+                  alt={m.name}
+                  widths={[420, 640, 900]}
+                  sizes="(min-width: 1024px) 36vw, 78vw"
+                  loading="lazy"
+                  class="member__img"
+                  style={`object-position: ${m.focus ?? '50% 20%'}`}
+                />
+              ) : (
+                <span class="frame-empty member__empty">
+                  <span>Portrait</span>
+                  <span class="member__empty-note">{m.photo}</span>
+                </span>
+              )}
+              <span class="member__sheen" aria-hidden="true" />
+            </figure>
+
+            <div class="member__body">
+              <h3 class="member__name">{m.name}</h3>
+              <p class="member__role">{m.role}</p>
+              <p class="member__bio">{m.bio}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .team__title {
+    font-size: var(--text-h1);
+    font-weight: 800;
+    margin-bottom: 2.5rem;
+  }
+  .team__accent {
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* --- Track ------------------------------------------------------------ */
+
+  .team__viewport {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .team__viewport::-webkit-scrollbar {
+    display: none;
+  }
+  /* Added by the motion module once the track is pinned — native scrolling and
+     a pinned translate must not both be live at the same time. */
+  .team__viewport.is-pinned {
+    overflow: hidden;
+    scroll-snap-type: none;
+  }
+
+  .team__track {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.75rem;
+    width: max-content;
+    margin: 0;
+    padding: 0 var(--spacing-gutter);
+    list-style: none;
+    will-change: transform;
+  }
+
+  .member {
+    flex: none;
+    width: min(78vw, 400px);
+    scroll-snap-align: center;
+  }
+
+  @media (min-width: 1024px) {
+    .team__track {
+      gap: 2rem;
+      padding-inline: max(var(--spacing-gutter), calc((100vw - var(--container-shell)) / 2));
+    }
+    .member {
+      width: clamp(320px, 34vw, 500px);
+    }
+  }
+
+  /* --- Portrait --------------------------------------------------------- */
+
+  .member__figure {
+    position: relative;
+    display: block;
+    margin: 0 0 1.25rem;
+    height: min(56vh, 600px);
+    overflow: hidden;
+    background: var(--color-chalk);
+  }
+
+  .member__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* The per-portrait focus point is set inline from content/site.ts —
+       these photos are cropped differently and a centred cover decapitates
+       the full-length one. */
+    /* The portraits come from different shoots — some colour, one black and
+       white. A shared grade at rest makes the row read as one set; each
+       photograph recovers its own colour when it is pointed at. */
+    filter: grayscale(1) contrast(1.05);
+    transform: scale(1.04);
+    transition:
+      filter var(--duration-media) var(--ease-signature),
+      transform var(--duration-media) var(--ease-signature);
+  }
+  .member:hover .member__img,
+  .member:focus-within .member__img {
+    filter: grayscale(0) contrast(1);
+    transform: scale(1);
+  }
+
+  /* A band of light crosses the portrait once, on the way in. */
+  .member__sheen {
+    position: absolute;
+    inset: -40%;
+    background: linear-gradient(
+      104deg,
+      transparent 44%,
+      rgba(255, 255, 255, 0.34) 50%,
+      transparent 56%
+    );
+    transform: translateX(-115%);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .member:hover .member__sheen,
+  .member:focus-within .member__sheen {
+    opacity: 1;
+    transform: translateX(115%);
+    transition:
+      transform 950ms var(--ease-signature),
+      opacity 180ms linear;
+  }
+
+  .member__empty {
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+  .member__empty-note {
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--color-hairline);
+    text-transform: none;
+  }
+
+  /* --- Caption ---------------------------------------------------------- */
+
+  .member__name {
+    font-size: var(--text-h3);
+    font-weight: 700;
+  }
+  .member__role {
+    margin-top: 0.35rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-signal-deep);
+  }
+  .member__bio {
+    margin-top: 0.75rem;
+    max-width: 34ch;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-muted);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .member__img {
+      transition: none;
+      filter: none;
+      transform: none;
+    }
+    .member__sheen {
+      display: none;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .team__title,
+    :global(#team) > .shell > .wall-label {
+      margin-inline-start: var(--rail);
+    }
+  }
+</style>

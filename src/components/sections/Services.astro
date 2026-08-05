@@ -1,0 +1,246 @@
+---
+import { Image } from 'astro:assets';
+import WallLabel from '../WallLabel.astro';
+import { services } from '../../content/site';
+import { plate } from '../../lib/images';
+---
+
+<section id="services" class="section" data-parallax-scope>
+  {/* Colour drifting behind the list, so the light half of the page is never
+      completely still. Decorative only — blurred, low opacity, behind content. */}
+  <Image
+    src={plate('plate-horizon.webp')}
+    alt=""
+    aria-hidden="true"
+    widths={[320]}
+    loading="lazy"
+    data-float
+    data-parallax="0.3"
+    class="floater floater--a"
+  />
+  <Image
+    src={plate('plate-counter.webp')}
+    alt=""
+    aria-hidden="true"
+    widths={[260]}
+    loading="lazy"
+    data-float
+    data-parallax="0.55"
+    class="floater floater--b"
+  />
+
+  <div class="shell">
+    <WallLabel items={services.label} />
+    <h2 data-reveal="lines" class="services__title display-title">
+      {services.titleLines.map((line) => <span data-line class="block">{line}</span>)}
+    </h2>
+
+    {/* A typographic index rather than a grid of cards: five disciplines is a
+        list, and a list is what a studio's capability sheet actually is.
+        Pointing at a line brings its colour plate up beside it. */}
+    <div class="services__body" data-services>
+      <ol class="services__list" data-skew>
+        {
+          services.items.map((item, i) => (
+            <li class="service" data-service={i}>
+              <div class="service__head">
+                <h3 class="service__title">{item.title}</h3>
+                <span class="service__rule" aria-hidden="true" />
+              </div>
+              <p class="service__body">{item.body}</p>
+            </li>
+          ))
+        }
+      </ol>
+
+      <div class="services__preview" aria-hidden="true">
+        {
+          services.items.map((item, i) => (
+            <span class="services__plate" data-service-plate={i}>
+              <Image
+                src={plate(item.plate)}
+                alt=""
+                widths={[380, 620]}
+                sizes="30vw"
+                loading="lazy"
+                class="h-full w-full object-cover"
+              />
+            </span>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* The drifting plates. Sized in vw so they scale with the section, kept off
+     the text column, and dropped entirely on small screens where there is no
+     spare room for decoration. */
+  .floater--a {
+    top: 4%;
+    right: -6%;
+    width: clamp(180px, 22vw, 340px);
+  }
+  .floater--b {
+    bottom: 8%;
+    left: -5%;
+    width: clamp(140px, 16vw, 250px);
+  }
+  @media (max-width: 1023px) {
+    .floater--a,
+    .floater--b {
+      display: none;
+    }
+  }
+
+  .services__title {
+    font-size: var(--text-h1);
+    font-weight: 800;
+  }
+
+  .services__body {
+    display: grid;
+    gap: 2.5rem;
+    margin-top: 3.5rem;
+  }
+  @media (min-width: 1024px) {
+    .services__body {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 0.42fr);
+      gap: 4rem;
+      align-items: start;
+    }
+  }
+
+  .services__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--color-hairline);
+  }
+
+  .service {
+    padding-block: 1.75rem;
+    border-bottom: 1px solid var(--color-hairline);
+  }
+
+  .service__head {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  .service__title {
+    font-size: clamp(1.375rem, 1rem + 1.7vw, 2.125rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    transition: transform var(--duration-micro) var(--ease-signature);
+  }
+
+  /* The rule grows toward the title as it is pointed at — the line is the
+     hover feedback, so the type itself only has to shift a hair. */
+  .service__rule {
+    flex: 1;
+    height: 1.5px;
+    border-radius: 2px;
+    background: var(--gradient-brand);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform var(--duration-layout) var(--ease-signature);
+  }
+
+  .service__body {
+    max-width: 56ch;
+    margin-top: 0.625rem;
+    color: var(--color-muted);
+  }
+
+  .service.is-active .service__title {
+    transform: translateX(0.5rem);
+  }
+  .service.is-active .service__rule {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  /* --- Preview ---------------------------------------------------------- */
+  .services__preview {
+    display: none;
+  }
+  @media (min-width: 1024px) {
+    .services__preview {
+      display: block;
+      position: sticky;
+      top: calc(var(--header-height) + 3rem);
+      aspect-ratio: 4 / 5;
+      overflow: hidden;
+      background: var(--color-chalk);
+      border: 1px solid var(--color-hairline);
+    }
+  }
+
+  .services__plate {
+    position: absolute;
+    inset: 0;
+    clip-path: inset(100% 0 0 0);
+    transition: clip-path var(--duration-layout) var(--ease-signature);
+  }
+  .services__plate[data-active] {
+    clip-path: inset(0 0 0 0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .service__title,
+    .service__rule,
+    .services__plate {
+      transition: none;
+    }
+    /* Without motion the preview would be a blank box, so the first plate
+       simply stays visible. */
+    .services__plate {
+      clip-path: none;
+      opacity: 0;
+    }
+    .services__plate[data-active] {
+      opacity: 1;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .services__title,
+    .services__body,
+    :global(#services) > .shell > .wall-label {
+      margin-inline-start: var(--rail);
+    }
+    .services__body {
+      margin-inline-start: var(--rail);
+    }
+  }
+</style>
+
+<script>
+  // Pointing at (or focusing) a discipline raises its plate. Defaults to the
+  // first, so the preview is never an empty box.
+  function setupServices() {
+    const root = document.querySelector<HTMLElement>('[data-services]');
+    if (!root) return;
+
+    const rows = Array.from(root.querySelectorAll<HTMLElement>('[data-service]'));
+    const plates = Array.from(root.querySelectorAll<HTMLElement>('[data-service-plate]'));
+    if (!rows.length) return;
+
+    const activate = (i: number) => {
+      rows.forEach((r, n) => r.classList.toggle('is-active', n === i));
+      plates.forEach((p, n) => p.toggleAttribute('data-active', n === i));
+    };
+
+    rows.forEach((row, i) => {
+      row.addEventListener('pointerenter', () => activate(i));
+      row.addEventListener('focusin', () => activate(i));
+    });
+
+    activate(0);
+  }
+
+  document.addEventListener('astro:page-load', setupServices);
+</script>
