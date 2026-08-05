@@ -201,6 +201,7 @@ export const team = {
       focus: '50% 6%',
       name: 'Johan Perez',
       role: 'CEO',
+      email: 'contact@jpmediagroups.com',
       bio: 'Co-founded the studio and still sets its direction. Johan makes the calls that decide where JP Media goes next, and stays close to the clients who take us there.',
     },
     {
@@ -209,6 +210,7 @@ export const team = {
       focus: '50% 20%',
       name: 'Alex Gil',
       role: 'Chief Operating Officer',
+      email: 'alex@jpmediagroups.com',
       bio: 'The other half of the studio, and the reason it runs on time. Alex leads the team day to day, sharpens how the work gets made, and delivers when he says he will.',
     },
     {
@@ -217,6 +219,7 @@ export const team = {
       focus: '50% 18%',
       name: 'Valeria Martínez',
       role: 'Operations & Finance Manager',
+      email: 'valeria@jpmediagroups.com',
       bio: 'Holds the line between ambition and arithmetic. Budgets, invoices, payroll, suppliers — Valeria runs the business behind the work so nothing arrives as a surprise.',
     },
     {
@@ -225,6 +228,7 @@ export const team = {
       focus: '50% 16%',
       name: 'Katherine Montoya',
       role: 'Social Media Manager',
+      email: 'katherine@jpmediagroups.com',
       bio: 'Gives the brands a voice and then keeps talking. Katherine runs the channels, grows the communities, and answers every conversation a post sets off.',
     },
   ],

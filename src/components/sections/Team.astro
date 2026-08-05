@@ -59,6 +59,7 @@ const ready = members.filter((m) => m.image).length;
             <div class="member__body">
               <h3 class="member__name">{m.name}</h3>
               <p class="member__role">{m.role}</p>
+              <p class="member__email">{m.email}</p>
               <p class="member__bio">{m.bio}</p>
             </div>
           </li>
@@ -206,7 +207,7 @@ const ready = members.filter((m) => m.image).length;
     font-family: var(--font-mono);
     /* `14.rem` is not a valid length — browsers drop the declaration and the
        role inherits its size instead. 14px expressed properly. */
-    font-size: 1.4rem;
+    font-size: 1.1rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--color-signal-deep);
@@ -217,6 +218,14 @@ const ready = members.filter((m) => m.image).length;
     font-size: 1.2rem;
     line-height: 1.6;
     color: var(--color-muted);
+  }
+
+  .member__email {
+    margin-top: 0.75rem;
+    max-width: 34ch;
+    font-size: 1.2rem;
+    line-height: 1.6;
+    color: var(--text-h1);
   }
 
   @media (prefers-reduced-motion: reduce) {
