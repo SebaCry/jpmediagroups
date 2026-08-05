@@ -51,12 +51,31 @@ export const meta = {
 
 export const hero = {
   label: ['Creative agency', 'Est. 2016'],
+
+  // Two compositions of the same sentence, one per breakpoint.
+  //
+  // The headline size on a phone is capped by its longest line, not by taste:
+  // Syne ExtraBold runs about 0.89em per character, so "Grow your Utah" (14
+  // characters) cannot exceed ~28px at 390px without running off the screen.
+  // The only way to set the type larger is to break it shorter — so the mobile
+  // composition keeps every line at 11 characters or fewer, which lifts the cap
+  // to ~35px. Bigger type, more lines. That is the trade, and it is why the two
+  // lists differ.
   lines: [
     { text: 'Grow your Utah', accent: false },
     { text: 'business with', accent: false },
     { text: 'photography', accent: true },
     { text: '+ marketing', accent: true },
   ],
+  linesMobile: [
+    { text: 'Grow your', accent: false },
+    { text: 'Utah', accent: false },
+    { text: 'business', accent: false },
+    { text: 'with', accent: false },
+    { text: 'photography', accent: true },
+    { text: '+ marketing', accent: true },
+  ],
+
   kicker: 'That actually works',
   primaryCta: { label: 'Start a project', href: '/contact/' },
   // Points at Team while the Work section is held back — "See the work" would
@@ -182,15 +201,15 @@ export const team = {
       focus: '50% 6%',
       name: 'Johan Perez',
       role: 'CEO',
-      bio: 'Sets the studio’s creative direction and stays on the work himself, from the first client conversation through to final delivery.',
+      bio: 'Co-founded the studio and still sets its direction. Johan makes the calls that decide where JP Media goes next, and stays close to the clients who take us there.',
     },
     {
       slot: 'member-2',
       photo: 'member-2.jpg',
       focus: '50% 20%',
       name: 'Alex Gil',
-      role: 'COO',
-      bio: 'Runs production. Plans the shoots, books the crews, and keeps projects moving across every city the studio works in.',
+      role: 'Chief Operating Officer',
+      bio: 'The other half of the studio, and the reason it runs on time. Alex leads the team day to day, sharpens how the work gets made, and delivers when he says he will.',
     },
     {
       slot: 'member-3',
@@ -198,15 +217,15 @@ export const team = {
       focus: '50% 18%',
       name: 'Valeria Martínez',
       role: 'Operations & Finance Manager',
-      bio: 'Handles budgets, contracts and scheduling, so every project starts with a clear scope and a clear number.',
+      bio: 'Holds the line between ambition and arithmetic. Budgets, invoices, payroll, suppliers — Valeria runs the business behind the work so nothing arrives as a surprise.',
     },
     {
       slot: 'member-4',
       photo: 'member-4.jpg',
       focus: '50% 16%',
       name: 'Katherine Montoya',
-      role: 'Community Manager',
-      bio: 'Looks after the day-to-day for the brands the studio works with — content calendars, publishing, and the conversations that follow.',
+      role: 'Social Media Manager',
+      bio: 'Gives the brands a voice and then keeps talking. Katherine runs the channels, grows the communities, and answers every conversation a post sets off.',
     },
   ],
 };

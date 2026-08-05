@@ -5,7 +5,9 @@ import { services } from '../../content/site';
 import { plate } from '../../lib/images';
 ---
 
-<section id="services" class="section" data-parallax-scope>
+{/* `overflow: hidden` because the drifting plates sit at negative insets and
+    move under GSAP — without it they extend the document's scroll width. */}
+<section id="services" class="section overflow-hidden" data-parallax-scope>
   {/* Colour drifting behind the list, so the light half of the page is never
       completely still. Decorative only — blurred, low opacity, behind content. */}
   <Image

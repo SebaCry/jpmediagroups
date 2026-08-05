@@ -16,24 +16,35 @@ import { hero, studio } from '../../content/site';
           a screen reader — so it is hidden and the sentence is exposed once. */}
       <span class="sr-only">{hero.lines.map((l) => l.text).join(' ')} {hero.kicker}</span>
 
-      <span aria-hidden="true">
-        {
-          /* Plain lines are split into characters and staggered. The accent
-             lines are NOT: gradient text is clipped to the element's own text,
-             and per-character spans each carry their own transform, which
-             breaks the clip and renders them invisible. They rise as whole
-             lines instead — which also lands the accent as one gesture. */
-          hero.lines.map((line) =>
-            line.accent ? (
-              <span data-hero-block class="hero__line hero__line--accent">
-                <span>{line.text}</span>
-              </span>
-            ) : (
-              <span data-hero-line class="hero__line">{line.text}</span>
-            ),
-          )
-        }
-      </span>
+      {
+        /* Both compositions are rendered and one is shown per breakpoint. The
+           whole visual block is already hidden from assistive tech — the
+           sentence above is what gets read — so duplicating it costs nothing
+           but a few spans, and it lets each breakpoint set its own line breaks
+           and its own size.
+
+           Plain lines are split into characters and staggered. The accent lines
+           are NOT: gradient text is clipped to the element's own text, and
+           per-character spans each carry their own transform, which breaks the
+           clip and renders them invisible. They rise as whole lines instead —
+           which also lands the accent as one gesture. */
+        [
+          { set: hero.lines, cls: 'hero__set--wide' },
+          { set: hero.linesMobile, cls: 'hero__set--narrow' },
+        ].map(({ set, cls }) => (
+          <span class:list={['hero__set', cls]} aria-hidden="true">
+            {set.map((line) =>
+              line.accent ? (
+                <span data-hero-block class="hero__line hero__line--accent">
+                  <span>{line.text}</span>
+                </span>
+              ) : (
+                <span data-hero-line class="hero__line">{line.text}</span>
+              ),
+            )}
+          </span>
+        ))
+      }
     </h1>
 
     <p data-hero-trail class="hero__kicker">{hero.kicker}</p>
@@ -96,13 +107,54 @@ import { hero, studio } from '../../content/site';
     font-weight: 800;
   }
 
+  /* One composition per breakpoint. The switch is at 560px because that is
+     where the wide set's 14-character line starts fitting comfortably again. */
+  .hero__set {
+    display: block;
+  }
+  .hero__set--wide {
+    display: none;
+  }
+  @media (min-width: 560px) {
+    .hero__set--wide {
+      display: block;
+    }
+    .hero__set--narrow {
+      display: none;
+    }
+  }
+
+  /* Phone sizing is driven by the narrow set's longest line ("photography",
+     11 characters), which is what allows ~35px at 390px instead of ~28px. */
+  @media (max-width: 559px) {
+    .hero__title {
+      /* The 2.6rem ceiling is where the narrow set hands over to the wide one
+         without a jump: left uncapped it reached ~52px at 559px and then fell
+         to 36px at 560px. */
+      font-size: clamp(1.7rem, -0.25rem + 10vw, 2.6rem);
+      line-height: 0.92;
+      letter-spacing: -0.04em;
+    }
+  }
+
   .hero__line {
     display: block;
     overflow: hidden;
-    /* The authored line breaks are the composition. Never let them re-wrap —
-       a wrapped second line would also be clipped by the reveal mask. */
+    /* The authored line breaks are the composition, so they hold at every size
+       the headline actually fits. */
     white-space: nowrap;
     padding-block: 0.03em;
+  }
+
+  /* Below ~400px the longest line ("Grow your Utah") no longer fits at a
+     readable size, and `nowrap` was silently clipping it — invisible, because
+     body carries `overflow-x: clip`. Letting it wrap loses the authored break
+     on the smallest phones, which is far better than losing the words. The
+     reveal mask still works: the box simply grows to two lines. */
+  @media (max-width: 400px) {
+    .hero__line {
+      white-space: normal;
+    }
   }
 
   /* Two lines take the identity gradient, so it reads as emphasis rather than
@@ -146,6 +198,40 @@ import { hero, studio } from '../../content/site';
     -webkit-mask-image: linear-gradient(to bottom, transparent, #000 70%, #000 92%, transparent);
     mask-image: linear-gradient(to bottom, transparent, #000 70%, #000 92%, transparent);
     opacity: 0.75;
+  }
+
+  /* --- Phones ------------------------------------------------------------
+     The hero was bottom-aligned inside 65svh with a large top pad, so on a
+     short viewport everything collected into the last third of the screen and
+     the buttons sat right on top of the colour band. Give it more height, less
+     top pad, and real space underneath. */
+  @media (max-width: 767px) {
+    .hero {
+      min-height: 82svh;
+      padding-top: calc(var(--header-height) + 1.5rem);
+    }
+    .hero__inner {
+      padding-bottom: clamp(4rem, 14vh, 7rem);
+    }
+    .hero__label {
+      margin-bottom: 1.5rem;
+    }
+    .hero__kicker {
+      margin-top: 1.25rem;
+    }
+    .hero__actions {
+      margin-top: 2rem;
+    }
+    /* Full-width, stacked. Two pills side by side on a 360px screen leaves
+       each one too narrow to read comfortably. */
+    .hero__actions > * {
+      flex: 1 1 100%;
+      justify-content: center;
+    }
+    /* The band creeps up behind the buttons on short screens. */
+    .hero__horizon {
+      height: clamp(56px, 8vh, 90px);
+    }
   }
 
   @media (min-width: 1024px) {

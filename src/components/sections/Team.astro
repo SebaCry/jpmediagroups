@@ -198,13 +198,15 @@ const ready = members.filter((m) => m.image).length;
   /* --- Caption ---------------------------------------------------------- */
 
   .member__name {
-    font-size: var(--text-h3);
+    font-size: 1.6rem;
     font-weight: 700;
   }
   .member__role {
     margin-top: 0.35rem;
     font-family: var(--font-mono);
-    font-size: var(--text-label);
+    /* `14.rem` is not a valid length — browsers drop the declaration and the
+       role inherits its size instead. 14px expressed properly. */
+    font-size: 1.4rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--color-signal-deep);
@@ -212,7 +214,7 @@ const ready = members.filter((m) => m.image).length;
   .member__bio {
     margin-top: 0.75rem;
     max-width: 34ch;
-    font-size: 0.9375rem;
+    font-size: 1.2rem;
     line-height: 1.6;
     color: var(--color-muted);
   }

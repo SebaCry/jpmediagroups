@@ -190,14 +190,22 @@ html[data-intro] body {
 .wall-label {
   display: flex;
   align-items: baseline;
-  gap: 0.75rem;
+  /* Wrap BETWEEN the facts, never inside one. Without this the label broke
+     mid-item on a phone — "CREATIVE / AGENCY" stacked, "EST. / 2016" stacked —
+     which read as four broken fragments instead of three facts. */
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
   margin: 0 0 1.25rem;
   font-family: var(--font-mono);
   font-size: var(--text-label);
-  line-height: 1.3;
+  line-height: 1.4;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--color-muted);
+}
+
+.wall-label__item {
+  white-space: nowrap;
 }
 
 /* A short gradient tick — the logo's own stroke, at label scale. */

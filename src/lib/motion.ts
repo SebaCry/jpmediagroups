@@ -260,11 +260,16 @@ function heroReveal(delay = 0.25) {
   const hero = document.querySelector<HTMLElement>('[data-hero]');
   if (!hero) return;
 
+  // Both compositions of the headline are in the DOM, one per breakpoint.
+  // Only animate the one actually on screen — splitting characters inside a
+  // `display: none` block measures nothing and would leave the hidden set in a
+  // half-animated state if the viewport later crossed the breakpoint.
+  //
   // Lines are in document order regardless of which treatment they get, so the
   // timeline offsets stay in step with what the reader sees.
   const lines = Array.from(
     hero.querySelectorAll<HTMLElement>('[data-hero-line], [data-hero-block]'),
-  );
+  ).filter((el) => el.offsetParent !== null);
   if (!lines.length) return;
 
   const tl = gsap.timeline({ delay });
