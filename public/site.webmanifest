@@ -1,0 +1,41 @@
+{
+  "name": "JP Media Groups — Video Production, Photography & Marketing",
+  "short_name": "JP Media",
+  "description": "Creative agency for audiovisual production, professional photography, music videos, branding and strategic marketing across Utah, the United States and Colombia.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#edefec",
+  "theme_color": "#12232B",
+  "lang": "en-US",
+  "dir": "ltr",
+  "categories": ["business", "photo", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Start a project",
+      "short_name": "Contact",
+      "url": "/contact/",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

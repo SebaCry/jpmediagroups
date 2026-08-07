@@ -1,0 +1,31 @@
+# JP Media Groups — https://www.jpmediagroups.com
+#
+# The whole site is public and should be crawled. Nothing here blocks anything
+# a search engine needs, because a Disallow on an asset directory is one of the
+# most common ways a site accidentally stops ranking: Google renders the page
+# to judge it, and a page it cannot style or illustrate scores as a broken one.
+
+User-agent: *
+Allow: /
+
+# Build output and the search index are served, not crawled. They are not
+# pages, and letting them into the index dilutes the two that matter.
+Disallow: /pagefind/
+Disallow: /_astro/
+
+# Tracking parameters create an unlimited number of duplicate URLs. The
+# canonical tag already resolves them; this stops the crawl budget being spent
+# discovering them in the first place.
+Disallow: /*?*utm_
+Disallow: /*?*fbclid=
+Disallow: /*?*gclid=
+
+# Image and video crawlers are given the whole site explicitly. For a studio
+# that sells photography, Google Images is a primary channel, not a footnote.
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Googlebot-Video
+Allow: /
+
+Sitemap: https://www.jpmediagroups.com/sitemap-index.xml

@@ -2,9 +2,10 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import WallLabel from '../components/WallLabel.astro';
 import Marquee from '../components/sections/Marquee.astro';
+import { pages } from '../lib/seo';
 ---
 
-<BaseLayout title="Page not found — JP Media Groups" description="That page does not exist.">
+<BaseLayout seo={pages.notFound}>
   <section class="section flex min-h-svh flex-col justify-center pt-[var(--header-height)]">
     <div class="shell">
       <WallLabel items={['Error 404', 'Not found']} />

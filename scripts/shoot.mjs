@@ -66,7 +66,13 @@ page.on('pageerror', (e) => errors.push(String(e)));
 
 const suffix = `${MOBILE ? '-mobile' : ''}${REDUCED ? '-reduced' : ''}`;
 
-for (const [name, path] of [['home', '/'], ['contact', '/contact/']]) {
+for (const [name, path] of [
+  ['home', '/'],
+  ['contact', '/contact/'],
+  // One market page stands in for the five: they share a template, so a break
+  // shows up on any of them.
+  ['california', '/california/'],
+]) {
   await page.goto(`http://localhost:4599${path}`, { waitUntil: 'networkidle' });
   // Let the entrance timeline settle before capturing.
   await page.waitForTimeout(3600);

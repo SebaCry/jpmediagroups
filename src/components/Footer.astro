@@ -3,7 +3,7 @@ import { Image } from 'astro:assets';
 import logo from '../assets/images/logo-lockup-inverse.png';
 import Icon from './Icon.astro';
 import WallLabel from './WallLabel.astro';
-import { contact, socials, studio, nav } from '../content/site';
+import { contact, socials, studio, nav, markets } from '../content/site';
 
 const year = 2026;
 ---
@@ -38,6 +38,29 @@ const year = 2026;
         </div>
       </div>
     </div>
+
+    <hr class="rule my-12" />
+
+    {/* Sitewide links to the market pages. This is what makes them crawlable
+        from every URL on the site instead of only from the home page, and it
+        is the mechanism that spreads ranking authority across the set — a
+        page linked from one place is treated as far less important than one
+        linked from everywhere. Marked `data-pagefind-ignore` upstream so the
+        site search does not return the footer on every query. */}
+    <nav class="footer__markets" aria-label="Where we work">
+      <p class="footer__label">Where we work</p>
+      <ul>
+        {
+          markets.map((m) => (
+            <li>
+              <a href={`/${m.slug}/`}>
+                Marketing &amp; photography in {m.name}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
 
     <hr class="rule my-12" />
 
@@ -117,6 +140,31 @@ const year = 2026;
     margin-top: 0.35rem;
     font-size: 1.0625rem;
     color: #fff;
+  }
+
+  .footer__markets ul {
+    display: grid;
+    gap: 0.6rem 2rem;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.9375rem;
+  }
+  @media (min-width: 640px) {
+    .footer__markets ul {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    .footer__markets ul {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .footer__markets a {
+    color: #d8e0e2;
+  }
+  .footer__markets a:hover {
+    color: var(--color-verde);
   }
 
   .footer__bottom {

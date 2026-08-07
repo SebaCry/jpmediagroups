@@ -3,39 +3,31 @@ import { ClientRouter } from 'astro:transitions';
 import { Image } from 'astro:assets';
 import introMark from '../assets/images/logo-lockup-inverse.png';
 import '../styles/global.css';
-import { meta } from '../content/site';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import Seo from '../components/Seo.astro';
 import { isDev } from '../lib/env';
+import { pages, LANG, type PageSeo } from '../lib/seo';
 
+/**
+ * Pages pass a whole `PageSeo` record rather than a title and a description,
+ * so a new page cannot ship with half its meta filled in. The records live in
+ * src/lib/seo.ts next to the structured data they feed.
+ */
 interface Props {
-  title?: string;
-  description?: string;
+  seo?: PageSeo;
 }
 
-const { title = meta.title, description = meta.description } = Astro.props;
-const canonical = new URL(Astro.url.pathname, Astro.site);
+const { seo = pages.home } = Astro.props;
 
 /** Turns on the magenta "PENDIENTE" outlines around theme-demo copy. */
 const devPlaceholders = isDev ? '' : undefined;
 ---
 
 <!doctype html>
-<html lang="en" class="no-js" data-dev-placeholders={devPlaceholders}>
+<html lang={LANG} class="no-js" data-dev-placeholders={devPlaceholders}>
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title}</title>
-    <meta name="description" content={description} />
-    <link rel="canonical" href={canonical} />
-    <meta name="theme-color" content="#edefec" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonical} />
-    <meta name="twitter:card" content="summary_large_image" />
+    <Seo page={seo} />
 
     {/* Display and body are preloaded so `swap` never actually swaps. DM Mono
         only sets small labels, so it is left to load normally. */}

@@ -1,0 +1,341 @@
+---
+/**
+ * A market page — /utah/, /california/, /florida/, /new-york/, /colombia/.
+ *
+ * Why these exist: Google assigns one subject per URL. The home page can be
+ * the best answer for "JP Media Groups" or for "marketing agency Utah", but it
+ * cannot be the best answer for five different states at once — whichever one
+ * it ranks for, the other four lose. A page whose URL, title, H1 and opening
+ * sentence all name a single market is the only thing that answers a search
+ * like "marketing california".
+ *
+ * What keeps them out of doorway-page territory: each market leads with its
+ * own disciplines, in its own order, with its own copy. They are one template
+ * and five different pages, not one page printed five times. If that ever
+ * stops being true — if the copy in src/content/site.ts gets flattened into
+ * the same paragraph with the place name swapped — Google will demote all five
+ * rather than rank any of them.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import WallLabel from '../../components/WallLabel.astro';
+import Marquee from '../../components/sections/Marquee.astro';
+import Icon from '../../components/Icon.astro';
+import { markets, services, studio, contact } from '../../content/site';
+import { pages } from '../../lib/seo';
+
+export function getStaticPaths() {
+  return markets.map((market) => ({ params: { market: market.slug }, props: { market } }));
+}
+
+const { market } = Astro.props;
+const seo = pages.market(market);
+
+// The market's own disciplines first, in the order that market leads with,
+// then the rest. A California visitor reads "Music videos" before "Branding";
+// a New York visitor reads the reverse. Same five services, different page.
+const ordered = [
+  ...market.leads.map((t) => services.items.find((s) => s.title === t)!).filter(Boolean),
+  ...services.items.filter((s) => !market.leads.includes(s.title)),
+];
+
+const siblings = markets.filter((m) => m.slug !== market.slug);
+---
+
+<BaseLayout seo={seo}>
+  <section class="section pt-[calc(var(--header-height)+4rem)]">
+    <div class="shell">
+      {/* The trail is visible, not only in the structured data. A breadcrumb
+          Google can see in the markup but not on the page is one it may ignore. */}
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <ol>
+          <li><a href="/">Home</a></li>
+          <li aria-current="page">{market.name}</li>
+        </ol>
+      </nav>
+
+      <WallLabel items={[market.name, ...market.cities, `${studio.years} years`]} />
+
+      {/* The H1 states the market and the three services in one line. This is
+          the single most weighted string on the page. */}
+      <h1 data-reveal="lines" class="market__title display-title">
+        <span data-line class="block">Marketing, video</span>
+        <span data-line class="block">and photography</span>
+        <span data-line class="block market__accent">in {market.name}</span>
+      </h1>
+
+      <p data-reveal="rise" class="lead market__lead">{market.lead}</p>
+
+      <div data-reveal="rise" class="market__actions">
+        <a href="/contact/" class="btn btn--primary" data-magnetic="0.22">
+          <span class="btn__label">Start a project in {market.name}</span>
+          <span class="btn__fill" aria-hidden="true"></span>
+        </a>
+        <a href="/#about" class="btn btn--ghost" data-magnetic="0.18">
+          About the studio
+          <Icon name="arrow-right" class="h-4 w-4" />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <Marquee source="disciplines" />
+
+  <section class="section">
+    <div class="shell">
+      <div class="market__grid">
+        <div class="market__copy" data-reveal="rise">
+          {market.body.map((p) => <p>{p}</p>)}
+        </div>
+
+        <aside class="market__aside" data-reveal="rise">
+          <p class="market__label">Working in</p>
+          <p class="market__value">{[market.name, ...market.cities].join(' · ')}</p>
+
+          <p class="market__label mt-7">Contact</p>
+          <p class="market__value">{contact.email}</p>
+          <p class="market__value">{contact.phone}</p>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="shell">
+      <WallLabel items={['What we do', market.name]} />
+      <h2 data-reveal="lines" class="market__h2 display-title">
+        <span data-line class="block">Services in {market.name}</span>
+      </h2>
+
+      <ol class="market__services">
+        {
+          ordered.map((s) => (
+            <li class="market-service">
+              <h3 class="market-service__title">
+                {s.title} in {market.name}
+              </h3>
+              <p class="market-service__body">{s.body}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  {/* Cross-links between markets. Without them each of these pages is an
+      orphan two clicks deep, and an orphan gets crawled last and ranked
+      lowest. This is also the only thing that spreads the home page's
+      authority across the set. */}
+  <section class="section">
+    <div class="shell">
+      <hr class="rule mb-10" />
+      <p class="market__label">Also working in</p>
+      <ul class="market__siblings">
+        {
+          siblings.map((m) => (
+            <li>
+              <a href={`/${m.slug}/`} class="market__sibling">
+                <span class="market__sibling-name">{m.name}</span>
+                <span class="market__sibling-note">{m.cities.join(', ')}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .crumbs {
+    margin-bottom: 1.75rem;
+  }
+  .crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .crumbs li + li::before {
+    content: '/';
+    margin-right: 0.5rem;
+    color: var(--color-hairline);
+  }
+
+  .market__title {
+    font-size: var(--text-h1);
+    font-weight: 800;
+    line-height: 0.98;
+  }
+  .market__accent {
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .market__lead {
+    margin-top: 2rem;
+    max-width: 48ch;
+  }
+
+  .market__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.875rem;
+    margin-top: 2.5rem;
+  }
+  @media (max-width: 640px) {
+    .market__actions > * {
+      flex: 1 1 100%;
+      justify-content: center;
+    }
+  }
+
+  .market__grid {
+    display: grid;
+    gap: 3rem;
+  }
+  @media (min-width: 1024px) {
+    .market__grid {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.65fr);
+      gap: 5rem;
+    }
+  }
+
+  .market__copy p {
+    max-width: 62ch;
+    font-size: 1.0625rem;
+    line-height: 1.75;
+    color: var(--color-muted);
+  }
+  .market__copy p + p {
+    margin-top: 1.5rem;
+  }
+
+  .market__label {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .market__value {
+    margin-top: 0.3rem;
+    font-size: 1.0625rem;
+  }
+
+  .market__h2 {
+    font-size: var(--text-h2, var(--text-h1));
+    font-weight: 800;
+    margin-bottom: 2.5rem;
+  }
+
+  .market__services {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--color-hairline);
+  }
+
+  .market-service {
+    padding-block: 1.75rem;
+    border-bottom: 1px solid var(--color-hairline);
+  }
+  @media (min-width: 768px) {
+    .market-service {
+      display: grid;
+      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+      gap: 2.5rem;
+      align-items: baseline;
+    }
+  }
+
+  .market-service__title {
+    font-size: clamp(1.25rem, 2.2vw, 1.75rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .market-service__body {
+    margin-top: 0.5rem;
+    max-width: 56ch;
+    line-height: 1.7;
+    color: var(--color-muted);
+  }
+  @media (min-width: 768px) {
+    .market-service__body {
+      margin-top: 0;
+    }
+  }
+
+  .market__siblings {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .market__sibling {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    padding: 0.7rem 1.1rem;
+    border: 1px solid var(--color-hairline);
+    border-radius: 999px;
+    transition:
+      background-color var(--duration-micro) var(--ease-soft),
+      border-color var(--duration-micro) var(--ease-soft),
+      color var(--duration-micro) var(--ease-soft);
+  }
+  .market__sibling:hover,
+  .market__sibling:focus-visible {
+    background: var(--color-ink);
+    border-color: var(--color-ink);
+    color: #fff;
+  }
+  .market__sibling-name {
+    font-weight: 600;
+  }
+  .market__sibling-note {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .market__sibling:hover .market__sibling-note,
+  .market__sibling:focus-visible .market__sibling-note {
+    color: #b9cbcf;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .market__sibling {
+      transition: none;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .crumbs,
+    .market__title,
+    .market__lead,
+    .market__actions,
+    .market__grid,
+    .market__h2,
+    .market__services,
+    .market__siblings,
+    .market__label,
+    :global(.section) > .shell > .wall-label {
+      margin-inline-start: var(--rail);
+    }
+  }
+</style>

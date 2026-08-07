@@ -8,12 +8,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import WallLabel from '../components/WallLabel.astro';
 import Icon from '../components/Icon.astro';
 import { contact, studio, services, socials } from '../content/site';
+import { pages } from '../lib/seo';
 ---
 
-<BaseLayout
-  title="Contact — JP Media Groups"
-  description="Tell JP Media Groups about your project. Audiovisual production, photography, music videos, branding and marketing across Colombia and the United States."
->
+<BaseLayout seo={pages.contact}>
   <section class="section pt-[calc(var(--header-height)+4rem)]">
     <div class="shell">
       <WallLabel items={contact.label} />

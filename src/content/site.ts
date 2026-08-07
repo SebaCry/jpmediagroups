@@ -35,6 +35,138 @@ export const studio = {
   ],
 };
 
+// ---------------------------------------------------------------------------
+// Markets — the same four cities and two countries stated above, resolved to
+// the states and countries a search actually names.
+// ---------------------------------------------------------------------------
+// This exists because "Los Angeles" and "California" are the same fact to the
+// studio and two different searches to Google. Somebody looking for a
+// marketing agency types the state, not the city, roughly as often as not, and
+// a page that only ever says "Los Angeles" cannot answer them.
+//
+// Nothing here is a new claim. Every city listed is one the client already
+// named in "Who We Are"; the state and country around it is arithmetic.
+//
+// ⚠️  The `lead` and `body` lines are DRAFTS. They are written strictly from
+//     what the studio says it does — no market-specific client, project, award
+//     or office is claimed anywhere, because none has been supplied. Read them
+//     before launch and edit them here. If the studio has real work in a market,
+//     naming it in that market's `body` is worth more than every meta tag on
+//     the site put together.
+// ---------------------------------------------------------------------------
+
+export interface Market {
+  /** URL segment. Short and clean — the title carries the keywords. */
+  slug: string;
+  /** How the place is named in prose and in headings. */
+  name: string;
+  /** ISO region for structured data. Omitted for a country-level market. */
+  region?: string;
+  country: 'US' | 'CO';
+  /** Schema.org place type for the areaServed node. */
+  kind: 'State' | 'Country';
+  /** Cities inside this market that the studio already names. */
+  cities: string[];
+  /** The disciplines this market leads with, by `services.items` title. */
+  leads: string[];
+  lead: string;
+  body: string[];
+  /**
+   * The search result's second line. Written per market, not generated — a
+   * template with the place name swapped produces five descriptions that read
+   * as one, and Google rewrites the ones it does not believe. Keep every one
+   * of these under 160 characters or it is truncated mid-sentence.
+   */
+  metaDescription: string;
+}
+
+export const markets: Market[] = [
+  {
+    slug: 'utah',
+    name: 'Utah',
+    region: 'UT',
+    country: 'US',
+    kind: 'State',
+    cities: ['Salt Lake City'],
+    leads: ['Professional photography', 'Strategic marketing', 'Audiovisual production'],
+    lead: 'A creative agency working in Utah across video production, professional photography and strategic marketing.',
+    metaDescription:
+      'Marketing agency and photography studio working in Utah. Video production, corporate and food photography, branding and social media for Salt Lake City businesses.',
+    body: [
+      'Utah is where the day-to-day production happens. Corporate and food photography for restaurants and local businesses, commercial video, and the social media content that has to keep running long after the shoot day is over.',
+      'The studio works the way an in-house team would, without the headcount: concept, production, post and delivery handled end to end, so a Utah business gets a campaign rather than a folder of files it then has to figure out what to do with.',
+      'The same team that produces music videos in Los Angeles and campaigns in Miami shoots a Salt Lake City menu. The scale of the job changes; the standard does not.',
+    ],
+  },
+  {
+    slug: 'california',
+    name: 'California',
+    region: 'CA',
+    country: 'US',
+    kind: 'State',
+    cities: ['Los Angeles'],
+    leads: ['Music videos', 'Audiovisual production', 'Branding'],
+    lead: 'Music video, commercial and brand production in California, working out of Los Angeles.',
+    metaDescription:
+      'Marketing and video production in California. High-end music videos, commercials, advertising campaigns and brand photography, produced out of Los Angeles.',
+    body: [
+      'Los Angeles is where the music video work concentrates. High-end videos for artists, shot and finished to the standard the market expects, with the concept developed alongside the artist rather than handed to them.',
+      'Alongside the music work: commercial productions, advertising campaigns and brand content for companies that need something with production value behind it, not another phone edit.',
+      'California is one of four United States markets the studio works across, and the reason a Los Angeles shoot can be crewed without the client paying to build a team from scratch.',
+    ],
+  },
+  {
+    slug: 'florida',
+    name: 'Florida',
+    region: 'FL',
+    country: 'US',
+    kind: 'State',
+    cities: ['Miami'],
+    leads: ['Audiovisual production', 'Professional photography', 'Strategic marketing'],
+    lead: 'Video production, photography and marketing in Florida, working out of Miami.',
+    metaDescription:
+      'Bilingual marketing agency and photography studio in Florida. Video production, restaurant and food photography, branding and social media content out of Miami.',
+    body: [
+      'Miami is a bilingual market and the studio works in both languages — the same team, the same standard, whether the campaign runs in English, in Spanish, or in both at once.',
+      'The work here runs across restaurants and hospitality, brands, and artists: food photography that makes a menu sell, commercial production, and the social content that carries a campaign after launch.',
+      'Miami is also the closest United States market to the studio’s Colombian side, which is what makes a production that spans both countries a scheduling question rather than a logistical one.',
+    ],
+  },
+  {
+    slug: 'new-york',
+    name: 'New York',
+    region: 'NY',
+    country: 'US',
+    kind: 'State',
+    cities: ['New York'],
+    leads: ['Branding', 'Professional photography', 'Audiovisual production'],
+    lead: 'Brand campaigns, corporate photography and video production in New York.',
+    metaDescription:
+      'Branding, marketing and photography in New York. Visual identity, corporate photography, commercial video production and advertising campaigns, end to end.',
+    body: [
+      'New York work leans toward brand: visual identity that holds together everywhere a company shows up, corporate photography that makes it look credible, and the advertising campaigns built on top of both.',
+      'Production is handled end to end — concept development through final delivery — so a brand gets one team accountable for the result instead of a photographer, an editor and an agency pointing at each other.',
+      'One of four United States markets the studio works across, alongside Utah, California and Florida.',
+    ],
+  },
+  {
+    slug: 'colombia',
+    name: 'Colombia',
+    country: 'CO',
+    kind: 'Country',
+    cities: ['Bogotá'],
+    leads: ['Music videos', 'Audiovisual production', 'Professional photography'],
+    lead: 'Producción audiovisual, fotografía profesional y marketing en Colombia.',
+    metaDescription:
+      'Producción audiovisual, fotografía profesional y marketing en Colombia. Videos musicales, producción comercial y contenido para marcas, restaurantes y artistas.',
+    body: [
+      'Half of the studio’s nine years are Colombian. Music videos, commercial production and photography for artists, restaurants, businesses and marketing agencies across the country.',
+      'Working in two countries is what gives the studio its perspective: a campaign built in Bogotá and a campaign built in Salt Lake City are not the same brief, and treating them as though they were is how work ends up looking like everybody else’s.',
+      'Trabajamos en español y en inglés, con el mismo equipo y el mismo estándar en los dos países.',
+    ],
+  },
+];
+
 export const meta = {
   title: 'JP Media Groups — Creative Agency, Photography & Audiovisual Production',
   description:
@@ -52,24 +184,15 @@ export const meta = {
 export const hero = {
   label: ['Creative agency', 'Est. 2016'],
 
-  // Two compositions of the same sentence, one per breakpoint.
-  //
-  // The headline size on a phone is capped by its longest line, not by taste:
-  // Syne ExtraBold runs about 0.89em per character, so "Grow your Utah" (14
-  // characters) cannot exceed ~28px at 390px without running off the screen.
-  // The only way to set the type larger is to break it shorter — so the mobile
-  // composition keeps every line at 11 characters or fewer, which lifts the cap
-  // to ~35px. Bigger type, more lines. That is the trade, and it is why the two
-  // lists differ.
   lines: [
-    { text: 'Grow your Utah', accent: false },
+    { text: 'Grow your', accent: false },
     { text: 'business with', accent: false },
     { text: 'photography', accent: true },
     { text: '+ marketing', accent: true },
   ],
   linesMobile: [
     { text: 'Grow your', accent: false },
-    { text: 'Utah', accent: false },
+    // { text: 'Utah', accent: false },
     { text: 'business', accent: false },
     { text: 'with', accent: false },
     { text: 'photography', accent: true },
@@ -78,9 +201,6 @@ export const hero = {
 
   kicker: 'That actually works',
   primaryCta: { label: 'Start a project', href: '/contact/' },
-  // Points at Team while the Work section is held back — "See the work" would
-  // be a dead link to a section that is not rendered. Restore it to
-  // { label: 'See the work', href: '/#work' } when Work returns.
   secondaryCta: { label: 'Meet the team', href: '/#team' },
 };
 
@@ -323,6 +443,11 @@ export const search = {
 export const nav = [
   { label: 'Studio', href: '/#about' },
   { label: 'Services', href: '/#services' },
+  // The block that links the five market pages. In the main nav rather than
+  // only in the footer, because the market pages are the site's answer to
+  // every "<service> <place>" search and a nav link is the strongest internal
+  // signal the site can give them.
+  { label: 'Where we work', href: '/#markets' },
   // Restore alongside the <Work /> tag in index.astro — a nav item pointing at
   // a section that is not rendered is a dead link.
   // { label: 'Work', href: '/#work' },

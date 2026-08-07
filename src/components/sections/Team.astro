@@ -36,11 +36,14 @@ const ready = members.filter((m) => m.image).length;
       {
         members.map((m) => (
           <li class="member">
+            {/* Alt carries the role and the studio, not just the name. These
+                are the only indexable photographs on the site, and alt text is
+                the whole of what Google Images has to go on. */}
             <figure class="member__figure">
               {m.image ? (
                 <Image
                   src={m.image}
-                  alt={m.name}
+                  alt={`${m.name} — ${m.role}, JP Media Groups`}
                   widths={[420, 640, 900]}
                   sizes="(min-width: 1024px) 36vw, 78vw"
                   loading="lazy"

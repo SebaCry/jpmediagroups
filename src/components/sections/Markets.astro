@@ -1,0 +1,159 @@
+---
+/**
+ * Where the studio works, as real content and as the entry point to the five
+ * market pages.
+ *
+ * Two jobs, and both of them are load-bearing:
+ *
+ *   1. The home page says "Colombia and the United States" in its prose and
+ *      runs the cities through a marquee that is `aria-hidden`. Neither of
+ *      those states plainly, in indexable text, that the studio works in
+ *      California — and a search engine cannot infer California from
+ *      "Los Angeles" reliably enough to rank on it.
+ *
+ *   2. New pages need links. A page with no link pointing at it is crawled
+ *      last, ranked lowest, and inherits none of the home page's authority.
+ *      This block is the link.
+ */
+import WallLabel from '../WallLabel.astro';
+import { markets, studio } from '../../content/site';
+---
+
+<section id="markets" class="section">
+  <div class="shell">
+    <WallLabel items={['Where we work', `${markets.length} markets`, `${studio.years} years`]} />
+
+    <h2 data-reveal="lines" class="markets__title display-title">
+      <span data-line class="block">Utah, California,</span>
+      <span data-line class="block markets__accent">Florida, New York</span>
+      <span data-line class="block">and Colombia</span>
+    </h2>
+
+    <p data-reveal="rise" class="lead markets__lead">
+      Video production, professional photography and strategic marketing, delivered in five
+      markets across two countries.
+    </p>
+
+    <ul class="markets__list">
+      {
+        markets.map((m) => (
+          <li class="market-card" data-reveal="rise">
+            <a href={`/${m.slug}/`} class="market-card__link">
+              <h3 class="market-card__name">{m.name}</h3>
+              <p class="market-card__cities">{m.cities.join(' · ')}</p>
+              <p class="market-card__leads">{m.leads.join(' · ')}</p>
+              <span class="market-card__cue" aria-hidden="true">→</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .markets__title {
+    font-size: var(--text-h1);
+    font-weight: 800;
+    line-height: 0.98;
+  }
+  .markets__accent {
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .markets__lead {
+    margin-top: 1.75rem;
+    max-width: 46ch;
+  }
+
+  .markets__list {
+    display: grid;
+    gap: 0;
+    margin: 3rem 0 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--color-hairline);
+  }
+
+  .market-card {
+    border-bottom: 1px solid var(--color-hairline);
+  }
+
+  /* A typographic index, matching the Services block. Five markets is a list,
+     and a list is what a coverage map actually is. */
+  .market-card__link {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.35rem 1.5rem;
+    padding-block: 1.5rem;
+    align-items: baseline;
+  }
+  @media (min-width: 768px) {
+    .market-card__link {
+      grid-template-columns: minmax(0, 0.5fr) minmax(0, 0.5fr) minmax(0, 1fr) auto;
+      gap: 2rem;
+      padding-block: 1.75rem;
+    }
+  }
+
+  .market-card__name {
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    transition: color var(--duration-micro) var(--ease-soft);
+  }
+  .market-card__link:hover .market-card__name,
+  .market-card__link:focus-visible .market-card__name {
+    color: var(--color-signal-deep);
+  }
+
+  .market-card__cities,
+  .market-card__leads {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .market-card__leads {
+    grid-column: 1 / -1;
+  }
+  @media (min-width: 768px) {
+    .market-card__leads {
+      grid-column: auto;
+      text-align: left;
+    }
+  }
+
+  .market-card__cue {
+    grid-row: 1;
+    grid-column: -1;
+    font-size: 1.25rem;
+    color: var(--color-muted);
+    transition: transform var(--duration-micro) var(--ease-signature);
+  }
+  .market-card__link:hover .market-card__cue,
+  .market-card__link:focus-visible .market-card__cue {
+    transform: translateX(6px);
+    color: var(--color-signal-deep);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .market-card__name,
+    .market-card__cue {
+      transition: none;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .markets__title,
+    .markets__lead,
+    .markets__list,
+    :global(#markets) > .shell > .wall-label {
+      margin-inline-start: var(--rail);
+    }
+  }
+</style>

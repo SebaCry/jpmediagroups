@@ -17,8 +17,10 @@ import Hero from '../components/sections/Hero.astro';
 import Marquee from '../components/sections/Marquee.astro';
 import About from '../components/sections/About.astro';
 import Services from '../components/sections/Services.astro';
+import Markets from '../components/sections/Markets.astro';
 import Team from '../components/sections/Team.astro';
 import Testimonial from '../components/sections/Testimonial.astro';
+import { pages } from '../lib/seo';
 
 // Held back until the content exists — re-add the import and the tag together:
 //   import Work from '../components/sections/Work.astro';
@@ -26,11 +28,12 @@ import Testimonial from '../components/sections/Testimonial.astro';
 //   import Newsletter from '../components/sections/Newsletter.astro';
 ---
 
-<BaseLayout>
+<BaseLayout seo={pages.home}>
   <Hero />
   <Marquee source="cities" />
   <About />
   <Services />
+  <Markets />
   <Team />
   <!-- <Testimonial /> -->
 </BaseLayout>
