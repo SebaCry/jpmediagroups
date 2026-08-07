@@ -271,16 +271,58 @@ cuatro ciudades, los dos países, el Instagram y el titular del hero.
 
 ## Formularios
 
-Ninguno tiene backend: el original usaba MetForm, un plugin de WordPress. La
-validación y los estados de error **ya están escritos**; solo falta apuntar el
-`action`:
+### Contacto — funcionando
 
-- **Contacto** — `src/pages/contact.astro`, `<form data-contact action="#">`
-- **Newsletter** — `src/components/sections/Newsletter.astro`
+`src/pages/contact.astro` envía a **Web3Forms**, que lo reenvía a
+`contact@jpmediagroups.com`. No hay backend propio ni adaptador: el sitio sigue
+siendo 100 % estático.
 
-Opciones sin servidor: Formspree, Netlify Forms, Web3Forms o un Worker de
-Cloudflare. Mientras `action` siga en `#`, ambos muestran *"endpoint not
-configured yet"* en vez de fingir que envían.
+**Configuración.** Hace falta una variable de entorno:
+
+```bash
+cp .env.example .env    # y pegar la access key dentro
+```
+
+La key se saca en [web3forms.com](https://web3forms.com) poniendo
+`contact@jpmediagroups.com`; llega por correo a esa misma dirección. Hay que
+ponerla **en dos sitios**: en `.env` para local, y en Vercel → Settings →
+Environment Variables para producción (Production, Preview y Development).
+
+Es una clave pública por diseño — igual que una site key de reCAPTCHA. Solo
+indica a qué buzón va un envío; no permite leer envíos anteriores, y Web3Forms
+se niega a entregar a cualquier dirección que no sea la que creó la key. Vive
+en una variable de entorno para poder rotarla sin tocar código y para que un
+fork del repo no herede el buzón del estudio.
+
+**Sin la key configurada**, el formulario dice *"endpoint not configured yet"*
+en vez de fingir que envía, y en `astro dev` muestra además un aviso con las
+instrucciones.
+
+**Funciona sin JavaScript.** `action` y `method` son reales: sin JS el
+navegador postea de forma nativa y Web3Forms muestra su propia confirmación. El
+script solo añade la validación en línea, el estado de éxito sin salir de la
+página y el bloqueo del botón mientras se envía.
+
+**Anti-spam:** un honeypot (`botcheck`) oculto a la vista, a los lectores de
+pantalla y al orden de tabulación. Un envío humano no lo incluye — una casilla
+sin marcar no se envía — y un bot que rellena todo sí, y Web3Forms lo descarta.
+
+**Verificación:**
+
+```bash
+PUBLIC_WEB3FORMS_KEY=00000000-0000-0000-0000-000000000000 npm run build
+npm run check:form
+```
+
+Recorre el formulario en Chrome con la red interceptada: envío vacío, email
+inválido, envío correcto y su payload, rechazo del servidor, red caída, sin JS
+y bot. No sale nada a internet.
+
+### Newsletter — pendiente
+
+`src/components/sections/Newsletter.astro` sigue sin endpoint. Tampoco se
+renderiza hoy: está retenido en `src/pages/index.astro` hasta que exista una
+lista real a la que apuntar.
 
 ---
 

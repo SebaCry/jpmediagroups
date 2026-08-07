@@ -9,6 +9,21 @@ import WallLabel from '../components/WallLabel.astro';
 import Icon from '../components/Icon.astro';
 import { contact, studio, services, socials } from '../content/site';
 import { pages } from '../lib/seo';
+import { web3formsKey, isDev } from '../lib/env';
+
+/**
+ * The form posts to Web3Forms, which relays it to the studio's inbox.
+ *
+ * `action` and `method` are real, not decorative: without JavaScript the
+ * browser submits the form natively and Web3Forms renders its own confirmation
+ * page. The script below intercepts it to keep the visitor on this page, so
+ * the enhancement is the on-page success state, not the ability to send at all.
+ *
+ * With no key configured the action stays at `#` — the form then reports that
+ * it is not wired up rather than posting into the void.
+ */
+const ENDPOINT = 'https://api.web3forms.com/submit';
+const configured = web3formsKey.length > 0;
 ---
 
 <BaseLayout seo={pages.contact}>
@@ -20,7 +35,38 @@ import { pages } from '../lib/seo';
       </h1>
 
       <div class="contact__grid">
-        <form class="contact-form" method="post" action="#" data-contact novalidate>
+        <form
+          class="contact-form"
+          method="POST"
+          action={configured ? ENDPOINT : '#'}
+          data-contact
+          data-configured={configured ? '' : undefined}
+          novalidate
+        >
+          <input type="hidden" name="access_key" value={web3formsKey} />
+
+          {/* Web3Forms uses these to compose the message. `subject` is
+              overwritten with the sender's name by the script; this value is
+              what a no-JS submission arrives with. The field named `email` is
+              what Web3Forms sets Reply-To from, so replying in the inbox
+              answers the client directly. */}
+          <input type="hidden" name="subject" value="New project brief — jpmediagroups.com" />
+          <input type="hidden" name="from_name" value="JP Media Groups website" />
+
+          {/* Honeypot. Web3Forms discards any submission where `botcheck` is
+              ticked, and nothing but a bot filling every field it finds will
+              ever tick it. Hidden from sight, from screen readers and from tab
+              order — all three, or it becomes a trap for real people. */}
+          <input
+            type="checkbox"
+            name="botcheck"
+            class="hidden"
+            style="display:none"
+            tabindex="-1"
+            autocomplete="off"
+            aria-hidden="true"
+          />
+
           <div class="field">
             <label class="field__label" for="name">Name</label>
             <input class="field__input" id="name" name="name" type="text" required autocomplete="name" />
@@ -51,12 +97,24 @@ import { pages } from '../lib/seo';
             <span class="field__error" data-error-for="message"></span>
           </div>
 
-          <button type="submit" class="btn btn--primary self-start" data-magnetic="0.2">
-            <span class="btn__label">Send brief</span>
+          <button type="submit" class="btn btn--primary self-start" data-magnetic="0.2" data-submit>
+            <span class="btn__label" data-submit-label>Send brief</span>
             <span class="btn__fill" aria-hidden="true"></span>
           </button>
 
+          {/* `role="status"` + `aria-live="polite"` so a screen reader hears the
+              result without the focus being yanked out of the form. */}
           <p class="contact-form__status" role="status" aria-live="polite" data-contact-status></p>
+
+          {
+            isDev && !configured && (
+              <p class="contact-form__setup">
+                PENDIENTE — falta <code>PUBLIC_WEB3FORMS_KEY</code>. Copiá <code>.env.example</code>{' '}
+                a <code>.env</code> y pegá la access key de web3forms.com. Este aviso no se
+                renderiza en producción.
+              </p>
+            )
+          }
         </form>
 
         <aside class="contact__aside" data-reveal="rise">
@@ -203,10 +261,39 @@ import { pages } from '../lib/seo';
     margin: 0;
     min-height: 1.5rem;
     font-size: 0.9375rem;
+    line-height: 1.6;
     color: var(--color-muted);
   }
   .contact-form__status[data-state='error'] {
     color: var(--color-counter);
+  }
+  /* Success reads in the identity green, and is the only place on the page
+     where the gradient resolves to a single flat colour — it is a state, not
+     a piece of the composition. */
+  .contact-form__status[data-state='ok'] {
+    color: var(--color-signal-deep);
+    font-weight: 500;
+  }
+
+  /* The button carries the busy state; the status line just narrates it. */
+  .contact-form button[disabled] {
+    opacity: 0.55;
+    cursor: progress;
+  }
+
+  /* Dev-only. Mirrors the `data-placeholder` badge used for pending copy. */
+  .contact-form__setup {
+    margin: 0;
+    padding: 0.75rem 1rem;
+    border: 1px dashed var(--color-counter);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.7;
+    color: var(--color-counter);
+  }
+  .contact-form__setup code {
+    font-family: inherit;
+    font-weight: 700;
   }
 
   .contact__label {
@@ -266,11 +353,23 @@ import { pages } from '../lib/seo';
 </style>
 
 <script>
-  // Validation and messaging only. Point `action` at a form backend before launch.
+  /**
+   * Submits the brief without leaving the page.
+   *
+   * The form already works without this: `action` and `method` are real, so a
+   * browser with no JavaScript posts it natively and lands on Web3Forms' own
+   * confirmation. Everything here is the enhancement — inline validation, an
+   * on-page result, and a button that cannot be pressed twice.
+   */
   function setupContact() {
     const form = document.querySelector<HTMLFormElement>('[data-contact]');
     const status = document.querySelector<HTMLElement>('[data-contact-status]');
     if (!form || !status) return;
+
+    const button = form.querySelector<HTMLButtonElement>('[data-submit]');
+    const label = form.querySelector<HTMLElement>('[data-submit-label]');
+    const configured = form.hasAttribute('data-configured');
+    const idle = label?.textContent ?? 'Send brief';
 
     const messages: Record<string, string> = {
       name: 'Please tell us your name.',
@@ -278,8 +377,19 @@ import { pages } from '../lib/seo';
       message: 'Please tell us a little about the project.',
     };
 
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
+    const say = (state: 'error' | 'ok' | 'busy', text: string) => {
+      status.dataset.state = state;
+      status.textContent = text;
+    };
+
+    /**
+     * Marks every required field and returns the first one that failed.
+     *
+     * A `const` arrow rather than a function declaration: a declaration is
+     * hoisted above the null guard on `form`, so TypeScript stops trusting the
+     * narrowing and flags every use inside as possibly null.
+     */
+    const validate = (): HTMLElement | null => {
       let firstInvalid: HTMLElement | null = null;
 
       form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('[required]').forEach((el) => {
@@ -292,15 +402,64 @@ import { pages } from '../lib/seo';
         if (!ok && !firstInvalid) firstInvalid = el;
       });
 
+      return firstInvalid;
+    };
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const firstInvalid = validate();
       if (firstInvalid) {
-        status.dataset.state = 'error';
-        status.textContent = 'Please fix the highlighted fields.';
+        say('error', 'Please fix the highlighted fields.');
         (firstInvalid as HTMLElement).focus();
         return;
       }
 
-      status.dataset.state = 'error';
-      status.textContent = 'Form endpoint not configured yet.';
+      if (!configured) {
+        say('error', 'Form endpoint not configured yet.');
+        return;
+      }
+
+      // Locked for the whole request so an impatient second click cannot send
+      // the brief twice.
+      const lock = (busy: boolean) => {
+        if (button) button.disabled = busy;
+        form.setAttribute('aria-busy', String(busy));
+        if (label) label.textContent = busy ? 'Sending…' : idle;
+      };
+
+      lock(true);
+      say('busy', 'Sending…');
+
+      const data = new FormData(form);
+      // A subject that names the sender, so the inbox is scannable instead of
+      // forty identical rows.
+      data.set('subject', `New project brief — ${String(data.get('name') ?? '').trim()}`);
+
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          headers: { Accept: 'application/json' },
+          body: data,
+        });
+        const body = await res.json().catch(() => null);
+
+        if (res.ok && body?.success) {
+          form.reset();
+          form
+            .querySelectorAll<HTMLElement>('[data-invalid]')
+            .forEach((f) => f.removeAttribute('data-invalid'));
+          say('ok', 'Thank you — your brief is on its way. We usually reply within two business days.');
+        } else {
+          // The visitor is told to use the address they can see on this page,
+          // rather than being left with a dead end.
+          say('error', body?.message ?? 'Something went wrong. Please email us instead.');
+        }
+      } catch {
+        say('error', 'No connection. Check your network, or email us instead.');
+      } finally {
+        lock(false);
+      }
     });
   }
 
