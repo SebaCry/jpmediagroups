@@ -1,8 +1,8 @@
 ---
-import { Image } from 'astro:assets';
-import WallLabel from '../WallLabel.astro';
-import plate from '../../assets/plates/plate-signal.webp';
-import { about, studio } from '../../content/site';
+import { Image } from "astro:assets";
+import WallLabel from "../WallLabel.astro";
+import plate from "../../assets/plates/plate-signal.webp";
+import { about, studio } from "../../content/site";
 ---
 
 <section id="about" class="section band-ink" data-band data-parallax-scope>
@@ -12,7 +12,10 @@ import { about, studio } from '../../content/site';
       <h2 data-reveal="lines" class="about__title display-title">
         {
           about.titleLines.map((line, i) => (
-            <span data-line class:list={['block', i === about.accentLine && 'about__accent']}>
+            <span
+              data-line
+              class:list={["block", i === about.accentLine && "about__accent"]}
+            >
               {line}
             </span>
           ))
@@ -48,7 +51,7 @@ import { about, studio } from '../../content/site';
           }
         </dl>
 
-        <p class="about__disciplines">{studio.disciplines.join(' · ')}</p>
+        <p class="about__disciplines">{studio.disciplines.join(" · ")}</p>
       </aside>
     </div>
 

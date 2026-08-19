@@ -29,7 +29,16 @@
         their own photographs beat any amount of meta-tag work.
    ========================================================================= */
 
-import { contact, socials, services, team, markets, type Market } from '../content/site';
+import {
+  contact,
+  socials,
+  services,
+  team,
+  markets,
+  workCategories,
+  type Market,
+  type WorkCategory,
+} from "../content/site";
 
 /* -------------------------------------------------------------- constants */
 
@@ -38,15 +47,15 @@ import { contact, socials, services, team, markets, type Market } from '../conte
  * 308-redirects to it. Must stay identical to `site` in astro.config.mjs and to
  * the Sitemap: line in public/robots.txt; `npm run check:seo` fails if it does not.
  */
-export const SITE_URL = 'https://www.jpmediagroups.com';
-export const SITE_NAME = 'JP Media Groups';
+export const SITE_URL = "https://www.jpmediagroups.com";
+export const SITE_NAME = "JP Media Groups";
 
 /** The site is written in one language. Stated explicitly so hreflang is honest. */
-export const LOCALE = 'en_US';
-export const LANG = 'en';
+export const LOCALE = "en_US";
+export const LANG = "en";
 
 /** Secondary audience — Colombia. Signals the market, does not promise a page. */
-export const LOCALE_ALT = ['es_CO'];
+export const LOCALE_ALT = ["es_CO"];
 
 /** Stable node ids. Never change these: they are how Google keeps the entity together. */
 export const ID = {
@@ -60,10 +69,10 @@ export const ID = {
  * Absolute URLs are required — every scraper except Google refuses relative ones.
  */
 export const OG = {
-  image: '/og/jp-media-groups.jpg',
+  image: "/og/jp-media-groups.jpg",
   width: 1200,
   height: 630,
-  alt: 'JP Media Groups — video production, photography and marketing across Utah, Miami, New York, Los Angeles and Colombia.',
+  alt: "JP Media Groups — video production, photography and marketing across Utah, Miami, New York, Los Angeles and Colombia.",
 };
 
 /**
@@ -72,8 +81,8 @@ export const OG = {
  * crawlers still read them, and they cost nothing.
  */
 export const GEO = {
-  region: 'US-UT',
-  placename: 'Utah',
+  region: "US-UT",
+  placename: "Utah",
 };
 
 /* --------------------------------------------------------------- keywords */
@@ -84,37 +93,37 @@ export const GEO = {
 
 export const KEYWORDS = {
   core: [
-    'marketing agency',
-    'creative agency',
-    'video production',
-    'photography',
-    'audiovisual production',
+    "marketing agency",
+    "creative agency",
+    "video production",
+    "photography",
+    "audiovisual production",
   ],
   services: [
-    'music video production',
-    'commercial video production',
-    'advertising campaign production',
-    'food photography',
-    'restaurant photography',
-    'corporate photography',
-    'brand photography',
-    'social media content creation',
-    'branding agency',
+    "music video production",
+    "commercial video production",
+    "advertising campaign production",
+    "food photography",
+    "restaurant photography",
+    "corporate photography",
+    "brand photography",
+    "social media content creation",
+    "branding agency",
   ],
   /* The state names matter as much as the city names, and for a search like
      "marketing california" they matter more. Somebody looking for an agency
      types the state roughly as often as the city, and a site that only ever
      says "Los Angeles" cannot answer them. Each of these has a page. */
   places: [
-    'Utah',
-    'Salt Lake City',
-    'California',
-    'Los Angeles',
-    'Florida',
-    'Miami',
-    'New York',
-    'Colombia',
-    'Bogotá',
+    "Utah",
+    "Salt Lake City",
+    "California",
+    "Los Angeles",
+    "Florida",
+    "Miami",
+    "New York",
+    "Colombia",
+    "Bogotá",
   ],
 };
 
@@ -123,11 +132,28 @@ export const KEYWORDS = {
  * than typed out so a new market cannot ship with half its terms missing.
  */
 export const marketKeywords = markets.flatMap((m) =>
-  ['marketing agency', 'video production', 'photography', 'creative agency'].flatMap((term) => [
+  [
+    "marketing agency",
+    "video production",
+    "photography",
+    "creative agency",
+  ].flatMap((term) => [
     `${term} ${m.name}`,
     ...m.cities.map((c) => `${term} ${c}`),
   ]),
 );
+
+/**
+ * The portfolio's own vocabulary, crossed with the markets.
+ *
+ * "wedding photographer utah" is a different search from "marketing agency
+ * utah" and converts far better, because somebody typing it has already
+ * decided what they want. Each category page is written to answer one of these.
+ */
+export const workKeywords = workCategories.flatMap((c) => [
+  c.name.toLowerCase(),
+  ...markets.map((m) => `${c.name.toLowerCase()} ${m.name}`),
+]);
 
 /* ----------------------------------------------------------- page records */
 
@@ -139,7 +165,7 @@ export interface PageSeo {
   /** Path-relative share card. Falls back to the default. */
   image?: string;
   imageAlt?: string;
-  type?: 'website' | 'article' | 'profile';
+  type?: "website" | "article" | "profile";
   /** Keeps a page out of the index without keeping crawlers off it. */
   noindex?: boolean;
   /** Trail shown in the result, home excluded — it is added automatically. */
@@ -160,13 +186,13 @@ export const abs = (path: string) => new URL(path, SITE_URL).href;
  */
 const LOCAL = false;
 const postalAddress = {
-  streetAddress: '300 South Spring Street', // TODO
-  addressLocality: '200 N Spring St', // TODO — e.g. 'Salt Lake City'
-  addressRegion: 'CA',
-  postalCode: '90012', // TODO
-  addressCountry: 'US',
+  streetAddress: "300 South Spring Street", // TODO
+  addressLocality: "200 N Spring St", // TODO — e.g. 'Salt Lake City'
+  addressRegion: "CA",
+  postalCode: "90012", // TODO
+  addressCountry: "US",
 };
-const hours = ['Mo-Fr 09:00-18:00']; // TODO — confirm
+const hours = ["Mo-Fr 09:00-18:00"]; // TODO — confirm
 
 /**
  * The business, as one node.
@@ -177,8 +203,8 @@ const hours = ['Mo-Fr 09:00-18:00']; // TODO — confirm
  */
 export function organization(): Record<string, unknown> {
   const node: Record<string, unknown> = {
-    '@type': ['Organization', 'ProfessionalService'],
-    '@id': ID.org,
+    "@type": ["Organization", "ProfessionalService"],
+    "@id": ID.org,
     name: SITE_NAME,
 
     // Brand search is the highest-converting traffic a studio gets, and people
@@ -186,15 +212,23 @@ export function organization(): Record<string, unknown> {
     // singular, or run the words together. Every spelling the business is
     // actually searched by is declared so Google resolves them all to one
     // entity instead of treating them as unrelated strings.
-    alternateName: ['JP Media', 'JP Media Group', 'JPMedia', 'JP Media Groups Utah', 'JPMG', 'JP', 'jp'],
+    alternateName: [
+      "JP Media",
+      "JP Media Group",
+      "JPMedia",
+      "JP Media Groups Utah",
+      "JPMG",
+      "JP",
+      "jp",
+    ],
 
     url: SITE_URL,
-    logo: { '@id': ID.logo },
-    image: { '@id': ID.logo },
+    logo: { "@id": ID.logo },
+    image: { "@id": ID.logo },
     description:
-      'Creative agency specialising in audiovisual production, professional photography, music videos, branding and strategic marketing.',
-    slogan: 'Every brand has a story worth telling',
-    foundingDate: '2016',
+      "Creative agency specialising in audiovisual production, professional photography, music videos, branding and strategic marketing.",
+    slogan: "Every brand has a story worth telling",
+    foundingDate: "2016",
     email: contact.email,
     telephone: contact.phone,
 
@@ -204,41 +238,51 @@ export function organization(): Record<string, unknown> {
     // and "Los Angeles" are one fact to the studio and two searches to Google.
     areaServed: [
       ...markets.map((m) => ({
-        '@type': m.kind,
+        "@type": m.kind,
         name: m.name,
-        ...(m.region ? { address: { '@type': 'PostalAddress', addressRegion: m.region } } : {}),
+        ...(m.region
+          ? { address: { "@type": "PostalAddress", addressRegion: m.region } }
+          : {}),
       })),
-      ...markets.flatMap((m) => m.cities.map((c) => ({ '@type': 'City', name: c }))),
-      { '@type': 'Country', name: 'United States' },
+      ...markets.flatMap((m) =>
+        m.cities.map((c) => ({ "@type": "City", name: c })),
+      ),
+      { "@type": "Country", name: "United States" },
     ],
 
-    knowsAbout: [...KEYWORDS.core, ...KEYWORDS.services, ...KEYWORDS.places, ...marketKeywords],
-    knowsLanguage: ['en', 'es'],
+    knowsAbout: [
+      ...KEYWORDS.core,
+      ...KEYWORDS.services,
+      ...KEYWORDS.places,
+      ...marketKeywords,
+      ...workKeywords,
+    ],
+    knowsLanguage: ["en", "es"],
 
     // The five disciplines, as an offer catalogue. This is what lets Google
     // answer "what do they do" without parsing the prose.
     hasOfferCatalog: {
-      '@type': 'OfferCatalog',
-      name: 'Services',
+      "@type": "OfferCatalog",
+      name: "Services",
       itemListElement: services.items.map((s, i) => ({
-        '@type': 'Offer',
+        "@type": "Offer",
         position: i + 1,
         itemOffered: {
-          '@type': 'Service',
+          "@type": "Service",
           name: s.title,
           description: s.body,
           serviceType: s.title,
-          provider: { '@id': ID.org },
+          provider: { "@id": ID.org },
         },
       })),
     },
 
     employee: team.members.map((m) => ({
-      '@type': 'Person',
+      "@type": "Person",
       name: m.name,
       jobTitle: m.role,
       email: m.email,
-      worksFor: { '@id': ID.org },
+      worksFor: { "@id": ID.org },
     })),
 
     // Every profile the business controls. This is the single strongest signal
@@ -247,19 +291,19 @@ export function organization(): Record<string, unknown> {
     sameAs: socials.map((s) => s.href),
 
     contactPoint: {
-      '@type': 'ContactPoint',
-      contactType: 'sales',
+      "@type": "ContactPoint",
+      contactType: "sales",
       email: contact.email,
       telephone: contact.phone,
-      areaServed: ['US', 'CO'],
-      availableLanguage: ['English', 'Spanish'],
+      areaServed: ["US", "CO"],
+      availableLanguage: ["English", "Spanish"],
     },
   };
 
   if (LOCAL) {
-    node.address = { '@type': 'PostalAddress', ...postalAddress };
+    node.address = { "@type": "PostalAddress", ...postalAddress };
     node.openingHours = hours;
-    node.priceRange = '$$';
+    node.priceRange = "$$";
   }
 
   return node;
@@ -268,10 +312,10 @@ export function organization(): Record<string, unknown> {
 /** The logo, as its own node so both the Organization and the site can cite it. */
 export function logoNode(): Record<string, unknown> {
   return {
-    '@type': 'ImageObject',
-    '@id': ID.logo,
-    url: abs('/icons/icon-512.png'),
-    contentUrl: abs('/icons/icon-512.png'),
+    "@type": "ImageObject",
+    "@id": ID.logo,
+    url: abs("/icons/icon-512.png"),
+    contentUrl: abs("/icons/icon-512.png"),
     width: 512,
     height: 512,
     caption: SITE_NAME,
@@ -280,13 +324,13 @@ export function logoNode(): Record<string, unknown> {
 
 export function website(): Record<string, unknown> {
   return {
-    '@type': 'WebSite',
-    '@id': ID.website,
+    "@type": "WebSite",
+    "@id": ID.website,
     url: SITE_URL,
     name: SITE_NAME,
     description:
-      'Video production, professional photography and strategic marketing for brands, restaurants and artists.',
-    publisher: { '@id': ID.org },
+      "Video production, professional photography and strategic marketing for brands, restaurants and artists.",
+    publisher: { "@id": ID.org },
     inLanguage: LANG,
   };
 }
@@ -301,12 +345,12 @@ export function breadcrumbs(
   url: string,
 ): Record<string, unknown> | null {
   if (!trail.length) return null;
-  const items = [{ name: 'Home', path: '/' }, ...trail];
+  const items = [{ name: "Home", path: "/" }, ...trail];
   return {
-    '@type': 'BreadcrumbList',
-    '@id': `${url}#breadcrumb`,
+    "@type": "BreadcrumbList",
+    "@id": `${url}#breadcrumb`,
     itemListElement: items.map((item, i) => ({
-      '@type': 'ListItem',
+      "@type": "ListItem",
       position: i + 1,
       name: item.name,
       item: abs(item.path),
@@ -316,17 +360,18 @@ export function breadcrumbs(
 
 export function webPage(page: PageSeo, url: string): Record<string, unknown> {
   const node: Record<string, unknown> = {
-    '@type': 'WebPage',
-    '@id': `${url}#webpage`,
+    "@type": "WebPage",
+    "@id": `${url}#webpage`,
     url,
     name: page.title,
     description: page.description,
-    isPartOf: { '@id': ID.website },
-    about: { '@id': ID.org },
-    primaryImageOfPage: { '@id': ID.logo },
+    isPartOf: { "@id": ID.website },
+    about: { "@id": ID.org },
+    primaryImageOfPage: { "@id": ID.logo },
     inLanguage: LANG,
   };
-  if (page.breadcrumbs?.length) node.breadcrumb = { '@id': `${url}#breadcrumb` };
+  if (page.breadcrumbs?.length)
+    node.breadcrumb = { "@id": `${url}#breadcrumb` };
   return node;
 }
 
@@ -347,7 +392,7 @@ export function jsonLd(page: PageSeo, url: string): string {
     ...(page.schema ?? []),
   ].filter(Boolean);
 
-  return JSON.stringify({ '@context': 'https://schema.org', '@graph': graph });
+  return JSON.stringify({ "@context": "https://schema.org", "@graph": graph });
 }
 
 /* ------------------------------------------------------------ page copy */
@@ -362,28 +407,29 @@ export const pages = {
     // "JP Media" rather than the full name is deliberate — it is a real
     // alternateName, it catches the brand searches people actually type, and
     // Google prints "JP Media Groups" above the title from the schema anyway.
-    title: 'Photography, Video & Marketing — Utah & California | JP Media',
+    title: "Photography, Video & Marketing — Utah & California | JP Media",
     description:
-      'Creative agency for video production, photography and marketing in Utah, California, Florida, New York and Colombia. Music videos, commercials and food photography.',
-    image: '/og/jp-media-groups.jpg',
+      "Creative agency for video production, photography and marketing in Utah, California, Florida, New York and Colombia. Music videos, commercials and food photography.",
+    image: "/og/jp-media-groups.jpg",
     // A home page is the site root; a breadcrumb trail on it is noise.
     breadcrumbs: [],
   },
 
   contact: {
-    title: 'Contact — Start a Project | JP Media Groups',
+    title: "Contact — Start a Project | JP Media Groups",
     description:
-      'Tell JP Media Groups about your project. Video production, photography, music videos, branding and marketing in Utah, Miami, New York, Los Angeles and Colombia.',
-    image: '/og/contact.jpg',
-    imageAlt: 'Contact JP Media Groups — start a video, photography or marketing project.',
-    breadcrumbs: [{ name: 'Contact', path: '/contact/' }],
+      "Tell JP Media Groups about your project. Video production, photography, music videos, branding and marketing in Utah, Miami, New York, Los Angeles and Colombia.",
+    image: "/og/contact.jpg",
+    imageAlt:
+      "Contact JP Media Groups — start a video, photography or marketing project.",
+    breadcrumbs: [{ name: "Contact", path: "/contact/" }],
     schema: [
       {
-        '@type': 'ContactPage',
-        '@id': `${SITE_URL}/contact/#contactpage`,
+        "@type": "ContactPage",
+        "@id": `${SITE_URL}/contact/#contactpage`,
         url: `${SITE_URL}/contact/`,
-        name: 'Contact JP Media Groups',
-        mainEntity: { '@id': ID.org },
+        name: "Contact JP Media Groups",
+        mainEntity: { "@id": ID.org },
       },
     ],
   },
@@ -411,35 +457,40 @@ export const pages = {
       breadcrumbs: [{ name: m.name, path: `/${m.slug}/` }],
       schema: [
         {
-          '@type': 'Service',
-          '@id': `${SITE_URL}/${m.slug}/#service`,
+          "@type": "Service",
+          "@id": `${SITE_URL}/${m.slug}/#service`,
           name: `Marketing, video production and photography in ${m.name}`,
           description: m.lead,
           serviceType: m.leads,
-          provider: { '@id': ID.org },
+          provider: { "@id": ID.org },
           areaServed: [
             {
-              '@type': m.kind,
+              "@type": m.kind,
               name: m.name,
               ...(m.region
-                ? { address: { '@type': 'PostalAddress', addressRegion: m.region } }
+                ? {
+                    address: {
+                      "@type": "PostalAddress",
+                      addressRegion: m.region,
+                    },
+                  }
                 : {}),
             },
-            ...m.cities.map((c) => ({ '@type': 'City', name: c })),
+            ...m.cities.map((c) => ({ "@type": "City", name: c })),
           ],
           hasOfferCatalog: {
-            '@type': 'OfferCatalog',
+            "@type": "OfferCatalog",
             name: `Services in ${m.name}`,
             itemListElement: m.leads.map((title, i) => {
               const s = services.items.find((x) => x.title === title);
               return {
-                '@type': 'Offer',
+                "@type": "Offer",
                 position: i + 1,
                 itemOffered: {
-                  '@type': 'Service',
+                  "@type": "Service",
                   name: `${title} — ${m.name}`,
-                  description: s?.body ?? '',
-                  provider: { '@id': ID.org },
+                  description: s?.body ?? "",
+                  provider: { "@id": ID.org },
                 },
               };
             }),
@@ -449,12 +500,88 @@ export const pages = {
     };
   },
 
-  notFound: {
-    title: 'Page Not Found | JP Media Groups',
+  /**
+   * The portfolio index. The one page that says "here is the work" and links
+   * every category, which is what makes the six of them crawlable from one
+   * place instead of only from the nav.
+   */
+  work: {
+    title: "Work — Photography, Video & Websites | JP Media Groups",
     description:
-      'That page does not exist. Head back to JP Media Groups — video production, photography and marketing in Utah, the United States and Colombia.',
+      "Selected work by JP Media Groups: wedding and food photography, music videos, corporate and brand images, social media content and websites.",
+    breadcrumbs: [{ name: "Work", path: "/work/" }],
+  },
+
+  /**
+   * One record per portfolio category.
+   *
+   * These pages carry photographs, which is the reason they exist twice over:
+   * a photography studio that ranks for "wedding photographer" ranks on its
+   * pictures, and Google Images is a channel the market pages cannot reach.
+   * That is why `ImageGallery` is emitted with a real image count rather than
+   * a generic CollectionPage — and why the count is read from the folder, so
+   * schema and page can never disagree.
+   */
+  workCategory(
+    c: WorkCategory,
+    images: { url: string; caption: string }[],
+  ): PageSeo {
+    const node: Record<string, unknown> = {
+      "@type": c.kind === "web" ? "CollectionPage" : "ImageGallery",
+      "@id": `${SITE_URL}/work/${c.slug}/#gallery`,
+      name: `${c.name} — JP Media Groups`,
+      description: c.lead,
+      isPartOf: { "@id": ID.website },
+      about: { "@id": ID.org },
+    };
+
+    // Only claim images when there are images. An empty gallery node is a
+    // structured-data error, not a placeholder.
+    if (images.length) {
+      node.numberOfItems = images.length;
+      node.associatedMedia = images.map((img) => ({
+        "@type": "ImageObject",
+        contentUrl: img.url,
+        caption: img.caption,
+        creditText: SITE_NAME,
+        creator: { "@id": ID.org },
+        copyrightNotice: `© ${SITE_NAME}`,
+      }));
+    }
+
+    return {
+      title: `${c.name} | JP Media Groups`,
+      description: c.metaDescription,
+      breadcrumbs: [
+        { name: "Work", path: "/work/" },
+        { name: c.short, path: `/work/${c.slug}/` },
+      ],
+      schema: [
+        node,
+        {
+          "@type": "Service",
+          "@id": `${SITE_URL}/work/${c.slug}/#service`,
+          name: c.name,
+          description: c.lead,
+          serviceType: c.discipline,
+          provider: { "@id": ID.org },
+          areaServed: markets.map((m) => ({ "@type": m.kind, name: m.name })),
+        },
+      ],
+    };
+  },
+
+  notFound: {
+    title: "Page Not Found | JP Media Groups",
+    description:
+      "That page does not exist. Head back to JP Media Groups — video production, photography and marketing in Utah, the United States and Colombia.",
     // A 404 that gets indexed competes with the pages that matter.
     noindex: true,
     breadcrumbs: [],
   },
-} satisfies Record<string, PageSeo | ((m: Market) => PageSeo)>;
+} satisfies Record<
+  string,
+  | PageSeo
+  | ((m: Market) => PageSeo)
+  | ((c: WorkCategory, images: { url: string; caption: string }[]) => PageSeo)
+>;

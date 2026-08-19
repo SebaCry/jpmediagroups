@@ -25,6 +25,7 @@
 ::view-transition-old(root) {
   animation: page-out 260ms cubic-bezier(0.7, 0, 0.84, 0) both;
 }
+
 ::view-transition-new(root) {
   animation: page-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -35,6 +36,7 @@
     transform: translateY(-10px);
   }
 }
+
 @keyframes page-in {
   from {
     opacity: 0;
@@ -43,6 +45,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   ::view-transition-old(root),
   ::view-transition-new(root) {
     animation: none;
@@ -106,12 +109,10 @@ html[data-intro] body {
   opacity: 0;
   pointer-events: none;
   mix-blend-mode: screen;
-  background: radial-gradient(
-    circle closest-side,
-    color-mix(in srgb, var(--color-signal) 26%, transparent),
-    color-mix(in srgb, var(--color-verde) 10%, transparent) 55%,
-    transparent 72%
-  );
+  background: radial-gradient(circle closest-side,
+      color-mix(in srgb, var(--color-signal) 26%, transparent),
+      color-mix(in srgb, var(--color-verde) 10%, transparent) 55%,
+      transparent 72%);
 }
 
 @media (hover: none) {
@@ -121,6 +122,7 @@ html[data-intro] body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .intro,
   .spotlight {
     display: none !important;
@@ -163,24 +165,30 @@ html[data-intro] body {
   background: var(--color-ink);
   color: #d8e0e2;
 }
+
 .band-ink h1,
 .band-ink h2,
 .band-ink h3,
 .band-ink h4 {
   color: #fff;
 }
+
 .band-ink a {
   color: var(--color-verde);
 }
+
 .band-ink a:hover {
   color: #c2ef9b;
 }
+
 .band-ink .rule {
   background: var(--color-hairline-dark);
 }
+
 .band-ink .wall-label {
   color: #8ba3a8;
 }
+
 .band-ink .wall-label::before {
   background: var(--color-hairline-dark);
 }
@@ -222,6 +230,7 @@ html[data-intro] body {
 .wall-label__sep {
   color: var(--color-hairline);
 }
+
 .band-ink .wall-label__sep {
   color: var(--color-hairline-dark);
 }
@@ -245,6 +254,7 @@ html[data-intro] body {
   line-height: 1.6;
   color: var(--color-muted);
 }
+
 .band-ink .lead {
   color: #a9bcc0;
 }
@@ -274,6 +284,7 @@ html[data-intro] body {
   background: var(--color-ink);
   color: #fff;
 }
+
 .btn--primary .btn__fill {
   position: absolute;
   inset: 0;
@@ -281,15 +292,18 @@ html[data-intro] body {
   transform: translateY(101%);
   transition: transform var(--duration-micro) var(--ease-signature);
 }
+
 .btn--primary .btn__label,
 .btn--primary svg {
   position: relative;
   z-index: 1;
 }
+
 .btn--primary:hover,
 .btn--primary:focus-visible {
   color: var(--color-ink);
 }
+
 .btn--primary:hover .btn__fill,
 .btn--primary:focus-visible .btn__fill {
   transform: translateY(0);
@@ -300,6 +314,7 @@ html[data-intro] body {
   border: 1px solid var(--color-hairline);
   color: var(--color-ink);
 }
+
 .btn--ghost:hover,
 .btn--ghost:focus-visible {
   border-color: transparent;
@@ -308,10 +323,12 @@ html[data-intro] body {
   background-clip: padding-box, border-box;
   gap: 1rem;
 }
+
 .band-ink .btn--ghost {
   border-color: var(--color-hairline-dark);
   color: #fff;
 }
+
 .band-ink .btn--ghost:hover,
 .band-ink .btn--ghost:focus-visible {
   background-image: linear-gradient(var(--color-ink), var(--color-ink)), var(--gradient-brand);
@@ -326,6 +343,7 @@ html[data-intro] body {
   color: inherit;
   font-weight: 500;
 }
+
 .link::after {
   content: '';
   position: absolute;
@@ -338,6 +356,7 @@ html[data-intro] body {
   transform-origin: left;
   transition: transform var(--duration-micro) var(--ease-signature);
 }
+
 .link:hover::after,
 .link:focus-visible::after {
   transform: scaleX(1);
@@ -359,6 +378,7 @@ html[data-intro] body {
   overflow: hidden;
   background: var(--color-hairline);
 }
+
 .plate img {
   width: 100%;
   height: 100%;
@@ -380,6 +400,7 @@ html[data-intro] body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .btn,
   .btn__fill,
   .link::after {

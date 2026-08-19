@@ -1,26 +1,36 @@
 ---
-import WallLabel from '../WallLabel.astro';
-import Icon from '../Icon.astro';
-import { plans } from '../../content/site';
+import WallLabel from "../WallLabel.astro";
+import Icon from "../Icon.astro";
+import { plans } from "../../content/site";
 ---
 
 <section id="plans" class="section" data-placeholder={plans.status}>
   <div class="shell">
     <WallLabel items={plans.label} />
     <h2 data-reveal="lines" class="plans__title display-title">
-      {plans.titleLines.map((line) => <span data-line class="block">{line}</span>)}
+      {
+        plans.titleLines.map((line) => (
+          <span data-line class="block">
+            {line}
+          </span>
+        ))
+      }
     </h2>
 
     <ul class="plans__grid" data-reveal="rise">
       {
         plans.items.map((plan) => (
-          <li class:list={['plan', plan.featured && 'plan--featured']}>
+          <li class:list={["plan", plan.featured && "plan--featured"]}>
             <h3 class="plan__title">{plan.title}</h3>
             <p class="plan__summary">{plan.summary}</p>
 
             <p class="plan__price">{plan.price}</p>
 
-            <a href="/contact/" class="btn btn--ghost plan__cta" data-magnetic="0.16">
+            <a
+              href="/contact/"
+              class="btn btn--ghost plan__cta"
+              data-magnetic="0.16"
+            >
               {plans.cta}
               <Icon name="arrow-right" class="h-4 w-4" />
             </a>
@@ -72,7 +82,7 @@ import { plans } from '../../content/site';
     background: var(--color-chalk);
   }
   .plan--featured::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0 0 auto 0;
     height: 3px;

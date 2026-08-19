@@ -72,6 +72,9 @@ for (const [name, path] of [
   // One market page stands in for the five: they share a template, so a break
   // shows up on any of them.
   ['california', '/california/'],
+  ['work', '/work/'],
+  ['work-bodas', '/work/bodas/'],
+  ['work-websites', '/work/websites/'],
 ]) {
   await page.goto(`http://localhost:4599${path}`, { waitUntil: 'networkidle' });
   // Let the entrance timeline settle before capturing.

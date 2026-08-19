@@ -1,16 +1,25 @@
 /**
- * Drives the real contact form in a real browser against a stubbed Web3Forms.
+ * Drives the real contact form in a real browser against a stubbed EmailJS.
  *
  * The network call is intercepted so nothing is actually sent, but everything
- * up to and including the request body is the real code path: validation, the
- * lock on the button, the payload, and every result state — success, a server
- * rejection, a dead network, no JavaScript at all, and a bot.
+ * up to and including the request body is the real code path — the EmailJS SDK
+ * included. That matters most for the payload: the form's field names are the
+ * contract with the dashboard template, and asserting them on the real
+ * multipart body is the only way to catch a rename that would ship blank
+ * emails while still reporting success.
  *
- * Needs a build that has a key baked in, since the form refuses to send
- * without one. Any syntactically valid value works — nothing leaves the
- * browser.
+ * Covers: validation, the button lock, the payload, a 403, a 429, an
+ * unreachable endpoint, a genuinely offline visitor, no JavaScript at all, and
+ * a bot tripping the honeypot.
  *
- *   PUBLIC_WEB3FORMS_KEY=00000000-0000-0000-0000-000000000000 npm run build
+ * Needs a build with the three identifiers baked in, since the form refuses to
+ * send without them. The values below are what the assertions expect — nothing
+ * leaves the browser, so they need not be real.
+ *
+ *   PUBLIC_EMAILJS_SERVICE_ID=service_test123 \
+ *   PUBLIC_EMAILJS_TEMPLATE_ID=template_test456 \
+ *   PUBLIC_EMAILJS_PUBLIC_KEY=pk_test_abcdef \
+ *   npm run build
  *   npm run check:form
  */
 import { chromium } from 'playwright';
@@ -54,21 +63,18 @@ page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
 let captured = null;
 let mode = 'success';
 
-await page.route('https://api.web3forms.com/submit', async (route) => {
-  const req = route.request();
-  captured = req.postData();
+// EmailJS's SDK posts the assembled form to this endpoint. Intercepting it
+// rather than the SDK call means the payload asserted below is the real one
+// EmailJS would have sent — field mapping included — not a stub of our own.
+await page.route('**/api.emailjs.com/**', async (route) => {
+  captured = route.request().postData();
   if (mode === 'success') {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({ success: true, message: 'Email sent successfully' }),
-    });
+    await route.fulfill({ status: 200, contentType: 'text/plain', body: 'OK' });
   } else if (mode === 'reject') {
-    await route.fulfill({
-      status: 400,
-      contentType: 'application/json',
-      body: JSON.stringify({ success: false, message: 'Invalid access key' }),
-    });
+    // EmailJS answers with a plain-text reason and a status the SDK surfaces.
+    await route.fulfill({ status: 403, contentType: 'text/plain', body: 'Forbidden' });
+  } else if (mode === 'throttle') {
+    await route.fulfill({ status: 429, contentType: 'text/plain', body: 'Too Many Requests' });
   } else {
     await route.abort('failed');
   }
@@ -124,19 +130,30 @@ await page.waitForTimeout(900);
 
 expect('request enviado', captured !== null);
 const body = captured ?? '';
-expect('lleva access_key', body.includes('access_key'));
-expect('lleva el nombre', body.includes('Ana G'));
-expect('lleva el email', body.includes('ana@ejemplo.com'));
-expect('lleva el mensaje', body.includes('Necesito fotos'));
-expect('lleva la disciplina', body.includes('discipline'));
-// An unticked checkbox is not submitted — that IS the honeypot. Its absence
-// is what marks the sender as human; a bot that fills every field sends
-// `botcheck=on` and Web3Forms drops the submission.
-expect('honeypot ausente en envío humano', !body.includes('botcheck'));
+// `sendForm` posts multipart/form-data, not JSON — that is `send()`. So the
+// body is parsed as multipart parts rather than with JSON.parse, which is what
+// the first version of this test got wrong.
+//
+// The field names are the contract with the dashboard template, so each one is
+// asserted by name: renaming a field here without renaming `{{it}}` there
+// ships blank emails that still report success.
+const parts = Object.fromEntries(
+  [...body.matchAll(/name="([^"]+)"\r?\n\r?\n([\s\S]*?)\r?\n--/g)].map((m) => [m[1], m[2]]),
+);
+
+expect('el cuerpo es multipart', Object.keys(parts).length > 0, `${Object.keys(parts).length} campos`);
+expect('lleva service_id', parts.service_id === 'service_test123', parts.service_id ?? '(falta)');
+expect('lleva template_id', parts.template_id === 'template_test456', parts.template_id ?? '(falta)');
+expect('lleva la public key', parts.user_id === 'pk_test_abcdef', parts.user_id ?? '(falta)');
+
+expect('campo name', parts.name === 'Ana Gómez', parts.name ?? '(falta)');
+expect('campo email', parts.email === 'ana@ejemplo.com', parts.email ?? '(falta)');
+expect('campo message', String(parts.message ?? '').includes('Necesito fotos'));
+expect('campo discipline', Boolean(parts.discipline), parts.discipline ?? '(falta)');
 expect(
   'subject incluye el nombre',
-  /New project brief — Ana G/.test(body),
-  (body.match(/New project brief[^\r\n-]*/) ?? [''])[0].trim(),
+  parts.subject === 'New project brief — Ana Gómez',
+  parts.subject ?? '(falta)',
 );
 
 expect('estado = ok', (await status().getAttribute('data-state')) === 'ok');
@@ -150,7 +167,7 @@ expect('sin campos marcados', (await page.locator('.field[data-invalid]').count(
 expect('botón reactivado', !(await page.locator('[data-submit]').isDisabled()));
 expect('label restaurado', (await page.locator('[data-submit-label]').textContent()) === 'Send brief');
 
-/* --- 4. server rejects ------------------------------------------------- */
+/* --- 4. server rejects (403) -------------------------------------------- */
 console.log('\nrespuesta de error');
 mode = 'reject';
 captured = null;
@@ -159,41 +176,88 @@ await page.fill('#name', 'Ana');
 await page.fill('#email', 'ana@ejemplo.com');
 await page.fill('#message', 'Hola');
 await page.click('[data-submit]');
-await page.waitForTimeout(900);
+await page.waitForTimeout(1200);
+// Never the raw EmailJS text: the visitor is pointed at the address printed
+// beside the form instead of at a status code.
 expect(
-  'muestra el mensaje del servidor',
-  (await status().textContent())?.includes('Invalid access key'),
+  'ofrece el email como alternativa',
+  (await status().textContent())?.includes('contact@jpmediagroups.com'),
   await status().textContent(),
 );
 expect('estado = error', (await status().getAttribute('data-state')) === 'error');
 expect('botón reactivado tras fallo', !(await page.locator('[data-submit]').isDisabled()));
 
-/* --- 5. network down --------------------------------------------------- */
-console.log('\nsin conexión');
+/* --- 4b. rate limited (429) --------------------------------------------- */
+mode = 'throttle';
+await go();
+await page.fill('#name', 'Ana');
+await page.fill('#email', 'ana@ejemplo.com');
+await page.fill('#message', 'Hola');
+await page.click('[data-submit]');
+await page.waitForTimeout(1200);
+expect(
+  '429 se explica como reenvío',
+  (await status().textContent())?.includes('a moment ago'),
+  await status().textContent(),
+);
+
+/* --- 5. the request itself fails ---------------------------------------- */
+// The visitor's network is fine; EmailJS is simply unreachable. Telling them
+// to "check your connection" would be wrong and would send them looking in the
+// wrong place, so this case gets the generic fallback with the address.
+console.log('\nel request falla');
 mode = 'abort';
 await go();
 await page.fill('#name', 'Ana');
 await page.fill('#email', 'ana@ejemplo.com');
 await page.fill('#message', 'Hola');
 await page.click('[data-submit]');
-await page.waitForTimeout(900);
+await page.waitForTimeout(1200);
+expect(
+  'no culpa a la red del visitante',
+  !(await status().textContent())?.includes('No connection'),
+  await status().textContent(),
+);
+expect(
+  'ofrece el email',
+  (await status().textContent())?.includes('contact@jpmediagroups.com'),
+);
+expect('botón reactivado tras caída', !(await page.locator('[data-submit]').isDisabled()));
+
+/* --- 5b. genuinely offline ---------------------------------------------- */
+// Here the visitor really is offline, and "check your network" is the useful
+// thing to say rather than an email address they cannot reach either.
+console.log('\nsin conexión de verdad');
+await go();
+await page.fill('#name', 'Ana');
+await page.fill('#email', 'ana@ejemplo.com');
+await page.fill('#message', 'Hola');
+await page.context().setOffline(true);
+await page.click('[data-submit]');
+await page.waitForTimeout(1500);
 expect(
   'mensaje de red caída',
   (await status().textContent())?.includes('No connection'),
   await status().textContent(),
 );
-expect('botón reactivado tras caída', !(await page.locator('[data-submit]').isDisabled()));
+await page.context().setOffline(false);
 
-/* --- 6. no-JS fallback ------------------------------------------------- */
+/* --- 6. no JavaScript --------------------------------------------------- */
+// EmailJS cannot send without JavaScript — there is no endpoint to post to.
+// So the requirement is not that the form works, it is that the visitor is
+// never left with a button that silently does nothing.
 console.log('\nsin javascript');
 const nojs = await browser.newContext({ javaScriptEnabled: false });
 const p2 = await nojs.newPage();
 await p2.goto('http://localhost:4601/contact/');
 expect(
-  'action apunta a Web3Forms',
-  (await p2.getAttribute('form[data-contact]', 'action')) === 'https://api.web3forms.com/submit',
+  'no hay action que no pueda funcionar',
+  (await p2.getAttribute('form[data-contact]', 'action')) === null,
 );
-expect('method POST', (await p2.getAttribute('form[data-contact]', 'method'))?.toUpperCase() === 'POST');
+const ns = await p2.locator('noscript').innerHTML();
+expect('el aviso noscript existe', ns.length > 0);
+expect('ofrece el email', ns.includes('contact@jpmediagroups.com'), '');
+expect('ofrece el teléfono', /tel:\+?\d/.test(ns));
 expect('honeypot oculto', !(await p2.locator('input[name="botcheck"]').isVisible()));
 expect('honeypot fuera del tab order', (await p2.getAttribute('input[name="botcheck"]', 'tabindex')) === '-1');
 await nojs.close();
@@ -211,11 +275,14 @@ await page.evaluate(() => {
   el.checked = true;
 });
 await page.click('[data-submit]');
-await page.waitForTimeout(700);
-expect(
-  'honeypot marcado sí viaja (Web3Forms lo descarta)',
-  (captured ?? '').includes('botcheck'),
-);
+await page.waitForTimeout(900);
+// EmailJS has no server-side honeypot, so the abort has to happen here — the
+// request must never leave the browser, or the studio pays for the spam in
+// quota either way.
+expect('el bot no genera ningún request', captured === null, captured ? 'salió igual' : 'nada salió');
+// Reported as success on purpose: telling a bot it was blocked teaches
+// whoever wrote it which field to skip next time.
+expect('al bot se le responde éxito', (await status().getAttribute('data-state')) === 'ok');
 
 // The stubbed 400 and the aborted request are this script's own doing.
 const real = errors.filter(

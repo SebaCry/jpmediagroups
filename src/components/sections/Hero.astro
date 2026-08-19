@@ -1,23 +1,30 @@
 ---
-import { Image } from 'astro:assets';
-import WallLabel from '../WallLabel.astro';
-import Icon from '../Icon.astro';
-import horizon from '../../assets/plates/plate-horizon.webp';
-import { hero, studio } from '../../content/site';
+import { Image } from "astro:assets";
+import WallLabel from "../WallLabel.astro";
+import Icon from "../Icon.astro";
+import horizon from "../../assets/plates/plate-horizon.webp";
+import { hero, studio } from "../../content/site";
 ---
 
 <section data-hero data-parallax-scope class="hero" aria-label="Introduction">
   <div class="shell">
     <div class="hero__inner">
-    <WallLabel items={[...hero.label, studio.cities.join(' · ')]} class="hero__label" />
+      <WallLabel
+        items={[...hero.label, studio.cities.join(" · ")]}
+        class="hero__label"
+      />
 
-    <h1 class="hero__title">
-      {/* The visual copy is split into characters at runtime, which is noise to
-          a screen reader — so it is hidden and the sentence is exposed once. */}
-      <span class="sr-only">{hero.lines.map((l) => l.text).join(' ')} {hero.kicker}</span>
+      <h1 class="hero__title">
+        {
+          /* The visual copy is split into characters at runtime, which is noise to
+          a screen reader — so it is hidden and the sentence is exposed once. */
+        }
+        <span class="sr-only"
+          >{hero.lines.map((l) => l.text).join(" ")} {hero.kicker}</span
+        >
 
-      {
-        /* Both compositions are rendered and one is shown per breakpoint. The
+        {
+          /* Both compositions are rendered and one is shown per breakpoint. The
            whole visual block is already hidden from assistive tech — the
            sentence above is what gets read — so duplicating it costs nothing
            but a few spans, and it lets each breakpoint set its own line breaks
@@ -28,42 +35,54 @@ import { hero, studio } from '../../content/site';
            per-character spans each carry their own transform, which breaks the
            clip and renders them invisible. They rise as whole lines instead —
            which also lands the accent as one gesture. */
-        [
-          { set: hero.lines, cls: 'hero__set--wide' },
-          { set: hero.linesMobile, cls: 'hero__set--narrow' },
-        ].map(({ set, cls }) => (
-          <span class:list={['hero__set', cls]} aria-hidden="true">
-            {set.map((line) =>
-              line.accent ? (
-                <span data-hero-block class="hero__line hero__line--accent">
-                  <span>{line.text}</span>
-                </span>
-              ) : (
-                <span data-hero-line class="hero__line">{line.text}</span>
-              ),
-            )}
-          </span>
-        ))
-      }
-    </h1>
+          [
+            { set: hero.lines, cls: "hero__set--wide" },
+            { set: hero.linesMobile, cls: "hero__set--narrow" },
+          ].map(({ set, cls }) => (
+            <span class:list={["hero__set", cls]} aria-hidden="true">
+              {set.map((line) =>
+                line.accent ? (
+                  <span data-hero-block class="hero__line hero__line--accent">
+                    <span>{line.text}</span>
+                  </span>
+                ) : (
+                  <span data-hero-line class="hero__line">
+                    {line.text}
+                  </span>
+                ),
+              )}
+            </span>
+          ))
+        }
+      </h1>
 
-    <p data-hero-trail class="hero__kicker">{hero.kicker}</p>
+      <p data-hero-trail class="hero__kicker">{hero.kicker}</p>
 
-    <div data-hero-trail class="hero__actions">
-      <a href={hero.primaryCta.href} class="btn btn--primary" data-magnetic="0.22">
-        <span class="btn__label">{hero.primaryCta.label}</span>
-        <span class="btn__fill" aria-hidden="true"></span>
-      </a>
-      <a href={hero.secondaryCta.href} class="btn btn--ghost" data-magnetic="0.18">
-        {hero.secondaryCta.label}
-        <Icon name="arrow-right" class="h-4 w-4" />
-      </a>
+      <div data-hero-trail class="hero__actions">
+        <a
+          href={hero.primaryCta.href}
+          class="btn btn--primary"
+          data-magnetic="0.22"
+        >
+          <span class="btn__label">{hero.primaryCta.label}</span>
+          <span class="btn__fill" aria-hidden="true"></span>
+        </a>
+        <a
+          href={hero.secondaryCta.href}
+          class="btn btn--ghost"
+          data-magnetic="0.18"
+        >
+          {hero.secondaryCta.label}
+          <Icon name="arrow-right" class="h-4 w-4" />
+        </a>
       </div>
     </div>
   </div>
 
-  {/* The identity gradient laid down as a horizon. It is the only large field
-      of colour on the page — everything after this is salt and ink. */}
+  {
+    /* The identity gradient laid down as a horizon. It is the only large field
+      of colour on the page — everything after this is salt and ink. */
+  }
   <div class="hero__horizon" data-scroll-zoom aria-hidden="true">
     <Image
       src={horizon}
@@ -195,8 +214,20 @@ import { hero, studio } from '../../content/site';
     z-index: 0;
     /* Feathered on both edges so it reads as a stroke laid along the bottom of
        the page, not as a gradient background creeping up behind the type. */
-    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 70%, #000 92%, transparent);
-    mask-image: linear-gradient(to bottom, transparent, #000 70%, #000 92%, transparent);
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent,
+      #000 70%,
+      #000 92%,
+      transparent
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      transparent,
+      #000 70%,
+      #000 92%,
+      transparent
+    );
     opacity: 0.75;
   }
 

@@ -1,13 +1,13 @@
 ---
-import { ClientRouter } from 'astro:transitions';
-import { Image } from 'astro:assets';
-import introMark from '../assets/images/logo-lockup-inverse.png';
-import '../styles/global.css';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import Seo from '../components/Seo.astro';
-import { isDev } from '../lib/env';
-import { pages, LANG, type PageSeo } from '../lib/seo';
+import { ClientRouter } from "astro:transitions";
+import { Image } from "astro:assets";
+import introMark from "../assets/images/logo-lockup-inverse.png";
+import "../styles/global.css";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import Seo from "../components/Seo.astro";
+import { isDev } from "../lib/env";
+import { pages, LANG, type PageSeo } from "../lib/seo";
 
 /**
  * Pages pass a whole `PageSeo` record rather than a title and a description,
@@ -21,7 +21,7 @@ interface Props {
 const { seo = pages.home } = Astro.props;
 
 /** Turns on the magenta "PENDIENTE" outlines around theme-demo copy. */
-const devPlaceholders = isDev ? '' : undefined;
+const devPlaceholders = isDev ? "" : undefined;
 ---
 
 <!doctype html>
@@ -29,30 +29,47 @@ const devPlaceholders = isDev ? '' : undefined;
   <head>
     <Seo page={seo} />
 
-    {/* Display and body are preloaded so `swap` never actually swaps. DM Mono
-        only sets small labels, so it is left to load normally. */}
-    <link rel="preload" href="/fonts/syne-var.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/archivo-var.woff2" as="font" type="font/woff2" crossorigin />
+    {
+      /* Display and body are preloaded so `swap` never actually swaps. DM Mono
+        only sets small labels, so it is left to load normally. */
+    }
+    <link
+      rel="preload"
+      href="/fonts/syne-var.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/archivo-var.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
 
-    {/* Flip `no-js` before first paint so the reveal states are never mis-set,
+    {
+      /* Flip `no-js` before first paint so the reveal states are never mis-set,
         and arm the opening curtain.
 
         The curtain is opt-in: CSS keeps it hidden unless `data-intro` is set,
         which only happens here. The failsafe timer matters — if the motion
-        module fails to load, the panel still lifts and the page is usable. */}
+        module fails to load, the panel still lifts and the page is usable. */
+    }
     <script is:inline>
-      document.documentElement.classList.remove('no-js');
+      document.documentElement.classList.remove("no-js");
       (function () {
         try {
-          if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-          if (sessionStorage.getItem('jpmg-intro')) return;
+          if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+            return;
+          if (sessionStorage.getItem("jpmg-intro")) return;
         } catch (e) {
           return;
         }
         var root = document.documentElement;
-        root.setAttribute('data-intro', '');
+        root.setAttribute("data-intro", "");
         setTimeout(function () {
-          root.removeAttribute('data-intro');
+          root.removeAttribute("data-intro");
         }, 3200);
       })();
     </script>
@@ -78,12 +95,16 @@ const devPlaceholders = isDev ? '' : undefined;
 
     <Header />
 
-    {/* `data-pagefind-body` scopes the search index to page content. Without
+    {
+      /* `data-pagefind-body` scopes the search index to page content. Without
         it Pagefind indexes every <body>, so the nav and footer would match on
-        every query and drown the real results. */}
-    {/* No `transition:animate` here on purpose: an element-level fade on top of
+        every query and drown the real results. */
+    }
+    {
+      /* No `transition:animate` here on purpose: an element-level fade on top of
         the document-level view transition cross-faded twice and read as a
-        blink. The whole-page transition is styled in ui.css instead. */}
+        blink. The whole-page transition is styled in ui.css instead. */
+    }
     <main id="main" data-pagefind-body>
       <slot />
     </main>
@@ -91,7 +112,7 @@ const devPlaceholders = isDev ? '' : undefined;
     <Footer />
 
     <script>
-      import { initMotion, destroyMotion } from '../lib/motion';
+      import { initMotion, destroyMotion } from "../lib/motion";
 
       // View Transitions swap the DOM without a reload, so triggers and the
       // smooth-scroll instance are torn down and rebuilt on every navigation.
@@ -101,12 +122,14 @@ const devPlaceholders = isDev ? '' : undefined;
       // paints the incoming DOM, so the reveal states are already applied.
       // page-load fires after paint, which meant you saw every section render
       // in full, get hidden, then animate back in.
-      document.addEventListener('astro:before-swap', destroyMotion);
-      document.addEventListener('astro:after-swap', initMotion);
+      document.addEventListener("astro:before-swap", destroyMotion);
+      document.addEventListener("astro:after-swap", initMotion);
 
       // after-swap never fires for the very first page, so start it directly.
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initMotion, { once: true });
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initMotion, {
+          once: true,
+        });
       } else {
         initMotion();
       }

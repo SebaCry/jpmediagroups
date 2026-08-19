@@ -16,20 +16,20 @@
       its portfolio gallery, which is what keeps the new motion on-brand.
    ========================================================================= */
 
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Lenis from 'lenis';
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Lenis from "lenis";
 
 gsap.registerPlugin(ScrollTrigger);
 
 /** Curves, mirrored from the `--ease-*` tokens in theme.css. */
 export const EASE = {
-  signature: 'power2.inOut', // cubic-bezier(.65,0,.35,1) equivalent
-  entrance: 'expo.out', // cubic-bezier(.16,1,.3,1)
-  exit: 'expo.in',
-  soft: 'power2.out',
-  overshoot: 'back.out(1.7)',
-  hero: 'power4.out', // the curve the current hero already uses
+  signature: "power2.inOut", // cubic-bezier(.65,0,.35,1) equivalent
+  entrance: "expo.out", // cubic-bezier(.16,1,.3,1)
+  exit: "expo.in",
+  soft: "power2.out",
+  overshoot: "back.out(1.7)",
+  hero: "power4.out", // the curve the current hero already uses
 } as const;
 
 export const DURATION = {
@@ -40,10 +40,10 @@ export const DURATION = {
 } as const;
 
 export const reducedMotion = () =>
-  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /** Coarse pointer / small viewport — animations adapt rather than switch off. */
-const isCompact = () => window.matchMedia('(max-width: 767px)').matches;
+const isCompact = () => window.matchMedia("(max-width: 767px)").matches;
 
 let lenis: Lenis | null = null;
 let ctx: gsap.Context | null = null;
@@ -65,7 +65,7 @@ function initLenis() {
     syncTouch: false,
   });
 
-  lenis.on('scroll', ScrollTrigger.update);
+  lenis.on("scroll", ScrollTrigger.update);
 
   tickerFn = (time: number) => lenis?.raf(time * 1000);
   gsap.ticker.add(tickerFn);
@@ -75,7 +75,7 @@ function initLenis() {
 }
 
 function findHash(hash: string): HTMLElement | null {
-  if (!hash || hash === '#') return null;
+  if (!hash || hash === "#") return null;
   try {
     return document.querySelector<HTMLElement>(hash);
   } catch {
@@ -85,13 +85,13 @@ function findHash(hash: string): HTMLElement | null {
 
 /** Real height of the fixed header, so jumps never land underneath it. */
 function headerOffset() {
-  const header = document.querySelector<HTMLElement>('[data-header]');
+  const header = document.querySelector<HTMLElement>("[data-header]");
   return (header?.offsetHeight ?? 72) + 16;
 }
 
 function landOn(target: HTMLElement) {
   // Keyboard users must land with focus on the destination.
-  target.setAttribute('tabindex', '-1');
+  target.setAttribute("tabindex", "-1");
   target.focus({ preventScroll: true });
 }
 
@@ -116,7 +116,7 @@ function jumpToHash(hash: string) {
   const target = findHash(hash);
   if (!target) return false;
 
-  const main = document.getElementById('main');
+  const main = document.getElementById("main");
   if (!main || !lenis) {
     target.scrollIntoView();
     landOn(target);
@@ -133,7 +133,8 @@ function jumpToHash(hash: string) {
       // the section sits. Refresh first, then measure, then scroll — and scroll
       // to a resolved number so nothing can re-measure underneath us.
       ScrollTrigger.refresh();
-      const y = target.getBoundingClientRect().top + window.scrollY - headerOffset();
+      const y =
+        target.getBoundingClientRect().top + window.scrollY - headerOffset();
       lenis?.scrollTo(y, { immediate: true });
       landOn(target);
     })
@@ -164,25 +165,27 @@ function settleOnHash(hash: string) {
  */
 function bindAnchors() {
   anchorAbort = new AbortController();
-  const samePath = (a: string, b: string) => a.replace(/\/+$/, '') === b.replace(/\/+$/, '');
+  const samePath = (a: string, b: string) =>
+    a.replace(/\/+$/, "") === b.replace(/\/+$/, "");
 
   document.addEventListener(
-    'click',
+    "click",
     (e) => {
       if (e.defaultPrevented || e.button !== 0) return;
       if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
 
-      const link = (e.target as Element | null)?.closest?.('a');
-      if (!link || link.target === '_blank' || link.hasAttribute('download')) return;
+      const link = (e.target as Element | null)?.closest?.("a");
+      if (!link || link.target === "_blank" || link.hasAttribute("download"))
+        return;
 
       const url = new URL(link.href, location.href);
       if (url.origin !== location.origin) return;
-      if (!url.hash || url.hash === '#') return;
+      if (!url.hash || url.hash === "#") return;
       if (!samePath(url.pathname, location.pathname)) return;
 
       if (jumpToHash(url.hash)) {
         e.preventDefault();
-        history.replaceState(null, '', url.hash);
+        history.replaceState(null, "", url.hash);
       }
     },
     { signal: anchorAbort.signal },
@@ -202,8 +205,8 @@ function bindAnchors() {
  * module — they stay plain DOM code and pull in none of GSAP.
  */
 function bindOverlayLock() {
-  document.addEventListener('overlay:open', () => lenis?.stop());
-  document.addEventListener('overlay:close', () => lenis?.start());
+  document.addEventListener("overlay:open", () => lenis?.stop());
+  document.addEventListener("overlay:close", () => lenis?.start());
 }
 
 /* ---------------------------------------------------------------------------
@@ -217,32 +220,32 @@ function bindOverlayLock() {
  * Words stay intact in their own inline-block so wrapping still works.
  */
 function splitChars(el: HTMLElement): HTMLElement[] {
-  const text = el.textContent ?? '';
-  el.textContent = '';
+  const text = el.textContent ?? "";
+  el.textContent = "";
 
   const chars: HTMLElement[] = [];
-  for (const word of text.split(' ')) {
-    const wordEl = document.createElement('span');
-    wordEl.className = 'inline-block whitespace-nowrap';
+  for (const word of text.split(" ")) {
+    const wordEl = document.createElement("span");
+    wordEl.className = "inline-block whitespace-nowrap";
     for (const ch of word) {
-      const span = document.createElement('span');
-      span.className = 'char';
+      const span = document.createElement("span");
+      span.className = "char";
       span.textContent = ch;
       wordEl.appendChild(span);
       chars.push(span);
     }
     el.appendChild(wordEl);
-    el.appendChild(document.createTextNode(' '));
+    el.appendChild(document.createTextNode(" "));
   }
   return chars;
 }
 
 /** Wraps each block child in an overflow-hidden line box for mask reveals. */
 function wrapLines(el: HTMLElement) {
-  const inner = document.createElement('span');
+  const inner = document.createElement("span");
   inner.append(...Array.from(el.childNodes));
-  el.textContent = '';
-  el.classList.add('line-mask');
+  el.textContent = "";
+  el.classList.add("line-mask");
   el.appendChild(inner);
   return inner;
 }
@@ -257,7 +260,7 @@ function wrapLines(el: HTMLElement) {
  * `d:5; y:50%; o:0; rZ:-5deg` → `e:power4.out; d:3`, 1200ms, 490ms delay.
  */
 function heroReveal(delay = 0.25) {
-  const hero = document.querySelector<HTMLElement>('[data-hero]');
+  const hero = document.querySelector<HTMLElement>("[data-hero]");
   if (!hero) return;
 
   // Both compositions of the headline are in the DOM, one per breakpoint.
@@ -268,7 +271,7 @@ function heroReveal(delay = 0.25) {
   // Lines are in document order regardless of which treatment they get, so the
   // timeline offsets stay in step with what the reader sees.
   const lines = Array.from(
-    hero.querySelectorAll<HTMLElement>('[data-hero-line], [data-hero-block]'),
+    hero.querySelectorAll<HTMLElement>("[data-hero-line], [data-hero-block]"),
   ).filter((el) => el.offsetParent !== null);
   if (!lines.length) return;
 
@@ -277,7 +280,7 @@ function heroReveal(delay = 0.25) {
   lines.forEach((line, i) => {
     // Gradient-filled lines rise whole: splitting them into per-character
     // spans would break `background-clip: text`.
-    if (line.hasAttribute('data-hero-block')) {
+    if (line.hasAttribute("data-hero-block")) {
       const inner = line.firstElementChild ?? line;
       tl.fromTo(
         inner,
@@ -298,20 +301,26 @@ function heroReveal(delay = 0.25) {
         rotate: 0,
         duration: DURATION.reveal,
         ease: EASE.hero,
-        stagger: { each: isCompact() ? 0.014 : 0.022, from: 'start' },
+        stagger: { each: isCompact() ? 0.014 : 0.022, from: "start" },
       },
       i * 0.09,
     );
   });
 
   // The rest of the hero furniture trails the headline.
-  const trail = hero.querySelectorAll<HTMLElement>('[data-hero-trail]');
+  const trail = hero.querySelectorAll<HTMLElement>("[data-hero-trail]");
   if (trail.length) {
     tl.fromTo(
       trail,
       { y: 24, opacity: 0 },
-      { y: 0, opacity: 1, duration: DURATION.media, ease: EASE.entrance, stagger: 0.08 },
-      '-=0.8',
+      {
+        y: 0,
+        opacity: 1,
+        duration: DURATION.media,
+        ease: EASE.entrance,
+        stagger: 0.08,
+      },
+      "-=0.8",
     );
   }
 }
@@ -323,15 +332,19 @@ function heroReveal(delay = 0.25) {
  */
 function clipReveals() {
   gsap.utils.toArray<HTMLElement>('[data-reveal="clip"]').forEach((el) => {
-    const img = el.querySelector('img');
+    const img = el.querySelector("img");
     const tl = gsap.timeline({
-      scrollTrigger: { trigger: el, start: 'top 88%', once: true },
+      scrollTrigger: { trigger: el, start: "top 88%", once: true },
     });
 
     tl.fromTo(
       el,
-      { clipPath: 'inset(0 0 100% 0)' },
-      { clipPath: 'inset(0 0 0% 0)', duration: DURATION.media, ease: EASE.entrance },
+      { clipPath: "inset(0 0 100% 0)" },
+      {
+        clipPath: "inset(0 0 0% 0)",
+        duration: DURATION.media,
+        ease: EASE.entrance,
+      },
     );
 
     if (img) {
@@ -358,7 +371,7 @@ function riseReveals() {
         duration: DURATION.media,
         ease: EASE.entrance,
         stagger: 0.09,
-        scrollTrigger: { trigger: el, start: 'top 86%', once: true },
+        scrollTrigger: { trigger: el, start: "top 86%", once: true },
       },
     );
   });
@@ -367,7 +380,7 @@ function riseReveals() {
 /** Line-masked headings — each line slides up out of its own box. */
 function lineReveals() {
   gsap.utils.toArray<HTMLElement>('[data-reveal="lines"]').forEach((el) => {
-    const lines = Array.from(el.querySelectorAll<HTMLElement>('[data-line]'));
+    const lines = Array.from(el.querySelectorAll<HTMLElement>("[data-line]"));
     const inners = lines.map(wrapLines);
     gsap.fromTo(
       inners,
@@ -377,7 +390,7 @@ function lineReveals() {
         duration: DURATION.reveal,
         ease: EASE.entrance,
         stagger: 0.08,
-        scrollTrigger: { trigger: el, start: 'top 85%', once: true },
+        scrollTrigger: { trigger: el, start: "top 85%", once: true },
       },
     );
   });
@@ -389,8 +402,8 @@ function lineReveals() {
  * reads on a phone without the elements drifting off-canvas.
  */
 function parallaxLayers() {
-  gsap.utils.toArray<HTMLElement>('[data-parallax]').forEach((el) => {
-    const depth = parseFloat(el.dataset.parallax || '0.2');
+  gsap.utils.toArray<HTMLElement>("[data-parallax]").forEach((el) => {
+    const depth = parseFloat(el.dataset.parallax || "0.2");
     const scale = isCompact() ? 0.45 : 1;
     const shift = 120 * depth * scale;
 
@@ -399,11 +412,11 @@ function parallaxLayers() {
       { y: -shift },
       {
         y: shift,
-        ease: 'none',
+        ease: "none",
         scrollTrigger: {
-          trigger: el.closest('[data-parallax-scope]') ?? el,
-          start: 'top bottom',
-          end: 'bottom top',
+          trigger: el.closest("[data-parallax-scope]") ?? el,
+          start: "top bottom",
+          end: "bottom top",
           scrub: 0.6,
         },
       },
@@ -413,16 +426,21 @@ function parallaxLayers() {
 
 /** Slow zoom on photography as it travels through the viewport. */
 function scrollZoom() {
-  gsap.utils.toArray<HTMLElement>('[data-scroll-zoom]').forEach((el) => {
-    const img = el.querySelector('img');
+  gsap.utils.toArray<HTMLElement>("[data-scroll-zoom]").forEach((el) => {
+    const img = el.querySelector("img");
     if (!img) return;
     gsap.fromTo(
       img,
       { scale: 1 },
       {
         scale: 1.12,
-        ease: 'none',
-        scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: 0.8 },
+        ease: "none",
+        scrollTrigger: {
+          trigger: el,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 0.8,
+        },
       },
     );
   });
@@ -434,11 +452,11 @@ function scrollZoom() {
  * with the page, which is what stops it feeling like a detached loop.
  */
 function marquees() {
-  gsap.utils.toArray<HTMLElement>('[data-marquee]').forEach((el) => {
-    const track = el.querySelector<HTMLElement>('[data-marquee-track]');
+  gsap.utils.toArray<HTMLElement>("[data-marquee]").forEach((el) => {
+    const track = el.querySelector<HTMLElement>("[data-marquee-track]");
     if (!track) return;
 
-    const speed = parseFloat(el.dataset.marquee || '11');
+    const speed = parseFloat(el.dataset.marquee || "11");
     const reverse = el.dataset.marqueeReverse !== undefined;
     const distance = track.scrollWidth / 2;
     if (!distance) return;
@@ -449,7 +467,7 @@ function marquees() {
       {
         x: reverse ? 0 : -distance,
         duration: distance / (speed * 8),
-        ease: 'none',
+        ease: "none",
         repeat: -1,
       },
     );
@@ -457,19 +475,27 @@ function marquees() {
     // Scroll velocity nudges the speed, then eases back to the base rate.
     ScrollTrigger.create({
       trigger: el,
-      start: 'top bottom',
-      end: 'bottom top',
+      start: "top bottom",
+      end: "bottom top",
       onUpdate: (self) => {
         const v = gsap.utils.clamp(-3, 3, self.getVelocity() / 900);
-        gsap.to(tween, { timeScale: 1 + Math.abs(v), duration: 0.4, overwrite: true });
-        gsap.to(track, { skewX: v * -1.2, duration: 0.4, overwrite: 'auto' });
+        gsap.to(tween, {
+          timeScale: 1 + Math.abs(v),
+          duration: 0.4,
+          overwrite: true,
+        });
+        gsap.to(track, { skewX: v * -1.2, duration: 0.4, overwrite: "auto" });
       },
       onLeave: () => gsap.to(tween, { timeScale: 1, duration: 0.6 }),
     });
 
     // Pause on hover, matching the theme's `bg_text_marquee_hover` option.
-    el.addEventListener('pointerenter', () => gsap.to(tween, { timeScale: 0, duration: 0.5 }));
-    el.addEventListener('pointerleave', () => gsap.to(tween, { timeScale: 1, duration: 0.5 }));
+    el.addEventListener("pointerenter", () =>
+      gsap.to(tween, { timeScale: 0, duration: 0.5 }),
+    );
+    el.addEventListener("pointerleave", () =>
+      gsap.to(tween, { timeScale: 1, duration: 0.5 }),
+    );
   });
 }
 
@@ -479,16 +505,16 @@ function marquees() {
  * stroke and draws it across as the page is read.
  */
 function scrollThread() {
-  const el = document.querySelector<HTMLElement>('[data-scroll-thread]');
+  const el = document.querySelector<HTMLElement>("[data-scroll-thread]");
   if (!el) return;
 
   gsap.fromTo(
     el,
-    { width: '0%' },
+    { width: "0%" },
     {
-      width: '100%',
-      ease: 'none',
-      scrollTrigger: { start: 0, end: 'max', scrub: 0.35 },
+      width: "100%",
+      ease: "none",
+      scrollTrigger: { start: 0, end: "max", scrub: 0.35 },
     },
   );
 }
@@ -505,14 +531,14 @@ function scrollThread() {
  * keyboard user never sees a control drifting off its focus ring.
  */
 function magnetic() {
-  if (window.matchMedia('(hover: none)').matches) return;
+  if (window.matchMedia("(hover: none)").matches) return;
 
-  gsap.utils.toArray<HTMLElement>('[data-magnetic]').forEach((el) => {
-    const strength = parseFloat(el.dataset.magnetic || '0.35');
-    const xTo = gsap.quickTo(el, 'x', { duration: 0.5, ease: EASE.soft });
-    const yTo = gsap.quickTo(el, 'y', { duration: 0.5, ease: EASE.soft });
+  gsap.utils.toArray<HTMLElement>("[data-magnetic]").forEach((el) => {
+    const strength = parseFloat(el.dataset.magnetic || "0.35");
+    const xTo = gsap.quickTo(el, "x", { duration: 0.5, ease: EASE.soft });
+    const yTo = gsap.quickTo(el, "y", { duration: 0.5, ease: EASE.soft });
 
-    el.addEventListener('pointermove', (e) => {
+    el.addEventListener("pointermove", (e) => {
       const r = el.getBoundingClientRect();
       xTo((e.clientX - (r.left + r.width / 2)) * strength);
       yTo((e.clientY - (r.top + r.height / 2)) * strength);
@@ -522,8 +548,8 @@ function magnetic() {
       xTo(0);
       yTo(0);
     };
-    el.addEventListener('pointerleave', reset);
-    el.addEventListener('blur', reset);
+    el.addEventListener("pointerleave", reset);
+    el.addEventListener("blur", reset);
   });
 }
 
@@ -539,8 +565,8 @@ function magnetic() {
 function pinnedRows() {
   if (window.innerWidth < 1024) return;
 
-  gsap.utils.toArray<HTMLElement>('[data-pin-row]').forEach((row) => {
-    const track = row.querySelector<HTMLElement>('[data-pin-track]');
+  gsap.utils.toArray<HTMLElement>("[data-pin-row]").forEach((row) => {
+    const track = row.querySelector<HTMLElement>("[data-pin-track]");
     if (!track) return;
 
     // Measured in a function so ScrollTrigger re-reads it on refresh, after
@@ -548,14 +574,14 @@ function pinnedRows() {
     const distance = () => Math.max(0, track.scrollWidth - row.clientWidth);
     if (distance() <= 0) return;
 
-    row.classList.add('is-pinned');
+    row.classList.add("is-pinned");
 
     gsap.to(track, {
       x: () => -distance(),
-      ease: 'none',
+      ease: "none",
       scrollTrigger: {
         trigger: row,
-        start: 'center center',
+        start: "center center",
         end: () => `+=${distance()}`,
         pin: true,
         scrub: 0.7,
@@ -573,15 +599,15 @@ function pinnedRows() {
  * than a block of colour scrolling into view.
  */
 function bandReveals() {
-  gsap.utils.toArray<HTMLElement>('[data-band]').forEach((band) => {
+  gsap.utils.toArray<HTMLElement>("[data-band]").forEach((band) => {
     gsap.fromTo(
       band,
-      { clipPath: 'inset(48% 0% 48% 0%)' },
+      { clipPath: "inset(48% 0% 48% 0%)" },
       {
-        clipPath: 'inset(0% 0% 0% 0%)',
+        clipPath: "inset(0% 0% 0% 0%)",
         duration: 1,
         ease: EASE.entrance,
-        scrollTrigger: { trigger: band, start: 'top 92%', once: true },
+        scrollTrigger: { trigger: band, start: "top 92%", once: true },
       },
     );
   });
@@ -594,35 +620,40 @@ function bandReveals() {
  * something about the content instead of just moving it.
  */
 function decodeLabels() {
-  const GLYPHS = '/0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ·';
+  const GLYPHS = "/0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ·";
 
-  gsap.utils.toArray<HTMLElement>('.wall-label span:not(.wall-label__sep)').forEach((el) => {
-    const final = el.textContent ?? '';
-    if (final.length < 2) return;
+  gsap.utils
+    .toArray<HTMLElement>(".wall-label span:not(.wall-label__sep)")
+    .forEach((el) => {
+      const final = el.textContent ?? "";
+      if (final.length < 2) return;
 
-    const state = { p: 0 };
-    gsap.to(state, {
-      p: 1,
-      duration: Math.min(1.1, 0.22 + final.length * 0.035),
-      ease: 'none',
-      scrollTrigger: { trigger: el, start: 'top 95%', once: true },
-      onStart: () => {
-        el.style.minWidth = `${el.getBoundingClientRect().width}px`;
-      },
-      onUpdate: () => {
-        const settled = Math.floor(state.p * final.length);
-        let out = final.slice(0, settled);
-        for (let i = settled; i < final.length; i++) {
-          out += final[i] === ' ' ? ' ' : GLYPHS[(Math.floor(state.p * 97) + i * 7) % GLYPHS.length];
-        }
-        el.textContent = out;
-      },
-      onComplete: () => {
-        el.textContent = final;
-        el.style.minWidth = '';
-      },
+      const state = { p: 0 };
+      gsap.to(state, {
+        p: 1,
+        duration: Math.min(1.1, 0.22 + final.length * 0.035),
+        ease: "none",
+        scrollTrigger: { trigger: el, start: "top 95%", once: true },
+        onStart: () => {
+          el.style.minWidth = `${el.getBoundingClientRect().width}px`;
+        },
+        onUpdate: () => {
+          const settled = Math.floor(state.p * final.length);
+          let out = final.slice(0, settled);
+          for (let i = settled; i < final.length; i++) {
+            out +=
+              final[i] === " "
+                ? " "
+                : GLYPHS[(Math.floor(state.p * 97) + i * 7) % GLYPHS.length];
+          }
+          el.textContent = out;
+        },
+        onComplete: () => {
+          el.textContent = final;
+          el.style.minWidth = "";
+        },
+      });
     });
-  });
 }
 
 /**
@@ -639,16 +670,16 @@ function decodeLabels() {
  * Returns the timeline so the hero can be scheduled against it.
  */
 function introCurtain(): gsap.core.Timeline | null {
-  const el = document.querySelector<HTMLElement>('[data-intro-curtain]');
-  if (!el || !document.documentElement.hasAttribute('data-intro')) return null;
+  const el = document.querySelector<HTMLElement>("[data-intro-curtain]");
+  if (!el || !document.documentElement.hasAttribute("data-intro")) return null;
 
-  const bar = el.querySelector<HTMLElement>('[data-intro-bar]');
-  const mark = el.querySelector<HTMLElement>('[data-intro-mark]');
+  const bar = el.querySelector<HTMLElement>("[data-intro-bar]");
+  const mark = el.querySelector<HTMLElement>("[data-intro-mark]");
 
   const finish = () => {
-    document.documentElement.removeAttribute('data-intro');
+    document.documentElement.removeAttribute("data-intro");
     try {
-      sessionStorage.setItem('jpmg-intro', '1');
+      sessionStorage.setItem("jpmg-intro", "1");
     } catch {
       /* private mode — the failsafe timer still clears the curtain */
     }
@@ -656,10 +687,23 @@ function introCurtain(): gsap.core.Timeline | null {
 
   const tl = gsap.timeline({ onComplete: finish });
 
-  tl.fromTo(mark, { opacity: 0, scale: 0.92 }, { opacity: 1, scale: 1, duration: 0.5, ease: EASE.entrance })
-    .fromTo(bar, { scaleX: 0 }, { scaleX: 1, duration: 0.75, ease: 'power2.inOut' }, 0.15)
-    .to([mark, bar], { opacity: 0, duration: 0.25, ease: 'none' }, '+=0.05')
-    .to(el, { clipPath: 'inset(0% 0% 100% 0%)', duration: 0.85, ease: EASE.entrance }, '-=0.1');
+  tl.fromTo(
+    mark,
+    { opacity: 0, scale: 0.92 },
+    { opacity: 1, scale: 1, duration: 0.5, ease: EASE.entrance },
+  )
+    .fromTo(
+      bar,
+      { scaleX: 0 },
+      { scaleX: 1, duration: 0.75, ease: "power2.inOut" },
+      0.15,
+    )
+    .to([mark, bar], { opacity: 0, duration: 0.25, ease: "none" }, "+=0.05")
+    .to(
+      el,
+      { clipPath: "inset(0% 0% 100% 0%)", duration: 0.85, ease: EASE.entrance },
+      "-=0.1",
+    );
 
   return tl;
 }
@@ -670,17 +714,17 @@ function introCurtain(): gsap.core.Timeline | null {
  * move, so the cost is two listeners instead of a lookup per frame.
  */
 function cursorSpotlight() {
-  if (window.matchMedia('(hover: none)').matches) return;
+  if (window.matchMedia("(hover: none)").matches) return;
 
-  const el = document.querySelector<HTMLElement>('[data-spotlight]');
-  const bands = gsap.utils.toArray<HTMLElement>('.band-ink');
+  const el = document.querySelector<HTMLElement>("[data-spotlight]");
+  const bands = gsap.utils.toArray<HTMLElement>(".band-ink");
   if (!el || !bands.length) return;
 
-  const xTo = gsap.quickTo(el, 'x', { duration: 0.55, ease: 'power3' });
-  const yTo = gsap.quickTo(el, 'y', { duration: 0.55, ease: 'power3' });
+  const xTo = gsap.quickTo(el, "x", { duration: 0.55, ease: "power3" });
+  const yTo = gsap.quickTo(el, "y", { duration: 0.55, ease: "power3" });
 
   window.addEventListener(
-    'pointermove',
+    "pointermove",
     (e) => {
       xTo(e.clientX);
       yTo(e.clientY);
@@ -689,11 +733,11 @@ function cursorSpotlight() {
   );
 
   bands.forEach((band) => {
-    band.addEventListener('pointerenter', () =>
-      gsap.to(el, { opacity: 1, duration: 0.45, overwrite: 'auto' }),
+    band.addEventListener("pointerenter", () =>
+      gsap.to(el, { opacity: 1, duration: 0.45, overwrite: "auto" }),
     );
-    band.addEventListener('pointerleave', () =>
-      gsap.to(el, { opacity: 0, duration: 0.45, overwrite: 'auto' }),
+    band.addEventListener("pointerleave", () =>
+      gsap.to(el, { opacity: 0, duration: 0.45, overwrite: "auto" }),
     );
   });
 }
@@ -705,7 +749,7 @@ function cursorSpotlight() {
  * and the effect reads as a broken transform rather than momentum.
  */
 function velocitySkew() {
-  const targets = gsap.utils.toArray<HTMLElement>('[data-skew]');
+  const targets = gsap.utils.toArray<HTMLElement>("[data-skew]");
   if (!targets.length) return;
 
   const clamp = gsap.utils.clamp(-3, 3);
@@ -714,11 +758,22 @@ function velocitySkew() {
   ScrollTrigger.create({
     onUpdate: (self) => {
       const skew = clamp(self.getVelocity() / 420);
-      gsap.to(targets, { skewY: skew, duration: 0.3, ease: 'power3', overwrite: true });
+      gsap.to(targets, {
+        skewY: skew,
+        duration: 0.3,
+        ease: "power3",
+        overwrite: true,
+      });
 
       window.clearTimeout(settle);
       settle = window.setTimeout(
-        () => gsap.to(targets, { skewY: 0, duration: 0.55, ease: 'power3', overwrite: true }),
+        () =>
+          gsap.to(targets, {
+            skewY: 0,
+            duration: 0.55,
+            ease: "power3",
+            overwrite: true,
+          }),
         90,
       );
     },
@@ -731,13 +786,13 @@ function velocitySkew() {
  * the movement never settles into a visible loop.
  */
 function floaters() {
-  gsap.utils.toArray<HTMLElement>('[data-float]').forEach((el, i) => {
+  gsap.utils.toArray<HTMLElement>("[data-float]").forEach((el, i) => {
     gsap.to(el, {
       y: () => gsap.utils.random(-26, 26),
       x: () => gsap.utils.random(-20, 20),
       rotation: () => gsap.utils.random(-7, 7),
       duration: () => gsap.utils.random(5, 9),
-      ease: 'sine.inOut',
+      ease: "sine.inOut",
       repeat: -1,
       yoyo: true,
       repeatRefresh: true,
@@ -751,7 +806,7 @@ function floaters() {
    ------------------------------------------------------------------------ */
 
 export function initMotion() {
-  document.documentElement.classList.remove('no-js');
+  document.documentElement.classList.remove("no-js");
 
   // Idempotent on purpose. In dev, HMR re-evaluates this module and fires
   // `astro:page-load` again without a matching teardown; the leftover
@@ -788,7 +843,9 @@ export function initMotion() {
   });
 
   // Late-loading images change layout; recalculate once they settle.
-  window.addEventListener('load', () => ScrollTrigger.refresh(), { once: true });
+  window.addEventListener("load", () => ScrollTrigger.refresh(), {
+    once: true,
+  });
 }
 
 export function destroyMotion() {

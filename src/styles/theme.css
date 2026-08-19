@@ -26,15 +26,22 @@
 
 @theme {
   /* --- Surfaces -------------------------------------------------------- */
-  --color-salt: #edefec; /* page — the gallery wall */
-  --color-chalk: #fafbf9; /* raised surfaces, cards */
-  --color-ink: #12232b; /* text, and the inverted bands */
-  --color-ink-soft: #1b333d; /* raised surface inside a dark band */
+  --color-salt: #edefec;
+  /* page — the gallery wall */
+  --color-chalk: #fafbf9;
+  /* raised surfaces, cards */
+  --color-ink: #12232b;
+  /* text, and the inverted bands */
+  --color-ink-soft: #1b333d;
+  /* raised surface inside a dark band */
 
   /* --- Text ------------------------------------------------------------ */
-  --color-muted: #5c6b66; /* secondary text — 4.9:1 on salt */
-  --color-hairline: #d3d8d3; /* rules on light */
-  --color-hairline-dark: #2c4650; /* rules on ink */
+  --color-muted: #5c6b66;
+  /* secondary text — 4.9:1 on salt */
+  --color-hairline: #d3d8d3;
+  /* rules on light */
+  --color-hairline-dark: #2c4650;
+  /* rules on ink */
 
   /* --- Brand accents, sampled from the logo ---------------------------- */
   --color-abyss: #2c6fc6;
@@ -47,13 +54,11 @@
   --color-counter: #d9576b;
 
   /* The identity itself. Used for rules, the scroll thread, and nothing else. */
-  --gradient-brand: linear-gradient(
-    120deg,
-    #2c6fc6 0%,
-    #2092e1 34%,
-    #34b4d7 62%,
-    #a0e36b 100%
-  );
+  --gradient-brand: linear-gradient(120deg,
+      #2c6fc6 0%,
+      #2092e1 34%,
+      #34b4d7 62%,
+      #a0e36b 100%);
 
   /* --- Typefaces -------------------------------------------------------
      Syne was drawn for an art centre. It is wide, slightly eccentric, and

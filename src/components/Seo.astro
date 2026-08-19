@@ -20,7 +20,7 @@ import {
   abs,
   jsonLd,
   type PageSeo,
-} from '../lib/seo';
+} from "../lib/seo";
 
 interface Props {
   page: PageSeo;
@@ -33,20 +33,20 @@ const { page } = Astro.props;
 //
 // The trailing slash is normalised: /contact and /contact/ are two URLs to a
 // crawler and only one of them should ever be declared canonical.
-const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
-const canonical = abs(path === '/' ? '/' : `${path}/`);
+const path = Astro.url.pathname.replace(/\/+$/, "") || "/";
+const canonical = abs(path === "/" ? "/" : `${path}/`);
 
 const image = abs(page.image ?? OG.image);
 const imageAlt = page.imageAlt ?? OG.alt;
-const type = page.type ?? 'website';
+const type = page.type ?? "website";
 
 // index,follow with the preview limits opened up. `max-image-preview:large` is
 // the one that matters commercially: without it Google renders a thumbnail
 // instead of a large image, and for a photography studio the large image is
 // most of the reason someone clicks.
 const robots = page.noindex
-  ? 'noindex, nofollow'
-  : 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1';
+  ? "noindex, nofollow"
+  : "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1";
 
 const schema = jsonLd(page, canonical);
 ---
@@ -62,8 +62,10 @@ const schema = jsonLd(page, canonical);
 <meta name="robots" content={robots} />
 <meta name="googlebot" content={robots} />
 
-{/* One language, stated rather than left for Google to infer. `x-default`
-    points at the same URL: there is no alternate to send anyone to yet. */}
+{
+  /* One language, stated rather than left for Google to infer. `x-default`
+    points at the same URL: there is no alternate to send anyone to yet. */
+}
 <link rel="alternate" hreflang={LANG} href={canonical} />
 <link rel="alternate" hreflang="x-default" href={canonical} />
 
@@ -72,14 +74,18 @@ const schema = jsonLd(page, canonical);
 <meta name="generator" content={Astro.generator} />
 
 {/* --- Local ------------------------------------------------------------ */}
-{/* Google ignores these; Bing and several local directories still read them. */}
+{
+  /* Google ignores these; Bing and several local directories still read them. */
+}
 <meta name="geo.region" content={GEO.region} />
 <meta name="geo.placename" content={GEO.placename} />
 
 {/* --- Open Graph ------------------------------------------------------- */}
-{/* Facebook, WhatsApp, LinkedIn, iMessage, Slack, Discord and Telegram all
+{
+  /* Facebook, WhatsApp, LinkedIn, iMessage, Slack, Discord and Telegram all
     read this block. Absolute image URLs are mandatory — most of them refuse a
-    relative one silently and render no card at all. */}
+    relative one silently and render no card at all. */
+}
 <meta property="og:type" content={type} />
 <meta property="og:site_name" content={SITE_NAME} />
 <meta property="og:title" content={page.title} />
@@ -95,8 +101,10 @@ const schema = jsonLd(page, canonical);
 <meta property="og:image:alt" content={imageAlt} />
 
 {/* --- X / Twitter ------------------------------------------------------ */}
-{/* `summary_large_image` is what turns the link into a full-bleed card.
-    Add `twitter:site` and `twitter:creator` once the studio has a handle. */}
+{
+  /* `summary_large_image` is what turns the link into a full-bleed card.
+    Add `twitter:site` and `twitter:creator` once the studio has a handle. */
+}
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={page.title} />
 <meta name="twitter:description" content={page.description} />
@@ -104,26 +112,44 @@ const schema = jsonLd(page, canonical);
 <meta name="twitter:image:alt" content={imageAlt} />
 
 {/* --- Icons and app surfaces ------------------------------------------- */}
-{/* SVG first for the sharp tab icon, PNG behind it for the clients that still
-    refuse SVG, then the home-screen icon and the manifest. */}
+{
+  /* SVG first for the sharp tab icon, PNG behind it for the clients that still
+    refuse SVG, then the home-screen icon and the manifest. */
+}
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <link rel="icon" href="/favicon-96.png" sizes="96x96" type="image/png" />
-<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" sizes="180x180" />
+<link
+  rel="apple-touch-icon"
+  href="/icons/apple-touch-icon.png"
+  sizes="180x180"
+/>
 <link rel="manifest" href="/site.webmanifest" />
 <meta name="apple-mobile-web-app-title" content={SITE_NAME} />
 <meta name="application-name" content={SITE_NAME} />
 <meta name="msapplication-TileColor" content="#12232B" />
 
-{/* Salt in light, ink in dark — the browser chrome matches the page instead of
-    fighting it. */}
-<meta name="theme-color" content="#edefec" media="(prefers-color-scheme: light)" />
-<meta name="theme-color" content="#12232B" media="(prefers-color-scheme: dark)" />
+{
+  /* Salt in light, ink in dark — the browser chrome matches the page instead of
+    fighting it. */
+}
+<meta
+  name="theme-color"
+  content="#edefec"
+  media="(prefers-color-scheme: light)"
+/>
+<meta
+  name="theme-color"
+  content="#12232B"
+  media="(prefers-color-scheme: dark)"
+/>
 
 {/* --- Discovery -------------------------------------------------------- */}
 <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />
 
 {/* --- Structured data -------------------------------------------------- */}
-{/* One graph, not several blocks: nodes in separate <script> tags cannot cite
+{
+  /* One graph, not several blocks: nodes in separate <script> tags cannot cite
     each other by @id, which is what keeps the business, the page and the trail
-    resolving to a single entity. */}
+    resolving to a single entity. */
+}
 <script type="application/ld+json" is:inline set:html={schema} />

@@ -1,9 +1,16 @@
 ---
-import { Image } from 'astro:assets';
-import logo from '../assets/images/logo-lockup-inverse.png';
-import Icon from './Icon.astro';
-import WallLabel from './WallLabel.astro';
-import { contact, socials, studio, nav, markets } from '../content/site';
+import { Image } from "astro:assets";
+import logo from "../assets/images/logo-lockup-inverse.png";
+import Icon from "./Icon.astro";
+import WallLabel from "./WallLabel.astro";
+import {
+  contact,
+  socials,
+  studio,
+  nav,
+  markets,
+  workCategories,
+} from "../content/site";
 
 const year = 2026;
 ---
@@ -14,7 +21,13 @@ const year = 2026;
       <div>
         <WallLabel items={contact.label} />
         <h2 data-reveal="lines" class="footer__title display-title">
-          {contact.titleLines.map((line) => <span data-line class="block">{line}</span>)}
+          {
+            contact.titleLines.map((line) => (
+              <span data-line class="block">
+                {line}
+              </span>
+            ))
+          }
         </h2>
 
         <a href="/contact/" class="btn btn--ghost mt-8" data-magnetic="0.2">
@@ -41,12 +54,29 @@ const year = 2026;
 
     <hr class="rule my-12" />
 
-    {/* Sitewide links to the market pages. This is what makes them crawlable
+    {
+      /* Sitewide links to the market pages. This is what makes them crawlable
         from every URL on the site instead of only from the home page, and it
         is the mechanism that spreads ranking authority across the set — a
         page linked from one place is treated as far less important than one
         linked from everywhere. Marked `data-pagefind-ignore` upstream so the
-        site search does not return the footer on every query. */}
+        site search does not return the footer on every query. */
+    }
+    <nav class="footer__markets" aria-label="Work">
+      <p class="footer__label">Work</p>
+      <ul>
+        {
+          workCategories.map((c) => (
+            <li>
+              <a href={`/work/${c.slug}/`}>{c.name}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <hr class="rule my-12" />
+
     <nav class="footer__markets" aria-label="Where we work">
       <p class="footer__label">Where we work</p>
       <ul>
@@ -66,12 +96,24 @@ const year = 2026;
 
     <div class="footer__bottom">
       <a href="/" aria-label="JP Media Groups — home">
-        <Image src={logo} alt="JP Media Groups" widths={[200, 400]} loading="lazy" class="h-8 w-auto" />
+        <Image
+          src={logo}
+          alt="JP Media Groups"
+          widths={[200, 400]}
+          loading="lazy"
+          class="h-8 w-auto"
+        />
       </a>
 
       <nav aria-label="Footer">
         <ul class="footer__nav">
-          {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+          {
+            nav.map((item) => (
+              <li>
+                <a href={item.href}>{item.label}</a>
+              </li>
+            ))
+          }
         </ul>
       </nav>
 
@@ -96,7 +138,9 @@ const year = 2026;
     </div>
 
     <p class="footer__legal">
-      © {year} JP Media Groups. {studio.years} years across {studio.cities.join(', ')}.
+      © {year} JP Media Groups. {studio.years} years across {
+        studio.cities.join(", ")
+      }.
     </p>
   </div>
 </footer>

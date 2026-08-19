@@ -10,24 +10,24 @@
  * skews it slightly, which ties the motion to the page rather than leaving it
  * looping on its own clock.
  */
-import { studio } from '../../content/site';
+import { studio } from "../../content/site";
 
 interface Props {
   /** `cities` for the reach strip, `disciplines` for the capability strip. */
-  source?: 'cities' | 'disciplines';
+  source?: "cities" | "disciplines";
   reverse?: boolean;
   speed?: number;
 }
 
-const { source = 'cities', reverse = false, speed = 9 } = Astro.props;
-const words = source === 'cities' ? studio.cities : studio.disciplines;
+const { source = "cities", reverse = false, speed = 9 } = Astro.props;
+const words = source === "cities" ? studio.cities : studio.disciplines;
 const track = [...words, ...words, ...words, ...words];
 ---
 
 <div
   class="marquee"
   data-marquee={speed}
-  data-marquee-reverse={reverse ? '' : undefined}
+  data-marquee-reverse={reverse ? "" : undefined}
   aria-hidden="true"
 >
   <div class="marquee__track" data-marquee-track>
@@ -42,7 +42,7 @@ const track = [...words, ...words, ...words, ...words];
   </div>
 </div>
 
-<span class="sr-only" data-pagefind-ignore>{words.join(', ')}</span>
+<span class="sr-only" data-pagefind-ignore>{words.join(", ")}</span>
 
 <style>
   .marquee {
@@ -87,7 +87,7 @@ const track = [...words, ...words, ...words, ...words];
 
   .marquee::before,
   .marquee::after {
-    content: '';
+    content: "";
     position: absolute;
     inset-block: 0;
     width: clamp(2rem, 8vw, 8rem);

@@ -1,17 +1,21 @@
 ---
-import { Image } from 'astro:assets';
-import WallLabel from '../WallLabel.astro';
-import { services } from '../../content/site';
-import { plate } from '../../lib/images';
+import { Image } from "astro:assets";
+import WallLabel from "../WallLabel.astro";
+import { services } from "../../content/site";
+import { plate } from "../../lib/images";
 ---
 
-{/* `overflow: hidden` because the drifting plates sit at negative insets and
-    move under GSAP — without it they extend the document's scroll width. */}
+{
+  /* `overflow: hidden` because the drifting plates sit at negative insets and
+    move under GSAP — without it they extend the document's scroll width. */
+}
 <section id="services" class="section overflow-hidden" data-parallax-scope>
-  {/* Colour drifting behind the list, so the light half of the page is never
-      completely still. Decorative only — blurred, low opacity, behind content. */}
+  {
+    /* Colour drifting behind the list, so the light half of the page is never
+      completely still. Decorative only — blurred, low opacity, behind content. */
+  }
   <Image
-    src={plate('plate-horizon.webp')}
+    src={plate("plate-horizon.webp")}
     alt=""
     aria-hidden="true"
     widths={[320]}
@@ -21,7 +25,7 @@ import { plate } from '../../lib/images';
     class="floater floater--a"
   />
   <Image
-    src={plate('plate-counter.webp')}
+    src={plate("plate-counter.webp")}
     alt=""
     aria-hidden="true"
     widths={[260]}
@@ -34,12 +38,20 @@ import { plate } from '../../lib/images';
   <div class="shell">
     <WallLabel items={services.label} />
     <h2 data-reveal="lines" class="services__title display-title">
-      {services.titleLines.map((line) => <span data-line class="block">{line}</span>)}
+      {
+        services.titleLines.map((line) => (
+          <span data-line class="block">
+            {line}
+          </span>
+        ))
+      }
     </h2>
 
-    {/* A typographic index rather than a grid of cards: five disciplines is a
+    {
+      /* A typographic index rather than a grid of cards: five disciplines is a
         list, and a list is what a studio's capability sheet actually is.
-        Pointing at a line brings its colour plate up beside it. */}
+        Pointing at a line brings its colour plate up beside it. */
+    }
     <div class="services__body" data-services>
       <ol class="services__list" data-skew>
         {
@@ -224,25 +236,29 @@ import { plate } from '../../lib/images';
   // Pointing at (or focusing) a discipline raises its plate. Defaults to the
   // first, so the preview is never an empty box.
   function setupServices() {
-    const root = document.querySelector<HTMLElement>('[data-services]');
+    const root = document.querySelector<HTMLElement>("[data-services]");
     if (!root) return;
 
-    const rows = Array.from(root.querySelectorAll<HTMLElement>('[data-service]'));
-    const plates = Array.from(root.querySelectorAll<HTMLElement>('[data-service-plate]'));
+    const rows = Array.from(
+      root.querySelectorAll<HTMLElement>("[data-service]"),
+    );
+    const plates = Array.from(
+      root.querySelectorAll<HTMLElement>("[data-service-plate]"),
+    );
     if (!rows.length) return;
 
     const activate = (i: number) => {
-      rows.forEach((r, n) => r.classList.toggle('is-active', n === i));
-      plates.forEach((p, n) => p.toggleAttribute('data-active', n === i));
+      rows.forEach((r, n) => r.classList.toggle("is-active", n === i));
+      plates.forEach((p, n) => p.toggleAttribute("data-active", n === i));
     };
 
     rows.forEach((row, i) => {
-      row.addEventListener('pointerenter', () => activate(i));
-      row.addEventListener('focusin', () => activate(i));
+      row.addEventListener("pointerenter", () => activate(i));
+      row.addEventListener("focusin", () => activate(i));
     });
 
     activate(0);
   }
 
-  document.addEventListener('astro:page-load', setupServices);
+  document.addEventListener("astro:page-load", setupServices);
 </script>

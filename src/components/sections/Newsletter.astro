@@ -1,13 +1,13 @@
 ---
-import Icon from '../Icon.astro';
-import WallLabel from '../WallLabel.astro';
-import { newsletter } from '../../content/site';
+import Icon from "../Icon.astro";
+import WallLabel from "../WallLabel.astro";
+import { newsletter } from "../../content/site";
 ---
 
 <section class="section">
   <div class="shell news">
     <div>
-      <WallLabel items={['Newsletter', 'Occasional']} />
+      <WallLabel items={["Newsletter", "Occasional"]} />
       <h2 data-reveal="lines" class="news__title display-title">
         <span data-line class="block">{newsletter.title}</span>
       </h2>
@@ -15,9 +15,17 @@ import { newsletter } from '../../content/site';
     </div>
 
     <div data-reveal="rise">
-      {/* The WordPress form posted to MetForm, which does not exist on a static
-          host. `action` is left for the client's provider — see README. */}
-      <form class="subscribe" method="post" action="#" data-newsletter novalidate>
+      {
+        /* The WordPress form posted to MetForm, which does not exist on a static
+          host. `action` is left for the client's provider — see README. */
+      }
+      <form
+        class="subscribe"
+        method="post"
+        action="#"
+        data-newsletter
+        novalidate
+      >
         <label class="sr-only" for="newsletter-email">Email address</label>
         <input
           id="newsletter-email"
@@ -35,7 +43,13 @@ import { newsletter } from '../../content/site';
         <span class="subscribe__rule" aria-hidden="true"></span>
       </form>
 
-      <p class="subscribe__msg" role="status" aria-live="polite" data-newsletter-msg></p>
+      <p
+        class="subscribe__msg"
+        role="status"
+        aria-live="polite"
+        data-newsletter-msg
+      >
+      </p>
     </div>
   </div>
 </section>
@@ -97,7 +111,7 @@ import { newsletter } from '../../content/site';
     background: var(--color-hairline);
   }
   .subscribe__rule::after {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     height: 1.5px;
@@ -136,7 +150,7 @@ import { newsletter } from '../../content/site';
     font-size: 0.9375rem;
     color: var(--color-muted);
   }
-  .subscribe__msg[data-state='error'] {
+  .subscribe__msg[data-state="error"] {
     color: var(--color-counter);
   }
 
@@ -151,30 +165,30 @@ import { newsletter } from '../../content/site';
 <script>
   // Client-side validation only. Point `action` at a provider before launch.
   function setupNewsletter() {
-    const form = document.querySelector<HTMLFormElement>('[data-newsletter]');
-    const msg = document.querySelector<HTMLElement>('[data-newsletter-msg]');
+    const form = document.querySelector<HTMLFormElement>("[data-newsletter]");
+    const msg = document.querySelector<HTMLElement>("[data-newsletter-msg]");
     if (!form || !msg) return;
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener("submit", (e) => {
       const field = form.querySelector<HTMLInputElement>('input[type="email"]');
       if (!field) return;
 
       if (!field.value.trim() || !field.checkValidity()) {
         e.preventDefault();
-        msg.dataset.state = 'error';
+        msg.dataset.state = "error";
         msg.textContent = !field.value.trim()
-          ? 'Enter your email address.'
-          : 'That email address does not look right.';
+          ? "Enter your email address."
+          : "That email address does not look right.";
         field.focus();
         return;
       }
-      if (form.getAttribute('action') === '#') {
+      if (form.getAttribute("action") === "#") {
         e.preventDefault();
-        msg.dataset.state = 'error';
-        msg.textContent = 'Newsletter endpoint not configured yet.';
+        msg.dataset.state = "error";
+        msg.textContent = "Newsletter endpoint not configured yet.";
       }
     });
   }
 
-  document.addEventListener('astro:page-load', setupNewsletter);
+  document.addEventListener("astro:page-load", setupNewsletter);
 </script>

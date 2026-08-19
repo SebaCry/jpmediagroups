@@ -1,8 +1,8 @@
 ---
-import { Image } from 'astro:assets';
-import WallLabel from '../WallLabel.astro';
-import { team } from '../../content/site';
-import { portrait } from '../../lib/images';
+import { Image } from "astro:assets";
+import WallLabel from "../WallLabel.astro";
+import { team } from "../../content/site";
+import { portrait } from "../../lib/images";
 
 // Each member resolves to a real portrait once the file lands in
 // src/assets/team/. Until then the slot renders an empty frame rather than a
@@ -11,14 +11,23 @@ const members = team.members.map((m) => ({ ...m, image: portrait(m.photo) }));
 const ready = members.filter((m) => m.image).length;
 ---
 
-<section id="team" class="section" data-placeholder={ready === members.length ? undefined : team.status}>
+<section
+  id="team"
+  class="section"
+  data-placeholder={ready === members.length ? undefined : team.status}
+>
   <div class="shell">
-    <WallLabel items={[...team.label, `${ready}/${members.length} portraits`]} />
+    <WallLabel
+      items={[...team.label, `${ready}/${members.length} portraits`]}
+    />
 
     <h2 data-reveal="lines" class="team__title display-title">
       {
         team.titleLines.map((line, i) => (
-          <span data-line class:list={['block', i === team.accentLine && 'team__accent']}>
+          <span
+            data-line
+            class:list={["block", i === team.accentLine && "team__accent"]}
+          >
             {line}
           </span>
         ))
@@ -26,11 +35,13 @@ const ready = members.filter((m) => m.image).length;
     </h2>
   </div>
 
-  {/* The set-piece: on desktop this viewport pins and the track scrubs
+  {
+    /* The set-piece: on desktop this viewport pins and the track scrubs
       sideways, which is what buys the portraits full height instead of a
       quarter of a grid row. Without JS — and on touch — it stays a plain snap
       carousel, so the behaviour degrades to something that already works
-      rather than to nothing. */}
+      rather than to nothing. */
+  }
   <div class="team__viewport" data-pin-row>
     <ul class="team__track" data-pin-track>
       {
@@ -48,7 +59,7 @@ const ready = members.filter((m) => m.image).length;
                   sizes="(min-width: 1024px) 36vw, 78vw"
                   loading="lazy"
                   class="member__img"
-                  style={`object-position: ${m.focus ?? '50% 20%'}`}
+                  style={`object-position: ${m.focus ?? "50% 20%"}`}
                 />
               ) : (
                 <span class="frame-empty member__empty">
@@ -122,7 +133,10 @@ const ready = members.filter((m) => m.image).length;
   @media (min-width: 1024px) {
     .team__track {
       gap: 2rem;
-      padding-inline: max(var(--spacing-gutter), calc((100vw - var(--container-shell)) / 2));
+      padding-inline: max(
+        var(--spacing-gutter),
+        calc((100vw - var(--container-shell)) / 2)
+      );
     }
     .member {
       width: clamp(320px, 34vw, 500px);

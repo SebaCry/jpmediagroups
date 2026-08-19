@@ -215,10 +215,13 @@ for (const file of pages) {
   const noAlt = imgs.filter((t) => !/\salt(?:=|[\s>/])/.test(t));
   noAlt.length ? bad(`${noAlt.length} <img> without an alt attribute`) : ok(`${imgs.length} images, all carry alt`);
 
-  const noDims = imgs.filter((t) => !/\swidth=/.test(t) || !/\sheight=/.test(t));
+  // An <img> with no src renders nothing and cannot shift anything — the
+  // lightbox viewer is one, populated only once a photograph is opened.
+  const painted = imgs.filter((t) => /\ssrc=/.test(t));
+  const noDims = painted.filter((t) => !/\swidth=/.test(t) || !/\sheight=/.test(t));
   noDims.length
     ? warn(`${noDims.length} <img> without width/height — each one is a layout shift`)
-    : ok('all images declare width and height');
+    : ok(`${painted.length} painted images declare width and height`);
 
   /* --- language --- */
   html.includes('<html lang=') ? ok('html lang set') : bad('no lang on <html>');

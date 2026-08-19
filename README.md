@@ -94,7 +94,8 @@ src/
 │   ├── images/     logo-lockup · logo-lockup-inverse · logo-mark
 │   ├── plates/     5 campos de color generados por scripts/
 │   ├── icons/      6 SVG propios
-│   └── team/       ← suelta aquí los retratos
+│   ├── team/       ← suelta aquí los retratos
+│   └── work/       ← suelta aquí el portfolio, una carpeta por categoría
 ├── components/
 │   ├── WallLabel.astro      ← la firma
 │   ├── Header · Footer · Icon
@@ -102,8 +103,11 @@ src/
 │   └── sections/   Hero · Marquee · About · Services · Work ·
 │                   Team · Testimonial · Plans · Newsletter
 ├── content/site.ts          todo el copy, REAL vs PENDING
-├── lib/            motion.ts · images.ts · env.ts
-├── pages/          index · contact · 404
+├── lib/            motion.ts · images.ts · env.ts · seo.ts
+├── pages/
+│   ├── index · contact · 404
+│   ├── [market]/            5 páginas de mercado (Utah, California…)
+│   └── work/                índice + 6 categorías de portfolio
 └── styles/         theme.css ← los tokens (= tailwind.config)
                     ui.css · search.css · global.css
 ```
@@ -269,54 +273,144 @@ cuatro ciudades, los dos países, el Instagram y el titular del hero.
 
 ---
 
-## Formularios
+## Portfolio
 
-### Contacto — funcionando
+Seis categorías, cada una con su propia página indexable:
 
-`src/pages/contact.astro` envía a **Web3Forms**, que lo reenvía a
-`contact@jpmediagroups.com`. No hay backend propio ni adaptador: el sitio sigue
-siendo 100 % estático.
+| Ruta | Carpeta de assets | Viene de |
+|---|---|---|
+| `/work/` | — | índice |
+| `/work/bodas/` | `src/assets/work/bodas/` | PORTAFOLIO BODAS |
+| `/work/food/` | `src/assets/work/food/` | FOOD PHOTOS |
+| `/work/photos/` | `src/assets/work/photos/` | PHOTOS |
+| `/work/music-videos/` | `src/assets/work/music-videos/` | MUSIC VIDEOS |
+| `/work/social-media/` | `src/assets/work/social-media/` | SOCIAL MEDIA |
+| `/work/websites/` | `src/assets/work/websites/` | capturas |
 
-**Configuración.** Hace falta una variable de entorno:
+### Cargar fotografías
 
-```bash
-cp .env.example .env    # y pegar la access key dentro
-```
+**Se sueltan los archivos en la carpeta y aparecen.** No hay lista que
+mantener ni import que escribir — `src/lib/images.ts` descubre el contenido con
+un glob en tiempo de compilación. Ver
+[`src/assets/work/README.md`](src/assets/work/README.md) para el detalle.
 
-La key se saca en [web3forms.com](https://web3forms.com) poniendo
-`contact@jpmediagroups.com`; llega por correo a esa misma dirección. Hay que
-ponerla **en dos sitios**: en `.env` para local, y en Vercel → Settings →
-Environment Variables para producción (Production, Preview y Development).
+Nómbralas `01.jpg`, `02.jpg`… para fijar el orden. **No las comprimas ni las
+redimensiones antes**: Astro genera el WebP/AVIF y todos los tamaños
+responsive; dale el original más grande que tengas.
 
-Es una clave pública por diseño — igual que una site key de reCAPTCHA. Solo
-indica a qué buzón va un envío; no permite leer envíos anteriores, y Web3Forms
-se niega a entregar a cualquier dirección que no sea la que creó la key. Vive
-en una variable de entorno para poder rotarla sin tocar código y para que un
-fork del repo no herede el buzón del estudio.
+Mientras una carpeta esté vacía la página sigue construyéndose y sigue
+indexando — muestra marcos etiquetados en lugar de fotos, igual que hace
+`src/assets/team/`.
 
-**Sin la key configurada**, el formulario dice *"endpoint not configured yet"*
-en vez de fingir que envía, y en `astro dev` muestra además un aviso con las
-instrucciones.
+### Websites
 
-**Funciona sin JavaScript.** `action` y `method` son reales: sin JS el
-navegador postea de forma nativa y Web3Forms muestra su propia confirmación. El
-script solo añade la validación en línea, el estado de éxito sin salir de la
-página y el bloqueo del botón mientras se envía.
+Los proyectos se editan en `websites.items` dentro de
+[`src/content/site.ts`](src/content/site.ts): nombre, URL, año y alcance. Hoy
+son tres huecos vacíos. **La URL en vivo es lo que le da valor a la sección** —
+un visitante hace clic, ve un sitio real y se cree el resto. La captura es
+opcional: se llama `<slug>.jpg` en `src/assets/work/websites/`.
 
-**Anti-spam:** un honeypot (`botcheck`) oculto a la vista, a los lectores de
-pantalla y al orden de tabulación. Un envío humano no lo incluye — una casilla
-sin marcar no se envía — y un bot que rellena todo sí, y Web3Forms lo descarta.
+### Visor de imágenes
+
+Las galerías abren un lightbox con teclado (`←` `→` `Esc`), bloqueo de scroll y
+retorno del foco a la miniatura de origen. Lee la variante más grande del
+`srcset` que Astro ya generó, así que no duplica imports. Sin JavaScript las
+fotos siguen todas en la página a tamaño responsive completo.
 
 **Verificación:**
 
 ```bash
-PUBLIC_WEB3FORMS_KEY=00000000-0000-0000-0000-000000000000 npm run build
+npm run build && npm run check:work
+```
+
+Recorre la navegación, las seis rutas, el lightbox completo y el estado vacío
+en Chrome. Necesita imágenes cargadas para probar la galería a fondo.
+
+---
+
+## Formularios
+
+### Contacto — funcionando
+
+`src/pages/contact.astro` envía por **EmailJS**, que lo reenvía a
+`contact@jpmediagroups.com`. No hay backend propio ni adaptador: el sitio sigue
+siendo 100 % estático.
+
+**Configuración.** Hacen falta tres variables de entorno:
+
+```bash
+cp .env.example .env    # y rellenar las tres
+```
+
+```
+PUBLIC_EMAILJS_SERVICE_ID     dashboard → Email Services
+PUBLIC_EMAILJS_TEMPLATE_ID    dashboard → Email Templates
+PUBLIC_EMAILJS_PUBLIC_KEY     dashboard → Account → General → API Keys
+```
+
+Van **en dos sitios**: en `.env` para local, y en Vercel → Settings →
+Environment Variables para producción (Production, Preview y Development).
+
+Las tres son públicas por diseño — EmailJS corre en el navegador, así que
+cualquier sitio que lo use las lleva en su código fuente, igual que una site
+key de reCAPTCHA. Ninguna permite leer envíos anteriores.
+
+> ⚠️ **Precisamente por ser públicas, hay que activar la lista de dominios.**
+> EmailJS dashboard → Account → Security → *Use Allowed List* → añadir
+> `jpmediagroups.com`. Sin eso, cualquiera puede pegar estas claves en su
+> propia página y consumir la cuota del estudio.
+
+**La plantilla de EmailJS**, lista para pegar en el dashboard (ajustes, HTML y
+versión de texto plano): [`docs/emailjs-template.md`](docs/emailjs-template.md).
+
+**Tiene que coincidir con los `name` del formulario.**
+`sendForm` convierte cada campo en una variable de plantilla; si se renombra un
+campo aquí sin renombrarlo en el dashboard, el envío sigue dando éxito y el
+correo llega **en blanco**. Variables: `{{name}}`, `{{email}}`,
+`{{discipline}}`, `{{message}}`, `{{subject}}`. En los ajustes de la plantilla,
+**Reply To debe ser `{{email}}`** o responder en Gmail contesta a EmailJS en vez
+de al cliente. El detalle completo está en `.env.example`.
+
+**Sin las variables configuradas**, el formulario dice *"endpoint not
+configured yet"* en vez de fingir que envía, y en `astro dev` muestra además un
+aviso con las instrucciones.
+
+**⚠️ No funciona sin JavaScript.** EmailJS es una API de JS: no existe una URL a
+la que un navegador pueda postear el formulario de forma nativa, así que esto
+es una regresión respecto a Web3Forms y es inherente al servicio. En lugar de
+dejar un botón muerto, un bloque `<noscript>` le da al visitante el email y el
+teléfono. Si en algún momento importa recuperar el envío sin JS, hace falta un
+endpoint propio (función de Vercel), no otro proveedor cliente.
+
+**El SDK se carga bajo demanda.** ~1 KB gz en su propio chunk, importado
+dinámicamente al primer `focus` dentro del formulario. El JS inicial de
+`/contact/` no cambia: quien entra y no toca el formulario no lo descarga.
+
+**Anti-spam:** un honeypot (`botcheck`) oculto a la vista, a los lectores de
+pantalla y al orden de tabulación. A diferencia de Web3Forms, EmailJS **no**
+tiene honeypot de servidor, así que la comprobación vive en el script y aborta
+antes de enviar nada — al bot se le responde éxito, porque decirle que fue
+bloqueado le enseña qué campo saltarse la próxima vez.
+
+**Sin `limitRate`.** El throttle del SDK cuenta *intentos*, no envíos correctos,
+así que a quien le fallara el primer envío por un corte de red y reintentara se
+le decía *"that was sent a moment ago"* sobre un mensaje que nunca salió. El
+bloqueo del botón ya cubre el doble clic real.
+
+**Verificación:**
+
+```bash
+PUBLIC_EMAILJS_SERVICE_ID=service_test123 \
+PUBLIC_EMAILJS_TEMPLATE_ID=template_test456 \
+PUBLIC_EMAILJS_PUBLIC_KEY=pk_test_abcdef \
+npm run build
 npm run check:form
 ```
 
 Recorre el formulario en Chrome con la red interceptada: envío vacío, email
-inválido, envío correcto y su payload, rechazo del servidor, red caída, sin JS
-y bot. No sale nada a internet.
+inválido, envío correcto y su payload multipart campo por campo, 403, 429,
+endpoint inalcanzable, visitante realmente sin conexión, sin JS, y bot. No sale
+nada a internet.
 
 ### Newsletter — pendiente
 

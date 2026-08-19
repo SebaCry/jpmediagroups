@@ -15,13 +15,19 @@
  *      last, ranked lowest, and inherits none of the home page's authority.
  *      This block is the link.
  */
-import WallLabel from '../WallLabel.astro';
-import { markets, studio } from '../../content/site';
+import WallLabel from "../WallLabel.astro";
+import { markets, studio } from "../../content/site";
 ---
 
 <section id="markets" class="section">
   <div class="shell">
-    <WallLabel items={['Where we work', `${markets.length} markets`, `${studio.years} years`]} />
+    <WallLabel
+      items={[
+        "Where we work",
+        `${markets.length} markets`,
+        `${studio.years} years`,
+      ]}
+    />
 
     <h2 data-reveal="lines" class="markets__title display-title">
       <span data-line class="block">Utah, California,</span>
@@ -30,8 +36,8 @@ import { markets, studio } from '../../content/site';
     </h2>
 
     <p data-reveal="rise" class="lead markets__lead">
-      Video production, professional photography and strategic marketing, delivered in five
-      markets across two countries.
+      Video production, professional photography and strategic marketing,
+      delivered in five markets across two countries.
     </p>
 
     <ul class="markets__list">
@@ -40,9 +46,11 @@ import { markets, studio } from '../../content/site';
           <li class="market-card" data-reveal="rise">
             <a href={`/${m.slug}/`} class="market-card__link">
               <h3 class="market-card__name">{m.name}</h3>
-              <p class="market-card__cities">{m.cities.join(' · ')}</p>
-              <p class="market-card__leads">{m.leads.join(' · ')}</p>
-              <span class="market-card__cue" aria-hidden="true">→</span>
+              <p class="market-card__cities">{m.cities.join(" · ")}</p>
+              <p class="market-card__leads">{m.leads.join(" · ")}</p>
+              <span class="market-card__cue" aria-hidden="true">
+                →
+              </span>
             </a>
           </li>
         ))
@@ -93,7 +101,10 @@ import { markets, studio } from '../../content/site';
   }
   @media (min-width: 768px) {
     .market-card__link {
-      grid-template-columns: minmax(0, 0.5fr) minmax(0, 0.5fr) minmax(0, 1fr) auto;
+      grid-template-columns: minmax(0, 0.5fr) minmax(0, 0.5fr) minmax(
+          0,
+          1fr
+        ) auto;
       gap: 2rem;
       padding-block: 1.75rem;
     }

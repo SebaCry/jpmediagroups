@@ -12,24 +12,41 @@
 export const isDev: boolean = import.meta.env.DEV;
 
 /**
- * Web3Forms access key — the contact form's delivery endpoint.
+ * EmailJS — the contact form's delivery route.
  *
- * `PUBLIC_` because this value is read in the browser, and Astro only exposes
- * prefixed variables there. That is not a leak: Web3Forms access keys are
- * designed to be public, exactly like a reCAPTCHA site key. The key does not
- * grant access to submissions — it only says which inbox a POST is addressed
- * to, and Web3Forms will not deliver to any address other than the one the key
- * was created for.
+ * Three identifiers, all three `PUBLIC_`. That prefix is required (Astro only
+ * exposes prefixed variables to browser code) and it is also accurate: EmailJS
+ * is a client-side service, so all three values are readable in the page source
+ * of any site that uses it, exactly like a reCAPTCHA site key. None of them
+ * grants access to past submissions.
  *
- * It still lives in an environment variable rather than in the source so it can
- * be rotated without a code change, and so a fork of this repository does not
+ * They still live in environment variables rather than in the source, so they
+ * can be rotated without a code change and so a fork of this repository does not
  * inherit the studio's inbox.
  *
- * Set it in two places:
+ * ── THE ONE THING THAT ACTUALLY PROTECTS THESE ────────────────────────────
+ * Because the keys are public, the only thing stopping somebody pasting them
+ * into their own page and sending mail through this account is the domain
+ * allowlist. In the EmailJS dashboard, under Account → Security, switch on
+ * "Use Allowed List" and add `jpmediagroups.com`. Without that, the quota is
+ * open to anyone who views source.
+ * ─────────────────────────────────────────────────────────────────────────
+ *
+ * Set them in two places:
  *   - locally, in `.env`               (see .env.example)
  *   - in production, Vercel → Settings → Environment Variables
  *
- * Empty is a supported state: the form then refuses to pretend it sent
- * anything, which is what it did before an endpoint existed at all.
+ * Any one of them missing is a supported state: the form then refuses to
+ * pretend it sent anything, which is what it did before a route existed.
  */
-export const web3formsKey: string = import.meta.env.PUBLIC_WEB3FORMS_KEY ?? '';
+export const emailjs = {
+  serviceId: import.meta.env.PUBLIC_EMAILJS_SERVICE_ID ?? "",
+  templateId: import.meta.env.PUBLIC_EMAILJS_TEMPLATE_ID ?? "",
+  publicKey: import.meta.env.PUBLIC_EMAILJS_PUBLIC_KEY ?? "",
+} as const;
+
+/** True only when all three identifiers are present. */
+export const emailjsReady: boolean =
+  emailjs.serviceId.length > 0 &&
+  emailjs.templateId.length > 0 &&
+  emailjs.publicKey.length > 0;

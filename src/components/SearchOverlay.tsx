@@ -18,9 +18,9 @@
    genuinely stateful, and Preact costs ~4KB gzip.
    ========================================================================= */
 
-import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
+import { useCallback, useEffect, useRef, useState } from "preact/hooks";
 
-type Status = 'idle' | 'typing' | 'results' | 'empty' | 'error';
+type Status = "idle" | "typing" | "results" | "empty" | "error";
 
 interface Hit {
   id: string;
@@ -40,7 +40,9 @@ const MAX_RESULTS = 6;
 /** Pagefind is generated into `dist/pagefind/` by the build script. */
 type PagefindModule = {
   options?: (o: Record<string, unknown>) => Promise<void>;
-  search: (q: string) => Promise<{ results: { id: string; data: () => Promise<any> }[] }>;
+  search: (
+    q: string,
+  ) => Promise<{ results: { id: string; data: () => Promise<any> }[] }>;
 };
 
 let pagefind: PagefindModule | null = null;
@@ -55,13 +57,15 @@ let pagefindError = false;
  * been edited". If the site ever moves under a base path, change this string
  * and `base` in astro.config.mjs together.
  */
-const PAGEFIND_URL = '/pagefind/pagefind.js';
+const PAGEFIND_URL = "/pagefind/pagefind.js";
 
 async function loadPagefind(): Promise<PagefindModule | null> {
   if (pagefind || pagefindError) return pagefind;
   try {
     // Built asset, absent from the dev server — resolved at runtime, not by Vite.
-    const mod = (await import(/* @vite-ignore */ PAGEFIND_URL)) as PagefindModule;
+    const mod = (await import(
+      /* @vite-ignore */ PAGEFIND_URL
+    )) as PagefindModule;
     await mod.options?.({ excerptLength: 24 });
     pagefind = mod;
     return mod;
@@ -73,8 +77,8 @@ async function loadPagefind(): Promise<PagefindModule | null> {
 
 export default function SearchOverlay({ placeholder, closeLabel }: Props) {
   const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState('');
-  const [status, setStatus] = useState<Status>('idle');
+  const [query, setQuery] = useState("");
+  const [status, setStatus] = useState<Status>("idle");
   const [hits, setHits] = useState<Hit[]>([]);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -86,9 +90,9 @@ export default function SearchOverlay({ placeholder, closeLabel }: Props) {
 
   const close = useCallback(() => {
     setOpen(false);
-    document.documentElement.removeAttribute('data-overlay-open');
-    document.body.style.overflow = '';
-    document.dispatchEvent(new CustomEvent('overlay:close'));
+    document.documentElement.removeAttribute("data-overlay-open");
+    document.body.style.overflow = "";
+    document.dispatchEvent(new CustomEvent("overlay:close"));
     lastFocused.current?.focus();
   }, []);
 
@@ -96,29 +100,35 @@ export default function SearchOverlay({ placeholder, closeLabel }: Props) {
     const onOpen = () => {
       lastFocused.current = document.activeElement as HTMLElement;
       setOpen(true);
-      document.documentElement.setAttribute('data-overlay-open', 'search');
-      document.body.style.overflow = 'hidden';
-      document.dispatchEvent(new CustomEvent('overlay:open'));
+      document.documentElement.setAttribute("data-overlay-open", "search");
+      document.body.style.overflow = "hidden";
+      document.dispatchEvent(new CustomEvent("overlay:open"));
       // Warm the index while the panel animates in.
       void loadPagefind();
     };
 
-    const triggers = Array.from(document.querySelectorAll<HTMLElement>('[data-search-open]'));
-    triggers.forEach((t) => t.addEventListener('click', onOpen));
+    const triggers = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-search-open]"),
+    );
+    triggers.forEach((t) => t.addEventListener("click", onOpen));
 
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && open) close();
+      if (e.key === "Escape" && open) close();
       // `/` focuses search, the convention users already expect.
-      if (e.key === '/' && !open && !/^(INPUT|TEXTAREA)$/.test((e.target as HTMLElement)?.tagName)) {
+      if (
+        e.key === "/" &&
+        !open &&
+        !/^(INPUT|TEXTAREA)$/.test((e.target as HTMLElement)?.tagName)
+      ) {
         e.preventDefault();
         onOpen();
       }
     };
-    document.addEventListener('keydown', onKey);
+    document.addEventListener("keydown", onKey);
 
     return () => {
-      triggers.forEach((t) => t.removeEventListener('click', onOpen));
-      document.removeEventListener('keydown', onKey);
+      triggers.forEach((t) => t.removeEventListener("click", onOpen));
+      document.removeEventListener("keydown", onKey);
     };
   }, [open, close]);
 
@@ -129,9 +139,11 @@ export default function SearchOverlay({ placeholder, closeLabel }: Props) {
   /* --- focus trap ----------------------------------------------------- */
 
   const onPanelKeyDown = (e: KeyboardEvent) => {
-    if (e.key !== 'Tab' || !panelRef.current) return;
+    if (e.key !== "Tab" || !panelRef.current) return;
     const items = Array.from(
-      panelRef.current.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input'),
+      panelRef.current.querySelectorAll<HTMLElement>(
+        "a[href], button:not([disabled]), input",
+      ),
     ).filter((el) => el.offsetParent !== null);
     if (!items.length) return;
     const first = items[0];
@@ -150,22 +162,24 @@ export default function SearchOverlay({ placeholder, closeLabel }: Props) {
   const run = useCallback(async (q: string) => {
     const pf = await loadPagefind();
     if (!pf) {
-      setStatus('error');
+      setStatus("error");
       return;
     }
     try {
       const { results } = await pf.search(q);
-      const top = await Promise.all(results.slice(0, MAX_RESULTS).map((r) => r.data()));
+      const top = await Promise.all(
+        results.slice(0, MAX_RESULTS).map((r) => r.data()),
+      );
       const mapped: Hit[] = top.map((d, i) => ({
         id: results[i].id,
         url: d.url,
         title: d.meta?.title ?? d.url,
-        excerpt: d.excerpt ?? '',
+        excerpt: d.excerpt ?? "",
       }));
       setHits(mapped);
-      setStatus(mapped.length ? 'results' : 'empty');
+      setStatus(mapped.length ? "results" : "empty");
     } catch {
-      setStatus('error');
+      setStatus("error");
     }
   }, []);
 
@@ -176,18 +190,21 @@ export default function SearchOverlay({ placeholder, closeLabel }: Props) {
 
     if (!value.trim()) {
       setHits([]);
-      setStatus('idle');
+      setStatus("idle");
       return;
     }
 
-    setStatus('typing');
-    timer.current = window.setTimeout(() => void run(value.trim()), DEBOUNCE_MS);
+    setStatus("typing");
+    timer.current = window.setTimeout(
+      () => void run(value.trim()),
+      DEBOUNCE_MS,
+    );
   };
 
   /* --- render --------------------------------------------------------- */
 
   return (
-    <div class={`search-overlay${open ? ' is-open' : ''}`} aria-hidden={!open}>
+    <div class={`search-overlay${open ? " is-open" : ""}`} aria-hidden={!open}>
       <div class="search-overlay__scrim" onClick={close} />
 
       <div
@@ -198,7 +215,12 @@ export default function SearchOverlay({ placeholder, closeLabel }: Props) {
         ref={panelRef}
         onKeyDown={onPanelKeyDown}
       >
-        <button type="button" class="search-overlay__close" onClick={close} aria-label={closeLabel}>
+        <button
+          type="button"
+          class="search-overlay__close"
+          onClick={close}
+          aria-label={closeLabel}
+        >
           <span />
           <span />
         </button>
@@ -231,33 +253,39 @@ export default function SearchOverlay({ placeholder, closeLabel }: Props) {
 
         {/* Live region: state changes are announced, not just shown. */}
         <div class="search-overlay__status" role="status" aria-live="polite">
-          {status === 'idle' && <p class="search-overlay__hint">Start typing to search.</p>}
+          {status === "idle" && (
+            <p class="search-overlay__hint">Start typing to search.</p>
+          )}
 
-          {status === 'typing' && (
+          {status === "typing" && (
             <p class="search-overlay__hint search-overlay__hint--busy">
               <span class="search-spinner" aria-hidden="true" />
               Searching…
             </p>
           )}
 
-          {status === 'empty' && (
+          {status === "empty" && (
             <p class="search-overlay__hint">
               No matches for <strong>“{query}”</strong>. Try a broader term.
             </p>
           )}
 
-          {status === 'error' && (
+          {status === "error" && (
             <p class="search-overlay__hint search-overlay__hint--error">
-              Search is unavailable right now. The index is generated at build time —
-              run <code>npm run build</code> and preview the built site.
+              Search is unavailable right now. The index is generated at build
+              time — run <code>npm run build</code> and preview the built site.
             </p>
           )}
         </div>
 
-        {status === 'results' && (
+        {status === "results" && (
           <ul class="search-overlay__results">
             {hits.map((hit, i) => (
-              <li key={hit.id} class="search-result" style={{ '--i': i } as never}>
+              <li
+                key={hit.id}
+                class="search-result"
+                style={{ "--i": i } as never}
+              >
                 <a href={hit.url} class="search-result__link" onClick={close}>
                   <span class="search-result__title">{hit.title}</span>
                   <span

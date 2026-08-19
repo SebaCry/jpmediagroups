@@ -16,11 +16,11 @@ interface Props {
   label?: string;
 }
 
-const { name, class: className = '', label } = Astro.props;
+const { name, class: className = "", label } = Astro.props;
 
-const icons = import.meta.glob<string>('../assets/icons/*.svg', {
-  query: '?raw',
-  import: 'default',
+const icons = import.meta.glob<string>("../assets/icons/*.svg", {
+  query: "?raw",
+  import: "default",
   eager: true,
 });
 
@@ -28,20 +28,25 @@ const raw = icons[`../assets/icons/${name}.svg`];
 
 if (!raw) {
   const available = Object.keys(icons)
-    .map((k) => k.split('/').pop()?.replace('.svg', ''))
+    .map((k) => k.split("/").pop()?.replace(".svg", ""))
     .sort()
-    .join(', ');
+    .join(", ");
   throw new Error(`Icon "${name}" not found. Available: ${available}`);
 }
 
 // Drop whatever accessibility attributes the extracted file carried, then apply
 // exactly one correct set based on whether this instance is labelled.
-const cleaned = raw.replace(/\s(?:aria-hidden|focusable|role|aria-label)="[^"]*"/g, '');
+const cleaned = raw.replace(
+  /\s(?:aria-hidden|focusable|role|aria-label)="[^"]*"/g,
+  "",
+);
 
 const attrs = [
   `class="${className}"`,
-  label ? `role="img" aria-label="${label}"` : 'aria-hidden="true" focusable="false"',
-].join(' ');
+  label
+    ? `role="img" aria-label="${label}"`
+    : 'aria-hidden="true" focusable="false"',
+].join(" ");
 
 const svg = cleaned.replace(/^<svg\s/, `<svg ${attrs} `);
 ---

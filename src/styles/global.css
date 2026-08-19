@@ -50,9 +50,11 @@
   html.lenis body {
     height: auto;
   }
+
   .lenis.lenis-smooth {
     scroll-behavior: auto !important;
   }
+
   .lenis.lenis-stopped {
     overflow: hidden;
   }
@@ -85,10 +87,29 @@
     text-wrap: balance;
   }
 
-  h1 { font-size: var(--text-h1); line-height: 0.98; letter-spacing: -0.03em; }
-  h2 { font-size: var(--text-h2); line-height: 1.02; letter-spacing: -0.025em; }
-  h3 { font-size: var(--text-h3); line-height: 1.1; letter-spacing: -0.02em; }
-  h4 { font-size: var(--text-h4); line-height: 1.2; letter-spacing: -0.015em; }
+  h1 {
+    font-size: var(--text-h1);
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+  }
+
+  h2 {
+    font-size: var(--text-h2);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+  }
+
+  h3 {
+    font-size: var(--text-h3);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  h4 {
+    font-size: var(--text-h4);
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+  }
 
   p {
     margin: 0;
@@ -100,6 +121,7 @@
     text-decoration: none;
     transition: color var(--duration-micro) var(--ease-soft);
   }
+
   a:hover {
     color: var(--color-abyss);
   }
@@ -145,6 +167,7 @@
     text-transform: uppercase;
     transition: translate var(--duration-micro) var(--ease-entrance);
   }
+
   .skip-link:focus-visible {
     translate: -50% 0;
   }
@@ -160,7 +183,8 @@
   [data-reveal='clip'] {
     will-change: clip-path;
   }
-  [data-reveal='rise'] > * {
+
+  [data-reveal='rise']>* {
     will-change: transform, opacity;
   }
 
@@ -168,7 +192,8 @@
     display: block;
     overflow: hidden;
   }
-  .line-mask > span {
+
+  .line-mask>span {
     display: block;
     will-change: transform;
   }
@@ -189,6 +214,7 @@
    ========================================================================= */
 
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -202,9 +228,9 @@
     clip-path: none !important;
   }
 
-  [data-reveal] > *,
+  [data-reveal]>*,
   .char,
-  .line-mask > span {
+  .line-mask>span {
     opacity: 1 !important;
     transform: none !important;
     translate: none !important;
@@ -215,7 +241,8 @@
   [data-marquee] {
     animation: none !important;
   }
-  [data-marquee] > *:not(:first-child) {
+
+  [data-marquee]>*:not(:first-child) {
     display: none;
   }
 }
@@ -225,9 +252,10 @@
 html.no-js [data-reveal='clip'] {
   clip-path: none !important;
 }
-html.no-js [data-reveal] > *,
+
+html.no-js [data-reveal]>*,
 html.no-js .char,
-html.no-js .line-mask > span {
+html.no-js .line-mask>span {
   opacity: 1 !important;
   transform: none !important;
 }

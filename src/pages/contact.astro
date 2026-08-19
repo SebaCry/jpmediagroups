@@ -4,26 +4,36 @@
  * function the WordPress contact page had. Its copy was theme demo, so the
  * page is rewritten around the studio's actual disciplines.
  */
-import BaseLayout from '../layouts/BaseLayout.astro';
-import WallLabel from '../components/WallLabel.astro';
-import Icon from '../components/Icon.astro';
-import { contact, studio, services, socials } from '../content/site';
-import { pages } from '../lib/seo';
-import { web3formsKey, isDev } from '../lib/env';
+import BaseLayout from "../layouts/BaseLayout.astro";
+import WallLabel from "../components/WallLabel.astro";
+import Icon from "../components/Icon.astro";
+import { contact, studio, services, socials } from "../content/site";
+import { pages } from "../lib/seo";
+import { emailjs, emailjsReady, isDev } from "../lib/env";
 
 /**
- * The form posts to Web3Forms, which relays it to the studio's inbox.
+ * The form sends through EmailJS, which relays it to the studio's inbox.
  *
- * `action` and `method` are real, not decorative: without JavaScript the
- * browser submits the form natively and Web3Forms renders its own confirmation
- * page. The script below intercepts it to keep the visitor on this page, so
- * the enhancement is the on-page success state, not the ability to send at all.
+ * ── ONE THING THIS COSTS, STATED PLAINLY ──────────────────────────────────
+ * EmailJS is a JavaScript API. There is no URL a browser can natively POST a
+ * form to, so unlike the previous Web3Forms setup this form does NOT work
+ * without JavaScript. `action` and `method` are gone rather than left in
+ * pointing at nothing, and a <noscript> block gives that visitor the email
+ * address and phone number instead of a button that silently does nothing.
+ * ─────────────────────────────────────────────────────────────────────────
  *
- * With no key configured the action stays at `#` — the form then reports that
- * it is not wired up rather than posting into the void.
+ * The field `name` attributes are the contract with the EmailJS template:
+ * `sendForm` turns each one into a template variable. Renaming a field here
+ * without renaming `{{it}}` in the dashboard template silently ships empty
+ * emails — the send still succeeds, the message just arrives blank.
+ *
+ *   name        → {{name}}
+ *   email       → {{email}}        ← set the template's Reply To to this
+ *   discipline  → {{discipline}}
+ *   message     → {{message}}
+ *   subject     → {{subject}}      ← written by the script, see below
  */
-const ENDPOINT = 'https://api.web3forms.com/submit';
-const configured = web3formsKey.length > 0;
+const configured = emailjsReady;
 ---
 
 <BaseLayout seo={pages.contact}>
@@ -31,32 +41,48 @@ const configured = web3formsKey.length > 0;
     <div class="shell">
       <WallLabel items={contact.label} />
       <h1 data-reveal="lines" class="contact__title display-title">
-        {contact.titleLines.map((line) => <span data-line class="block">{line}</span>)}
+        {
+          contact.titleLines.map((line) => (
+            <span data-line class="block">
+              {line}
+            </span>
+          ))
+        }
       </h1>
 
       <div class="contact__grid">
+        {
+          /* No `action`/`method`: EmailJS has no endpoint a browser can post to
+            natively, and an action that cannot work is worse than none. The
+            identifiers ride on data attributes so the script needs no build-time
+            template interpolation of its own. */
+        }
         <form
           class="contact-form"
-          method="POST"
-          action={configured ? ENDPOINT : '#'}
           data-contact
-          data-configured={configured ? '' : undefined}
+          data-configured={configured ? "" : undefined}
+          data-service={emailjs.serviceId}
+          data-template={emailjs.templateId}
+          data-key={emailjs.publicKey}
           novalidate
         >
-          <input type="hidden" name="access_key" value={web3formsKey} />
+          {
+            /* Overwritten by the script with the sender's name, so the inbox is
+              scannable. Use `{{subject}}` in the template's Subject field. */
+          }
+          <input
+            type="hidden"
+            name="subject"
+            value="New project brief — jpmediagroups.com"
+          />
 
-          {/* Web3Forms uses these to compose the message. `subject` is
-              overwritten with the sender's name by the script; this value is
-              what a no-JS submission arrives with. The field named `email` is
-              what Web3Forms sets Reply-To from, so replying in the inbox
-              answers the client directly. */}
-          <input type="hidden" name="subject" value="New project brief — jpmediagroups.com" />
-          <input type="hidden" name="from_name" value="JP Media Groups website" />
-
-          {/* Honeypot. Web3Forms discards any submission where `botcheck` is
-              ticked, and nothing but a bot filling every field it finds will
-              ever tick it. Hidden from sight, from screen readers and from tab
-              order — all three, or it becomes a trap for real people. */}
+          {
+            /* Honeypot. Unlike Web3Forms, EmailJS has no server-side honeypot —
+              the check below in the script is the whole of it, and a ticked box
+              aborts before anything is sent. Hidden from sight, from screen
+              readers and from tab order: all three, or it becomes a trap for
+              real people using a keyboard. */
+          }
           <input
             type="checkbox"
             name="botcheck"
@@ -69,20 +95,36 @@ const configured = web3formsKey.length > 0;
 
           <div class="field">
             <label class="field__label" for="name">Name</label>
-            <input class="field__input" id="name" name="name" type="text" required autocomplete="name" />
+            <input
+              class="field__input"
+              id="name"
+              name="name"
+              type="text"
+              required
+              autocomplete="name"
+            />
             <span class="field__rule" aria-hidden="true"></span>
             <span class="field__error" data-error-for="name"></span>
           </div>
 
           <div class="field">
             <label class="field__label" for="email">Email</label>
-            <input class="field__input" id="email" name="email" type="email" required autocomplete="email" />
+            <input
+              class="field__input"
+              id="email"
+              name="email"
+              type="email"
+              required
+              autocomplete="email"
+            />
             <span class="field__rule" aria-hidden="true"></span>
             <span class="field__error" data-error-for="email"></span>
           </div>
 
           <div class="field">
-            <label class="field__label" for="discipline">What do you need?</label>
+            <label class="field__label" for="discipline"
+              >What do you need?</label
+            >
             <select class="field__input" id="discipline" name="discipline">
               {studio.disciplines.map((d) => <option value={d}>{d}</option>)}
               <option value="Not sure yet">Not sure yet</option>
@@ -91,26 +133,66 @@ const configured = web3formsKey.length > 0;
           </div>
 
           <div class="field">
-            <label class="field__label" for="message">Tell us about the project</label>
-            <textarea class="field__input" id="message" name="message" rows="4" required></textarea>
+            <label class="field__label" for="message"
+              >Tell us about the project</label
+            >
+            <textarea
+              class="field__input"
+              id="message"
+              name="message"
+              rows="4"
+              required></textarea>
             <span class="field__rule" aria-hidden="true"></span>
             <span class="field__error" data-error-for="message"></span>
           </div>
 
-          <button type="submit" class="btn btn--primary self-start" data-magnetic="0.2" data-submit>
+          <button
+            type="submit"
+            class="btn btn--primary self-start"
+            data-magnetic="0.2"
+            data-submit
+          >
             <span class="btn__label" data-submit-label>Send brief</span>
             <span class="btn__fill" aria-hidden="true"></span>
           </button>
 
-          {/* `role="status"` + `aria-live="polite"` so a screen reader hears the
-              result without the focus being yanked out of the form. */}
-          <p class="contact-form__status" role="status" aria-live="polite" data-contact-status></p>
+          {
+            /* `role="status"` + `aria-live="polite"` so a screen reader hears the
+              result without the focus being yanked out of the form. */
+          }
+          <p
+            class="contact-form__status"
+            role="status"
+            aria-live="polite"
+            data-contact-status
+          >
+          </p>
+
+          {
+            /* The whole of the no-JavaScript story. EmailJS cannot send without
+              it, so rather than leave a dead button, the visitor is handed the
+              two things that do work everywhere. */
+          }
+          <noscript>
+            <p class="contact-form__noscript">
+              This form needs JavaScript to send. Email us at{" "}
+              <a href={`mailto:${contact.email}`}>{contact.email}</a> or call{
+                " "
+              }
+              <a href={`tel:${contact.phone.replace(/[^+\d]/g, "")}`}
+                >{contact.phone}</a
+              >.
+            </p>
+          </noscript>
 
           {
             isDev && !configured && (
               <p class="contact-form__setup">
-                PENDIENTE — falta <code>PUBLIC_WEB3FORMS_KEY</code>. Copiá <code>.env.example</code>{' '}
-                a <code>.env</code> y pegá la access key de web3forms.com. Este aviso no se
+                PENDIENTE — faltan las variables de EmailJS. Copiá{" "}
+                <code>.env.example</code> a <code>.env</code> y rellená{" "}
+                <code>PUBLIC_EMAILJS_SERVICE_ID</code>,{" "}
+                <code>PUBLIC_EMAILJS_TEMPLATE_ID</code> y{" "}
+                <code>PUBLIC_EMAILJS_PUBLIC_KEY</code>. Este aviso no se
                 renderiza en producción.
               </p>
             )
@@ -232,7 +314,7 @@ const configured = web3formsKey.length > 0;
     background: var(--color-hairline);
   }
   .field__rule::after {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     height: 1.5px;
@@ -264,13 +346,13 @@ const configured = web3formsKey.length > 0;
     line-height: 1.6;
     color: var(--color-muted);
   }
-  .contact-form__status[data-state='error'] {
+  .contact-form__status[data-state="error"] {
     color: var(--color-counter);
   }
   /* Success reads in the identity green, and is the only place on the page
      where the gradient resolves to a single flat colour — it is a state, not
      a piece of the composition. */
-  .contact-form__status[data-state='ok'] {
+  .contact-form__status[data-state="ok"] {
     color: var(--color-signal-deep);
     font-weight: 500;
   }
@@ -279,6 +361,19 @@ const configured = web3formsKey.length > 0;
   .contact-form button[disabled] {
     opacity: 0.55;
     cursor: progress;
+  }
+
+  /* Shown only when JavaScript is off, where the form cannot send at all. */
+  .contact-form__noscript {
+    margin: 0;
+    padding: 0.9rem 1.1rem;
+    border: 1px solid var(--color-hairline);
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: var(--color-muted);
+  }
+  .contact-form__noscript a {
+    color: var(--color-signal-deep);
   }
 
   /* Dev-only. Mirrors the `data-placeholder` badge used for pending copy. */
@@ -354,30 +449,50 @@ const configured = web3formsKey.length > 0;
 
 <script>
   /**
-   * Submits the brief without leaving the page.
+   * Submits the brief through EmailJS without leaving the page.
    *
-   * The form already works without this: `action` and `method` are real, so a
-   * browser with no JavaScript posts it natively and lands on Web3Forms' own
-   * confirmation. Everything here is the enhancement — inline validation, an
-   * on-page result, and a button that cannot be pressed twice.
+   * Unlike the Web3Forms setup this replaced, the send itself lives here —
+   * EmailJS has no endpoint a browser can post to natively, so there is no
+   * no-JavaScript path and the <noscript> block in the markup carries that
+   * visitor instead.
+   *
+   * The SDK is imported dynamically, on first interaction rather than on page
+   * load. It is ~4KB gzipped and only ever needed by somebody who is actually
+   * writing a brief, so paying for it up front on every visit to /contact/ —
+   * most of which never touch the form — would be spending the JS budget on
+   * nothing. Warming it at the first focus means it is already parsed by the
+   * time anyone finishes typing.
    */
+  type EmailJS = typeof import("@emailjs/browser");
+  let sdk: Promise<EmailJS> | null = null;
+  const loadSdk = () => (sdk ??= import("@emailjs/browser"));
+
   function setupContact() {
-    const form = document.querySelector<HTMLFormElement>('[data-contact]');
-    const status = document.querySelector<HTMLElement>('[data-contact-status]');
+    const form = document.querySelector<HTMLFormElement>("[data-contact]");
+    const status = document.querySelector<HTMLElement>("[data-contact-status]");
     if (!form || !status) return;
 
-    const button = form.querySelector<HTMLButtonElement>('[data-submit]');
-    const label = form.querySelector<HTMLElement>('[data-submit-label]');
-    const configured = form.hasAttribute('data-configured');
-    const idle = label?.textContent ?? 'Send brief';
+    const button = form.querySelector<HTMLButtonElement>("[data-submit]");
+    const label = form.querySelector<HTMLElement>("[data-submit-label]");
+    const configured = form.hasAttribute("data-configured");
+    const idle = label?.textContent ?? "Send brief";
+
+    const serviceId = form.dataset.service ?? "";
+    const templateId = form.dataset.template ?? "";
+    const publicKey = form.dataset.key ?? "";
+
+    // Nothing is fetched until somebody actually engages with the form.
+    form.addEventListener("focusin", () => configured && loadSdk(), {
+      once: true,
+    });
 
     const messages: Record<string, string> = {
-      name: 'Please tell us your name.',
-      email: 'Please enter a valid email address.',
-      message: 'Please tell us a little about the project.',
+      name: "Please tell us your name.",
+      email: "Please enter a valid email address.",
+      message: "Please tell us a little about the project.",
     };
 
-    const say = (state: 'error' | 'ok' | 'busy', text: string) => {
+    const say = (state: "error" | "ok" | "busy", text: string) => {
       status.dataset.state = state;
       status.textContent = text;
     };
@@ -392,31 +507,51 @@ const configured = web3formsKey.length > 0;
     const validate = (): HTMLElement | null => {
       let firstInvalid: HTMLElement | null = null;
 
-      form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('[required]').forEach((el) => {
-        const field = el.closest<HTMLElement>('.field');
-        const error = form.querySelector<HTMLElement>(`[data-error-for="${el.name}"]`);
-        const ok = el.checkValidity() && el.value.trim() !== '';
+      form
+        .querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("[required]")
+        .forEach((el) => {
+          const field = el.closest<HTMLElement>(".field");
+          const error = form.querySelector<HTMLElement>(
+            `[data-error-for="${el.name}"]`,
+          );
+          const ok = el.checkValidity() && el.value.trim() !== "";
 
-        field?.toggleAttribute('data-invalid', !ok);
-        if (error) error.textContent = ok ? '' : (messages[el.name] ?? 'This field is required.');
-        if (!ok && !firstInvalid) firstInvalid = el;
-      });
+          field?.toggleAttribute("data-invalid", !ok);
+          if (error)
+            error.textContent = ok
+              ? ""
+              : (messages[el.name] ?? "This field is required.");
+          if (!ok && !firstInvalid) firstInvalid = el;
+        });
 
       return firstInvalid;
     };
 
-    form.addEventListener('submit', async (e) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const firstInvalid = validate();
       if (firstInvalid) {
-        say('error', 'Please fix the highlighted fields.');
+        say("error", "Please fix the highlighted fields.");
         (firstInvalid as HTMLElement).focus();
         return;
       }
 
+      // The honeypot, checked here because EmailJS has no server-side one.
+      // A bot that fills every field it finds ticks this; a person never sees
+      // it. Reported as success on purpose — telling a bot it was blocked just
+      // teaches whoever wrote it which field to skip next time.
+      const trap = form.querySelector<HTMLInputElement>(
+        'input[name="botcheck"]',
+      );
+      if (trap?.checked) {
+        form.reset();
+        say("ok", "Thank you — your brief is on its way.");
+        return;
+      }
+
       if (!configured) {
-        say('error', 'Form endpoint not configured yet.');
+        say("error", "Form endpoint not configured yet.");
         return;
       }
 
@@ -424,44 +559,68 @@ const configured = web3formsKey.length > 0;
       // the brief twice.
       const lock = (busy: boolean) => {
         if (button) button.disabled = busy;
-        form.setAttribute('aria-busy', String(busy));
-        if (label) label.textContent = busy ? 'Sending…' : idle;
+        form.setAttribute("aria-busy", String(busy));
+        if (label) label.textContent = busy ? "Sending…" : idle;
       };
 
       lock(true);
-      say('busy', 'Sending…');
+      say("busy", "Sending…");
 
-      const data = new FormData(form);
       // A subject that names the sender, so the inbox is scannable instead of
-      // forty identical rows.
-      data.set('subject', `New project brief — ${String(data.get('name') ?? '').trim()}`);
+      // forty identical rows. `sendForm` reads the form element itself, so this
+      // is set on the field rather than on a detached FormData copy.
+      const nameField = form.querySelector<HTMLInputElement>("#name");
+      const subject = form.querySelector<HTMLInputElement>(
+        'input[name="subject"]',
+      );
+      if (subject)
+        subject.value = `New project brief — ${nameField?.value.trim() ?? ""}`;
 
       try {
-        const res = await fetch(form.action, {
-          method: 'POST',
-          headers: { Accept: 'application/json' },
-          body: data,
-        });
-        const body = await res.json().catch(() => null);
+        const emailjs = await loadSdk();
 
-        if (res.ok && body?.success) {
-          form.reset();
-          form
-            .querySelectorAll<HTMLElement>('[data-invalid]')
-            .forEach((f) => f.removeAttribute('data-invalid'));
-          say('ok', 'Thank you — your brief is on its way. We usually reply within two business days.');
-        } else {
-          // The visitor is told to use the address they can see on this page,
-          // rather than being left with a dead end.
-          say('error', body?.message ?? 'Something went wrong. Please email us instead.');
-        }
-      } catch {
-        say('error', 'No connection. Check your network, or email us instead.');
+        // No `limitRate`. The SDK's throttle counts ATTEMPTS, not successes, so
+        // a visitor whose first send failed on a network blip and who
+        // immediately retried was told "that was sent a moment ago" about a
+        // message that never left the browser. The button lock below already
+        // covers the real double-submit case, which is a second click while the
+        // first request is still in flight.
+        await emailjs.sendForm(serviceId, templateId, form, { publicKey });
+
+        form.reset();
+        form
+          .querySelectorAll<HTMLElement>("[data-invalid]")
+          .forEach((f) => f.removeAttribute("data-invalid"));
+        say(
+          "ok",
+          "Thank you — your brief is on its way. We usually reply within two business days.",
+        );
+      } catch (err) {
+        // EmailJS rejects with an object carrying `status` and `text`, or with
+        // a plain string when an identifier is missing. Neither is worth
+        // showing raw — every branch ends by pointing at the address and phone
+        // number that are printed beside the form.
+        const status = (err as { status?: number } | null)?.status;
+        const fallback =
+          "Please email us at contact@jpmediagroups.com instead.";
+
+        const message =
+          status === 429
+            ? `That was sent a moment ago. Give it a few seconds, or ${fallback.toLowerCase()}`
+            : status === 403
+              ? `We could not send that. ${fallback}`
+              : status && status >= 500
+                ? `The mail service is down right now. ${fallback}`
+                : navigator.onLine === false
+                  ? "No connection. Check your network and try again."
+                  : `Something went wrong. ${fallback}`;
+
+        say("error", message);
       } finally {
         lock(false);
       }
     });
   }
 
-  document.addEventListener('astro:page-load', setupContact);
+  document.addEventListener("astro:page-load", setupContact);
 </script>

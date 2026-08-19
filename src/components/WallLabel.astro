@@ -15,16 +15,20 @@ interface Props {
   class?: string;
 }
 
-const { items, class: className = '' } = Astro.props;
+const { items, class: className = "" } = Astro.props;
 ---
 
-<p class:list={['wall-label', className]}>
+<p class:list={["wall-label", className]}>
   {
     /* The separator is grouped with the fact that follows it, so a wrap never
        leaves a "/" dangling at the end of a line. */
     items.map((item, i) => (
       <span class="wall-label__item">
-        {i > 0 && <span class="wall-label__sep" aria-hidden="true">/ </span>}
+        {i > 0 && (
+          <span class="wall-label__sep" aria-hidden="true">
+            /{" "}
+          </span>
+        )}
         {item}
       </span>
     ))

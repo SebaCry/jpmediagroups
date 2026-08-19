@@ -442,15 +442,206 @@ export const search = {
 // it for a smooth scroll when you are already on home.
 export const nav = [
   { label: 'Studio', href: '/#about' },
+  // The portfolio index. First real destination in the nav, because the work is
+  // what a visitor came to see — everything else is context for it.
+  { label: 'Work', href: '/work/' },
   { label: 'Services', href: '/#services' },
   // The block that links the five market pages. In the main nav rather than
   // only in the footer, because the market pages are the site's answer to
   // every "<service> <place>" search and a nav link is the strongest internal
   // signal the site can give them.
-  { label: 'Where we work', href: '/#markets' },
+  { label: 'Markets', href: '/#markets' },
   // Restore alongside the <Work /> tag in index.astro — a nav item pointing at
   // a section that is not rendered is a dead link.
   // { label: 'Work', href: '/#work' },
   { label: 'Team', href: '/#team' },
   { label: 'Contact', href: '/contact/' },
 ];
+
+// ---------------------------------------------------------------------------
+// Portfolio — the categories the client's own Drive is organised into.
+// ---------------------------------------------------------------------------
+// These mirror the supplied folders one for one (FOOD PHOTOS, MUSIC VIDEOS,
+// PHOTOS, PORTAFOLIO BODAS, SOCIAL MEDIA), plus the websites, so loading the
+// assets is a matter of copying a folder rather than deciding what goes where.
+//
+// HOW TO ADD PHOTOGRAPHS
+//   Drop files into  src/assets/work/<slug>/
+//   They are picked up automatically — there is no list to maintain and no
+//   import to write. Sorted by filename, so name them 01.jpg, 02.jpg … to
+//   control the order. Anything Astro reads works: .jpg .jpeg .png .webp .avif
+//
+//     src/assets/work/bodas/01.jpg
+//     src/assets/work/food/01.jpg
+//     …
+//
+// Until a folder has files in it, its page renders empty frames stating what is
+// expected — the same convention the Team section uses. Nothing pretends to be
+// work that does not exist yet.
+//
+// ⚠️  `lead` and `body` are DRAFTS, written only from disciplines the studio
+//     already claims. No client, venue, brand or project is named anywhere,
+//     because none was supplied. Naming real ones is the single biggest
+//     improvement available to these pages.
+// ---------------------------------------------------------------------------
+
+export interface WorkCategory {
+  /** URL segment under /work/ and the folder name under src/assets/work/. */
+  slug: string;
+  /** Full name, used in headings and titles. */
+  name: string;
+  /** Two or three words, for chips and wall labels. */
+  short: string;
+  /** Drives the layout: stills grid, video posters, or website cards. */
+  kind: 'photo' | 'video' | 'web';
+  /** The `services.items` title this belongs to, for the schema. */
+  discipline: string;
+  /** The Drive folder these assets come from. Kept so the mapping is explicit. */
+  source: string;
+  lead: string;
+  metaDescription: string;
+  body: string[];
+}
+
+export const workCategories: WorkCategory[] = [
+  {
+    slug: 'bodas',
+    name: 'Wedding photography',
+    short: 'Weddings',
+    kind: 'photo',
+    discipline: 'Professional photography',
+    source: 'PORTAFOLIO BODAS',
+    lead: 'Weddings photographed the way they actually happened — the room, the light, the people, and the half-second nobody posed for.',
+    metaDescription:
+      'Wedding photography by JP Media Groups. Ceremony, reception and portrait coverage in Utah, California, Florida, New York and Colombia.',
+    body: [
+      'A wedding is the one shoot that cannot be done again. There is no second take on the vows and no going back for the light at six o’clock. That is why the day is planned before it starts, and why there is never only one camera on the room.',
+      'Coverage runs from preparation through the reception: the ceremony, the portraits, the details that took months to choose, and the hours after dinner when people forget there is a photographer in the room. That last part is usually where the pictures people keep come from.',
+    ],
+  },
+  {
+    slug: 'food',
+    name: 'Food photography',
+    short: 'Food',
+    kind: 'photo',
+    discipline: 'Professional photography',
+    source: 'FOOD PHOTOS',
+    lead: 'Food photographed to sell it — for menus, delivery apps, social media and the window.',
+    metaDescription:
+      'Food and restaurant photography by JP Media Groups. Menu, delivery-app and social media images for restaurants in Utah, Miami and beyond.',
+    body: [
+      'A dish has about one second to do its work on a delivery app, and roughly the same on a menu. Food photography is a commercial job before it is an aesthetic one: the picture either makes somebody order or it does not.',
+      'Shot on location, with the kitchen plating the way it does for a customer. The point is not a styled dish that arrives looking like something else — it is the real one, lit so it looks like what the cook already made.',
+    ],
+  },
+  {
+    slug: 'photos',
+    name: 'Photography',
+    short: 'Photography',
+    kind: 'photo',
+    discipline: 'Professional photography',
+    source: 'PHOTOS',
+    lead: 'Corporate, brand and portrait photography for companies that need to look credible.',
+    metaDescription:
+      'Professional photography by JP Media Groups — corporate, brand, product and portrait work for businesses across the United States and Colombia.',
+    body: [
+      'The pictures a business runs on: the team page, the press shot, the product against a clean ground, the founder who needs one good portrait instead of a cropped photo from somebody else’s wedding.',
+      'Everything is shot to be used, which means it is delivered in the crops and sizes the website, the deck and the social channels actually need — not as a folder of raw frames somebody else then has to work out.',
+    ],
+  },
+  {
+    slug: 'music-videos',
+    name: 'Music videos',
+    short: 'Music videos',
+    kind: 'video',
+    discipline: 'Music videos',
+    source: 'MUSIC VIDEOS',
+    lead: 'High-end music videos for artists working across Colombia and the United States.',
+    metaDescription:
+      'Music video production by JP Media Groups. Concept, shoot and post for artists in Los Angeles, Miami, New York and Colombia.',
+    body: [
+      'The concept is developed with the artist, not handed to them. A video that does not sound like the record looks like an advert for somebody else, and no amount of production value fixes that.',
+      'Handled end to end — treatment, crew, shoot, edit, colour and delivery — so the artist deals with one team from the first conversation to the file that goes up.',
+    ],
+  },
+  {
+    slug: 'social-media',
+    name: 'Social media content',
+    short: 'Social media',
+    kind: 'photo',
+    discipline: 'Strategic marketing',
+    source: 'SOCIAL MEDIA',
+    lead: 'Content built to run — vertical video, stills and campaigns that keep going after launch day.',
+    metaDescription:
+      'Social media content production by JP Media Groups. Vertical video, photography and campaigns for brands, restaurants and artists.',
+    body: [
+      'Social is the one discipline where a single great picture is worth less than thirty good ones that arrive on schedule. The work is built around that: a shoot day produces a month, not a post.',
+      'Vertical video, stills, cutdowns and the copy that goes with them, formatted for where they are actually going to run rather than cropped out of something made for a different shape.',
+    ],
+  },
+  {
+    slug: 'websites',
+    name: 'Websites',
+    short: 'Websites',
+    kind: 'web',
+    discipline: 'Branding',
+    source: '—',
+    lead: 'Sites built for businesses that already had photographs worth showing.',
+    metaDescription:
+      'Web design and development by JP Media Groups. Fast, responsive sites for restaurants, brands and artists, built around their own photography.',
+    body: [
+      'A studio that shoots the photographs is in an unusual position to build the site they go on. The images are not squeezed into a template somebody else designed — the layout is made around the work that exists.',
+      'Built to load fast on a phone on mobile data, to be found in search, and to be edited without having to call anybody. That last part is the one most sites get wrong.',
+    ],
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Websites — the individual projects listed on /work/websites/.
+// ---------------------------------------------------------------------------
+// ⚠️  PENDING. These are empty slots, not real projects. Fill in `name`, `url`,
+//     `year` and `scope` for each site the studio has actually built, and
+//     delete the ones left over. A live URL is what makes this section worth
+//     anything: a visitor clicks through, sees a real site, and believes the
+//     rest of the page.
+//
+//     Screenshots are optional. Drop one into src/assets/work/websites/ named
+//     after the slug (`<slug>.jpg`) and it is used automatically.
+// ---------------------------------------------------------------------------
+
+export interface WebsiteProject {
+  slug: string;
+  name: string;
+  /** Full https:// URL. Left empty, the card renders without a link. */
+  url: string;
+  year: string;
+  /** What the studio actually did. Three or four items reads best. */
+  scope: string[];
+}
+
+export const websites = {
+  status: PENDING,
+  items: [
+    {
+      slug: 'project-one',
+      name: 'Project one',
+      url: '',
+      year: '',
+      scope: ['Web design', 'Development', 'Photography'],
+    },
+    {
+      slug: 'project-two',
+      name: 'Project two',
+      url: '',
+      year: '',
+      scope: ['Web design', 'Development'],
+    },
+    {
+      slug: 'project-three',
+      name: 'Project three',
+      url: '',
+      year: '',
+      scope: ['Web design', 'Branding'],
+    },
+  ] as WebsiteProject[],
+};

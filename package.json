@@ -12,6 +12,7 @@
     "og": "node scripts/generate-og.mjs",
     "check:seo": "node scripts/seocheck.mjs",
     "check:form": "node scripts/formcheck.mjs",
+    "check:work": "node scripts/workcheck.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "check": "astro check",
@@ -25,6 +26,7 @@
   "dependencies": {
     "@astrojs/preact": "^4.1.0",
     "@astrojs/sitemap": "^3.7.3",
+    "@emailjs/browser": "^4.4.1",
     "astro": "^5.14.1",
     "gsap": "^3.13.0",
     "lenis": "^1.3.11",

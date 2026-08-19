@@ -1,47 +1,62 @@
 ---
-import { Image } from 'astro:assets';
-import WallLabel from '../WallLabel.astro';
-import Icon from '../Icon.astro';
-import { work } from '../../content/site';
-import { plate } from '../../lib/images';
+import { Image } from "astro:assets";
+import WallLabel from "../WallLabel.astro";
+import Icon from "../Icon.astro";
+import { work } from "../../content/site";
+import { plate } from "../../lib/images";
 
 // The expanding gallery needs something in every frame to demonstrate the
 // mechanic. Until real case studies land, each slot holds one of the abstract
 // plates — generated in-repo, so nothing here is licensed from anyone.
 const PLATES = [
-  'plate-signal.webp',
-  'plate-mineral.webp',
-  'plate-deep.webp',
-  'plate-counter.webp',
-  'plate-horizon.webp',
+  "plate-signal.webp",
+  "plate-mineral.webp",
+  "plate-deep.webp",
+  "plate-counter.webp",
+  "plate-horizon.webp",
 ];
 
-const items = work.items.map((item, i) => ({ ...item, plate: PLATES[i % PLATES.length] }));
+const items = work.items.map((item, i) => ({
+  ...item,
+  plate: PLATES[i % PLATES.length],
+}));
 ---
 
 <section id="work" class="section" data-placeholder={work.status}>
   <div class="shell">
     <WallLabel items={work.label} />
     <h2 data-reveal="lines" class="work__title display-title">
-      {work.titleLines.map((line) => <span data-line class="block">{line}</span>)}
+      {
+        work.titleLines.map((line) => (
+          <span data-line class="block">
+            {line}
+          </span>
+        ))
+      }
     </h2>
     <p class="work__note lead">{work.note}</p>
   </div>
 
-  {/* Expanding gallery. Resting frames sit at 45% width and open to 100%; the
+  {
+    /* Expanding gallery. Resting frames sit at 45% width and open to 100%; the
       image frame shortens to make room for the caption and the title rises out
       of its mask. Driven by an `is-active` class so pointer, keyboard focus and
-      tap all reach the same state. */}
+      tap all reach the same state. */
+  }
   <div class="gallery-wrap">
     <ul class="gallery" data-gallery>
       {
         items.map((item, i) => (
-          <li class="gallery__item" class:list={[i === 0 && 'is-active']} data-gallery-item>
+          <li
+            class="gallery__item"
+            class:list={[i === 0 && "is-active"]}
+            data-gallery-item
+          >
             <button
               type="button"
               class="gallery__link"
               data-gallery-trigger
-              aria-expanded={i === 0 ? 'true' : 'false'}
+              aria-expanded={i === 0 ? "true" : "false"}
             >
               <span class="gallery__inner">
                 <span class="gallery__frame" data-reveal="clip">
@@ -58,7 +73,10 @@ const items = work.items.map((item, i) => ({ ...item, plate: PLATES[i % PLATES.l
                 <span class="gallery__body">
                   <span class="gallery__meta">
                     {item.discipline}
-                    <span class="wall-label__sep" aria-hidden="true"> / </span>
+                    <span class="wall-label__sep" aria-hidden="true">
+                      {" "}
+                      /{" "}
+                    </span>
                     {item.city}
                   </span>
                   <span class="gallery__title-box">
@@ -280,29 +298,38 @@ const items = work.items.map((item, i) => ({ ...item, plate: PLATES[i % PLATES.l
 
 <script>
   function setupGallery() {
-    document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((gallery) => {
-      const items = Array.from(gallery.querySelectorAll<HTMLElement>('[data-gallery-item]'));
-      if (!items.length) return;
+    document
+      .querySelectorAll<HTMLElement>("[data-gallery]")
+      .forEach((gallery) => {
+        const items = Array.from(
+          gallery.querySelectorAll<HTMLElement>("[data-gallery-item]"),
+        );
+        if (!items.length) return;
 
-      const activate = (item: HTMLElement) => {
-        if (item.classList.contains('is-active')) return;
-        items.forEach((el) => {
-          const on = el === item;
-          el.classList.toggle('is-active', on);
-          el.querySelector('[data-gallery-trigger]')?.setAttribute('aria-expanded', String(on));
+        const activate = (item: HTMLElement) => {
+          if (item.classList.contains("is-active")) return;
+          items.forEach((el) => {
+            const on = el === item;
+            el.classList.toggle("is-active", on);
+            el.querySelector("[data-gallery-trigger]")?.setAttribute(
+              "aria-expanded",
+              String(on),
+            );
+          });
+        };
+
+        items.forEach((item) => {
+          const trigger = item.querySelector<HTMLElement>(
+            "[data-gallery-trigger]",
+          );
+          item.addEventListener("pointerenter", () => activate(item));
+          trigger?.addEventListener("focus", () => activate(item));
+          trigger?.addEventListener("click", () => activate(item));
         });
-      };
 
-      items.forEach((item) => {
-        const trigger = item.querySelector<HTMLElement>('[data-gallery-trigger]');
-        item.addEventListener('pointerenter', () => activate(item));
-        trigger?.addEventListener('focus', () => activate(item));
-        trigger?.addEventListener('click', () => activate(item));
+        gallery.addEventListener("pointerleave", () => activate(items[0]));
       });
-
-      gallery.addEventListener('pointerleave', () => activate(items[0]));
-    });
   }
 
-  document.addEventListener('astro:page-load', setupGallery);
+  document.addEventListener("astro:page-load", setupGallery);
 </script>

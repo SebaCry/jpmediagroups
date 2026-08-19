@@ -12,15 +12,16 @@
  * (the studio statement and contact) so the scroll has rhythm rather than one
  * uniform stack.
  */
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Hero from '../components/sections/Hero.astro';
-import Marquee from '../components/sections/Marquee.astro';
-import About from '../components/sections/About.astro';
-import Services from '../components/sections/Services.astro';
-import Markets from '../components/sections/Markets.astro';
-import Team from '../components/sections/Team.astro';
-import Testimonial from '../components/sections/Testimonial.astro';
-import { pages } from '../lib/seo';
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Hero from "../components/sections/Hero.astro";
+import Marquee from "../components/sections/Marquee.astro";
+import About from "../components/sections/About.astro";
+import Services from "../components/sections/Services.astro";
+import WorkTeaser from "../components/sections/WorkTeaser.astro";
+import Markets from "../components/sections/Markets.astro";
+import Team from "../components/sections/Team.astro";
+import Testimonial from "../components/sections/Testimonial.astro";
+import { pages } from "../lib/seo";
 
 // Held back until the content exists — re-add the import and the tag together:
 //   import Work from '../components/sections/Work.astro';
@@ -33,6 +34,7 @@ import { pages } from '../lib/seo';
   <Marquee source="cities" />
   <About />
   <Services />
+  <WorkTeaser />
   <Markets />
   <Team />
   <!-- <Testimonial /> -->

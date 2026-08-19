@@ -1,0 +1,216 @@
+---
+/**
+ * The portfolio, on the home page.
+ *
+ * Replaces the old placeholder gallery, which held five invented case studies
+ * behind abstract plates. This shows the real categories instead, and links
+ * each one to its own page — so the home page stops being the only indexable
+ * thing on the site and starts feeding six pages that carry photographs.
+ *
+ * Covers come from `src/assets/work/<slug>/`; a category with nothing in it
+ * yet renders a labelled frame rather than a stand-in image.
+ */
+import { Image } from "astro:assets";
+import WallLabel from "../WallLabel.astro";
+import Icon from "../Icon.astro";
+import { workCategories } from "../../content/site";
+import { cover, galleryCount } from "../../lib/images";
+
+const items = workCategories.map((c) => ({
+  ...c,
+  image: cover(c.slug),
+  count: galleryCount(c.slug),
+}));
+const total = items.reduce((n, c) => n + c.count, 0);
+---
+
+<section id="work" class="section">
+  <div class="shell">
+    <WallLabel
+      items={[
+        "Selected work",
+        `${workCategories.length} disciplines`,
+        total ? `${total} pieces` : "Loading pending",
+      ]}
+    />
+
+    <div class="teaser__head">
+      <h2 data-reveal="lines" class="teaser__title display-title">
+        <span data-line class="block">The work</span>
+      </h2>
+      <a href="/work/" class="btn btn--ghost teaser__all" data-magnetic="0.18">
+        See everything
+        <Icon name="arrow-right" class="h-4 w-4" />
+      </a>
+    </div>
+  </div>
+
+  {
+    /* A horizontal rail on every size. Six categories in a grid on desktop
+      makes a wall of equal boxes; a rail keeps them reading as a sequence and
+      needs no separate mobile treatment. */
+  }
+  <div class="teaser__viewport">
+    <ul class="teaser__track">
+      {
+        items.map((c) => (
+          <li class="tcard">
+            <a href={`/work/${c.slug}/`} class="tcard__link">
+              <span class="tcard__frame">
+                {c.image ? (
+                  <Image
+                    src={c.image}
+                    alt={`${c.name} by JP Media Groups`}
+                    widths={[400, 640, 900]}
+                    sizes="(min-width: 1024px) 28vw, 72vw"
+                    loading="lazy"
+                    class="tcard__img"
+                  />
+                ) : (
+                  <span class="frame-empty tcard__empty">
+                    <span>{c.short}</span>
+                  </span>
+                )}
+              </span>
+              <span class="tcard__meta">
+                {c.kind === "web" ? "Design & build" : c.discipline}
+              </span>
+              <span class="tcard__name">{c.name}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .teaser__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  .teaser__title {
+    font-size: var(--text-h1);
+    font-weight: 800;
+  }
+
+  .teaser__all {
+    flex: none;
+  }
+
+  .teaser__viewport {
+    margin-top: 3rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .teaser__viewport::-webkit-scrollbar {
+    display: none;
+  }
+
+  .teaser__track {
+    display: flex;
+    gap: 1.25rem;
+    width: max-content;
+    margin: 0;
+    padding: 0 var(--spacing-gutter);
+    list-style: none;
+  }
+  @media (min-width: 1024px) {
+    .teaser__track {
+      padding-inline: max(
+        var(--spacing-gutter),
+        calc((100vw - var(--container-shell)) / 2)
+      );
+    }
+  }
+
+  .tcard {
+    flex: none;
+    width: min(72vw, 340px);
+    scroll-snap-align: center;
+  }
+  @media (min-width: 1024px) {
+    .tcard {
+      width: clamp(260px, 26vw, 360px);
+    }
+  }
+
+  .tcard__link {
+    display: block;
+    color: inherit;
+  }
+
+  .tcard__frame {
+    position: relative;
+    display: block;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: var(--color-chalk);
+  }
+
+  .tcard__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1) contrast(1.05);
+    transform: scale(1.05);
+    transition:
+      filter var(--duration-media) var(--ease-signature),
+      transform var(--duration-media) var(--ease-signature);
+  }
+  .tcard__link:hover .tcard__img,
+  .tcard__link:focus-visible .tcard__img {
+    filter: grayscale(0) contrast(1);
+    transform: scale(1);
+  }
+
+  .tcard__empty {
+    width: 100%;
+    height: 100%;
+  }
+
+  .tcard__meta {
+    display: block;
+    margin-top: 0.9rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .tcard__name {
+    display: block;
+    margin-top: 0.3rem;
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    transition: color var(--duration-micro) var(--ease-soft);
+  }
+  .tcard__link:hover .tcard__name,
+  .tcard__link:focus-visible .tcard__name {
+    color: var(--color-signal-deep);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tcard__img,
+    .tcard__name {
+      transition: none;
+      filter: none;
+      transform: none;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .teaser__head,
+    :global(#work) > .shell > .wall-label {
+      margin-inline-start: var(--rail);
+    }
+  }
+</style>
