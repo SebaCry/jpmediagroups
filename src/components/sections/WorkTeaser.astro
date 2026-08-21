@@ -13,7 +13,7 @@
 import { Image } from "astro:assets";
 import WallLabel from "../WallLabel.astro";
 import Icon from "../Icon.astro";
-import { workCategories } from "../../content/site";
+import { workCategories, driveFolder } from "../../content/site";
 import { cover, galleryCount } from "../../lib/images";
 
 const items = workCategories.map((c) => ({
@@ -38,10 +38,22 @@ const total = items.reduce((n, c) => n + c.count, 0);
       <h2 data-reveal="lines" class="teaser__title display-title">
         <span data-line class="block">The work</span>
       </h2>
-      <a href="/work/" class="btn btn--ghost teaser__all" data-magnetic="0.18">
-        See everything
-        <Icon name="arrow-right" class="h-4 w-4" />
-      </a>
+      <div class="teaser__actions">
+        <a href="/work/" class="btn btn--primary" data-magnetic="0.18">
+          <span class="btn__label">See all work</span>
+          <span class="btn__fill" aria-hidden="true"></span>
+        </a>
+        <a
+          href={driveFolder}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn--ghost"
+          data-magnetic="0.18"
+        >
+          Full portfolio
+          <Icon name="arrow-right" class="h-4 w-4" />
+        </a>
+      </div>
     </div>
   </div>
 
@@ -98,7 +110,10 @@ const total = items.reduce((n, c) => n + c.count, 0);
     font-weight: 800;
   }
 
-  .teaser__all {
+  .teaser__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
     flex: none;
   }
 

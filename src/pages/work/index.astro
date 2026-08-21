@@ -15,7 +15,7 @@ import WallLabel from '../../components/WallLabel.astro';
 import Icon from '../../components/Icon.astro';
 import Marquee from '../../components/sections/Marquee.astro';
 import { Image } from 'astro:assets';
-import { workCategories, studio } from '../../content/site';
+import { workCategories, studio, driveFolder } from '../../content/site';
 import { cover, galleryCount } from '../../lib/images';
 import { pages } from '../../lib/seo';
 import { isDev } from '../../lib/env';
@@ -58,6 +58,19 @@ const ready = items.filter((c) => c.count > 0).length;
         {studio.years} years of photography, film and design across the United States and Colombia.
         Pick a discipline.
       </p>
+
+      <div data-reveal="rise" class="work-index__actions">
+        <a
+          href={driveFolder}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn--ghost"
+          data-magnetic="0.18"
+        >
+          Full portfolio on Drive
+          <Icon name="arrow-right" class="h-4 w-4" />
+        </a>
+      </div>
     </div>
   </section>
 
@@ -157,6 +170,13 @@ const ready = items.filter((c) => c.count > 0).length;
   .work-index__lead {
     margin-top: 2rem;
     max-width: 46ch;
+  }
+
+  .work-index__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.875rem;
+    margin-top: 2.25rem;
   }
 
   /* --- The grid --------------------------------------------------------- */
@@ -313,6 +333,7 @@ const ready = items.filter((c) => c.count > 0).length;
     .crumbs,
     .work-index__title,
     .work-index__lead,
+    .work-index__actions,
     :global(.section) > .shell > .wall-label {
       margin-inline-start: var(--rail);
     }

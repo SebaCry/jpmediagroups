@@ -17,7 +17,12 @@ import BaseLayout from "../../../layouts/BaseLayout.astro";
 import WallLabel from "../../../components/WallLabel.astro";
 import Icon from "../../../components/Icon.astro";
 import { Image } from "astro:assets";
-import { workCategories, websites, contact } from "../../../content/site";
+import {
+  workCategories,
+  websites,
+  contact,
+  driveFolder,
+} from "../../../content/site";
 import { gallery, shot } from "../../../lib/images";
 import { pages, abs } from "../../../lib/seo";
 import { isDev } from "../../../lib/env";
@@ -177,7 +182,12 @@ const sites = websites.items.map((s) => ({ ...s, image: shot(s.slug) }));
                     alt={`${category.name} by JP Media Groups — ${i + 1}`}
                     widths={[400, 700, 1100, 1600]}
                     sizes="(min-width: 1280px) 30vw, (min-width: 768px) 45vw, 92vw"
-                    loading={i < 4 ? "eager" : "lazy"}
+                    {/* Only the first row is eager, and only the very first
+                        frame gets priority — it is the LCP candidate. Four
+                        eager images cost 417 KB before anything painted; three
+                        with one prioritised paints the same view sooner. */}
+                    loading={i < 3 ? "eager" : "lazy"}
+                    fetchpriority={i === 0 ? "high" : "auto"}
                     class="still__img"
                   />
                 </button>
@@ -207,6 +217,37 @@ const sites = websites.items.map((s) => ({ ...s, image: shot(s.slug) }));
           </div>
         </section>
       )
+    )
+  }
+
+  {
+    /* The rest of the shoot. The page carries a curated two dozen; the archive
+       is hundreds of frames per category and belongs somewhere a visitor opts
+       into, not in a scroll nobody finishes. */
+    !isWeb && photos.length > 0 && (
+      <section class="section pt-0">
+        <div class="shell">
+          <div class="more" data-reveal="rise">
+            <div>
+              <p class="more__label">The full gallery</p>
+              <p class="more__title">
+                {photos.length} shown here. The complete {category.name.toLowerCase()} archive
+                lives on Drive.
+              </p>
+            </div>
+            <a
+              href={driveFolder}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn--primary more__btn"
+              data-magnetic="0.2"
+            >
+              <span class="btn__label">See the full portfolio</span>
+              <span class="btn__fill" aria-hidden="true" />
+            </a>
+          </div>
+        </div>
+      </section>
     )
   }
 
@@ -512,6 +553,41 @@ const sites = websites.items.map((s) => ({ ...s, image: shot(s.slug) }));
     color: var(--color-signal-deep);
   }
 
+  /* --- The rest of the archive ------------------------------------------ */
+
+  .more {
+    display: grid;
+    gap: 1.75rem;
+    padding: 2.25rem;
+    background: var(--color-chalk);
+    border: 1px solid var(--color-hairline);
+  }
+  @media (min-width: 768px) {
+    .more {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 3rem;
+      padding: 2.5rem 3rem;
+    }
+  }
+
+  .more__label {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .more__title {
+    margin-top: 0.5rem;
+    max-width: 46ch;
+    font-size: 1.125rem;
+    line-height: 1.6;
+  }
+  .more__btn {
+    justify-self: start;
+  }
+
   /* --- Foot ------------------------------------------------------------- */
 
   .cat-page__foot {
@@ -583,17 +659,29 @@ const sites = websites.items.map((s) => ({ ...s, image: shot(s.slug) }));
     background: rgba(10, 21, 25, 0.94);
     cursor: zoom-out;
   }
+  /* `inset: 0`, not `width/height: 100%`.
+     As a grid item of `.lb`, the stage's `height: 100%` had nothing definite to
+     resolve against, so it grew to fit its content instead of filling the
+     viewport. `max-height: 100%` on the photograph then resolved against that
+     content-driven height — circular, so it did nothing, and a portrait frame
+     stretched the stage to 2096px inside a 900px window. The buttons centre
+     inside the stage, so they landed 126px below the fold and could not be
+     clicked at all. Absolute positioning gives the stage a definite box, which
+     is what every percentage inside it needs. */
   .lb__stage {
-    position: relative;
+    position: absolute;
+    inset: 0;
     display: grid;
     place-items: center;
-    width: 100%;
-    height: 100%;
     padding: clamp(1rem, 5vw, 4rem);
   }
   .lb__img {
     max-width: 100%;
     max-height: 100%;
+    /* Grid items default to `min-height: auto`, which refuses to shrink below
+       the image's intrinsic height and would undo the max-height above. */
+    min-width: 0;
+    min-height: 0;
     object-fit: contain;
   }
   .lb__count {
@@ -625,6 +713,19 @@ const sites = websites.items.map((s) => ({ ...s, image: shot(s.slug) }));
   .lb__btn:focus-visible {
     background: var(--color-verde);
     color: var(--color-ink);
+  }
+  /* Vertically centred with `inset-block: 0; margin-block: auto` rather than
+     `top: 50%` + a translate, because `--prev` already spends its transform on
+     the 180° flip and the two would fight.
+     Setting only `left`/`right` was a real bug: with no vertical offset the
+     buttons fell back to their static position, which inside a `place-items:
+     center` grid is a row of their own BELOW the image — 126px past the bottom
+     of the viewport, unreachable. */
+  .lb__btn--prev,
+  .lb__btn--next {
+    top: 0;
+    bottom: 0;
+    margin-block: auto;
   }
   .lb__btn--prev {
     left: clamp(0.5rem, 2vw, 1.5rem);
@@ -711,15 +812,26 @@ const sites = websites.items.map((s) => ({ ...s, image: shot(s.slug) }));
       opener = from;
       show(i);
       root.hidden = false;
-      // Locking the body is what stops the page scrolling behind the overlay
-      // on iOS, where a fixed overlay does not otherwise trap the gesture.
+
+      // Two locks, because they stop two different things.
+      //
+      // `overflow: hidden` stops the native scroll, which is what traps the
+      // gesture on iOS. It does NOT stop Lenis: smooth scrolling runs its own
+      // RAF loop and keeps driving the page from whatever momentum was left
+      // when the viewer opened, so the overlay's own buttons drift under the
+      // pointer for a second or two. The site already has a convention for
+      // this — the search overlay uses it — so the lightbox joins it rather
+      // than importing the motion module.
       document.body.style.overflow = "hidden";
+      document.dispatchEvent(new CustomEvent("overlay:open"));
+
       root.querySelector<HTMLElement>("[data-lightbox-next]")?.focus();
     };
 
     const close = () => {
       root.hidden = true;
       document.body.style.overflow = "";
+      document.dispatchEvent(new CustomEvent("overlay:close"));
       // Focus goes back where it came from, or the viewer leaves a keyboard
       // user at the top of the document with no idea where they were.
       opener?.focus();
@@ -748,6 +860,7 @@ const sites = websites.items.map((s) => ({ ...s, image: shot(s.slug) }));
     // would survive into the next page and freeze it.
     document.addEventListener("astro:before-swap", () => {
       document.body.style.overflow = "";
+      document.dispatchEvent(new CustomEvent("overlay:close"));
     });
   }
 

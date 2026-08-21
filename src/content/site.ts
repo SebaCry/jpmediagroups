@@ -485,6 +485,20 @@ export const nav = [
 //     improvement available to these pages.
 // ---------------------------------------------------------------------------
 
+/**
+ * The full portfolio, on Google Drive.
+ *
+ * The site carries a curated set — around two dozen photographs per category,
+ * resized and stripped, because 466 camera originals is 2.7 GB and no visitor
+ * scrolls 188 photographs. Everything else lives here, and every category page
+ * links to it.
+ *
+ * ⚠️  The folder must be shared as "Anyone with the link → Viewer". Left on
+ *     restricted, a visitor who clicks lands on a request-access screen, which
+ *     is worse than not offering the link at all.
+ */
+export const driveFolder = 'https://drive.google.com/drive/folders/1j_ZN1NpyYFm-fcNhMLSLfpCDxjLmX-qo';
+
 export interface WorkCategory {
   /** URL segment under /work/ and the folder name under src/assets/work/. */
   slug: string;

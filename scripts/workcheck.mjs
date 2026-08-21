@@ -93,43 +93,67 @@ console.log('\ngalería y lightbox');
 await page.goto('http://localhost:4602/work/bodas/', { waitUntil: 'networkidle' });
 await settle(1500);
 
+// Derived, not hardcoded. This used to assert 5 — the count of the synthetic
+// set the feature was built against — and started failing the moment the real
+// photographs landed, reporting a broken lightbox that was working fine.
 const thumbs = await page.locator('[data-lightbox]').count();
-expect('miniaturas renderizadas', thumbs === 5, `${thumbs}`);
+const N = thumbs;
+expect('hay miniaturas', thumbs > 0, `${thumbs}`);
 expect('lightbox oculto al cargar', await page.locator('[data-lightbox-root]').isHidden());
 
 await page.locator('[data-lightbox]').nth(1).click();
 await settle(500);
 expect('lightbox abre', await page.locator('[data-lightbox-root]').isVisible());
-expect('contador correcto', (await page.locator('[data-lightbox-count]').textContent()) === '2 / 5');
+expect(
+  'contador correcto',
+  (await page.locator('[data-lightbox-count]').textContent()) === `2 / ${N}`,
+  await page.locator('[data-lightbox-count]').textContent(),
+);
 
 const srcOf = () => page.locator('[data-lightbox-img]').getAttribute('src');
 const first = await srcOf();
 expect('carga una imagen', Boolean(first) && first.length > 0, first ?? '(vacío)');
 
-// The viewer must serve a bigger file than the thumbnail, or opening it is
-// pointless — that is the whole reason it reads the largest srcset candidate.
-const thumbSrc = await page.locator('[data-lightbox] img').nth(1).getAttribute('src');
-expect('usa una variante distinta a la miniatura', first !== thumbSrc);
+// The viewer must serve at least as large a file as the thumbnail is
+// displaying — that is the whole reason it reads the largest srcset candidate.
+// Compared against `currentSrc`, the variant the browser actually chose, not
+// the `src` attribute: for a source narrower than the largest requested width
+// Astro caps the srcset, and then src IS the largest, which is correct rather
+// than a bug.
+const chosen = await page
+  .locator('[data-lightbox] img')
+  .nth(1)
+  .evaluate((el) => el.currentSrc || el.src);
+const sizeOf = async (u) => (await (await page.request.get(u)).body()).length;
+expect(
+  'el visor sirve al menos lo que la miniatura',
+  (await sizeOf(new URL(first, page.url()).href)) >= (await sizeOf(chosen)),
+  `visor ${first.split('/').pop()} vs miniatura ${chosen.split('/').pop()}`,
+);
 
 expect('body bloqueado', (await page.evaluate(() => document.body.style.overflow)) === 'hidden');
 
 await page.locator('[data-lightbox-next]').click();
 await settle(300);
-expect('siguiente avanza', (await page.locator('[data-lightbox-count]').textContent()) === '3 / 5');
+expect('siguiente avanza', (await page.locator('[data-lightbox-count]').textContent()) === `3 / ${N}`);
 expect('cambia la imagen', (await srcOf()) !== first);
 
 await page.locator('[data-lightbox-prev]').click();
 await page.locator('[data-lightbox-prev]').click();
 await settle(300);
-expect('anterior retrocede', (await page.locator('[data-lightbox-count]').textContent()) === '1 / 5');
+expect('anterior retrocede', (await page.locator('[data-lightbox-count]').textContent()) === `1 / ${N}`);
 
 await page.locator('[data-lightbox-prev]').click();
 await settle(300);
-expect('da la vuelta al principio', (await page.locator('[data-lightbox-count]').textContent()) === '5 / 5');
+// Wrapping backwards from the first lands on the last, whatever the last is.
+expect(
+  'da la vuelta al principio',
+  (await page.locator('[data-lightbox-count]').textContent()) === `${N} / ${N}`,
+);
 
 await page.keyboard.press('ArrowRight');
 await settle(250);
-expect('flecha derecha avanza', (await page.locator('[data-lightbox-count]').textContent()) === '1 / 5');
+expect('flecha derecha avanza', (await page.locator('[data-lightbox-count]').textContent()) === `1 / ${N}`);
 
 await page.keyboard.press('Escape');
 await settle(400);

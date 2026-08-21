@@ -12,6 +12,22 @@ update, no import to write and no build step to run beyond `npm run build`.
 | `social-media/` | `/work/social-media/` | SOCIAL MEDIA |
 | `websites/` | `/work/websites/` | — (screenshots) |
 
+## De dónde salen los archivos
+
+Si las fotos están en el cPanel de BanaHosting (`/home/hrwldnzb/jpmediagroups.com/images/…`),
+**hay que bajarlas, no enlazarlas**. Dos motivos:
+
+1. `jpmediagroups.com` apunta a **Vercel**, no a BanaHosting, así que esos
+   archivos no son alcanzables desde internet — devuelven 404.
+2. Aunque lo fueran, un JPEG directo de cámara pesa entre 5 y 15 MB. Astro
+   convierte a WebP/AVIF y genera cada tamaño responsive en el build; servir el
+   original crudo arruinaría la carga y el posicionamiento.
+
+En el File Manager: entrá a la carpeta → **Select All** → **Compress** → zip →
+**Download**, y descomprimí dentro de la carpeta que corresponda aquí. Para
+muchos archivos es más rápido por FTP (FileZilla) con las credenciales del
+mismo cPanel.
+
 ## Naming
 
 Files are sorted by name, so **name them `01.jpg`, `02.jpg`, `03.jpg`** to
@@ -27,6 +43,21 @@ screen.
 
 `websites/` is the exception: name each screenshot after its project slug in
 `content/site.ts` (`project-one.jpg`), not with a number.
+
+### Renombrar sin hacerlo a mano
+
+Los nombres de cámara (`_MG_0328.jpg`) ordenan cronológicamente, que sirve para
+una boda y no para el resto — **el primer archivo de la carpeta es la portada**
+de la categoría en `/work/` y en la home, y la mejor foto rara vez es la primera
+que se disparó.
+
+```bash
+npm run work:order bodas            # muestra el plan, no toca nada
+npm run work:order bodas -- --apply # renombra a 01, 02, 03…
+```
+
+Para poner una foto concreta de portada, renombrala a `00.jpg` antes de aplicar:
+ordena delante de todo y pasa a ser `01`.
 
 ## What happens when a folder is empty
 

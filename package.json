@@ -13,6 +13,8 @@
     "check:seo": "node scripts/seocheck.mjs",
     "check:form": "node scripts/formcheck.mjs",
     "check:work": "node scripts/workcheck.mjs",
+    "work:import": "node scripts/import-work.mjs",
+    "work:order": "node scripts/order-work.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "check": "astro check",

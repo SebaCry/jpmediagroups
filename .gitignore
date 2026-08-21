@@ -30,3 +30,12 @@ pnpm-debug.log*
 .idea/
 .DS_Store
 Thumbs.db
+
+# Portfolio originals. 2.7 GB of camera JPEGs — too big for git, too big for a
+# Vercel clone, and carrying the EXIF (GPS, timestamps) that should not be
+# published. `npm run work:import` copies a curated, resized, stripped set into
+# src/assets/work/, which IS committed. Keep these on disk to re-curate later.
+#
+# Only subdirectories: the logo PNGs sit at the top of src/assets/images/ and
+# must stay tracked.
+src/assets/images/*/
