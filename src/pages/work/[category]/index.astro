@@ -1,16 +1,16 @@
 ---
 /**
- * One portfolio category — /work/bodas/, /work/food/, /work/websites/ …
+ * One portfolio category - /work/bodas/, /work/food/, /work/websites/ …
  *
  * Two layouts behind one route, chosen by `kind`:
  *
- *   photo / video — a masonry-ish column grid of stills, opening into a
+ *   photo / video - a masonry-ish column grid of stills, opening into a
  *                   lightbox. Photographs are the argument on these pages, so
  *                   they get the whole width and nothing competes with them.
- *   web           — cards with a live link, a year and a scope. A website is
+ *   web           - cards with a live link, a year and a scope. A website is
  *                   proved by being visited, not by a screenshot of it.
  *
- * The photographs are discovered from src/assets/work/<slug>/ — see the README
+ * The photographs are discovered from src/assets/work/<slug>/ - see the README
  * in that folder. Nothing here lists a filename.
  */
 import BaseLayout from "../../../layouts/BaseLayout.astro";
@@ -115,7 +115,7 @@ const sites = websites.items.map((s) => ({ ...s, image: shot(s.slug) }));
                       {s.image ? (
                         <Image
                           src={s.image}
-                          alt={`${s.name} — website built by JP Media Groups`}
+                          alt={`${s.name} - website built by JP Media Groups`}
                           widths={[520, 900, 1400]}
                           sizes="(min-width: 768px) 46vw, 92vw"
                           loading="lazy"
@@ -179,13 +179,9 @@ const sites = websites.items.map((s) => ({ ...s, image: shot(s.slug) }));
                 >
                   <Image
                     src={p.image}
-                    alt={`${category.name} by JP Media Groups — ${i + 1}`}
+                    alt={`${category.name} by JP Media Groups - ${i + 1}`}
                     widths={[400, 700, 1100, 1600]}
                     sizes="(min-width: 1280px) 30vw, (min-width: 768px) 45vw, 92vw"
-                    {/* Only the first row is eager, and only the very first
-                        frame gets priority — it is the LCP candidate. Four
-                        eager images cost 417 KB before anything painted; three
-                        with one prioritised paints the same view sooner. */}
                     loading={i < 3 ? "eager" : "lazy"}
                     fetchpriority={i === 0 ? "high" : "auto"}
                     class="still__img"
@@ -200,7 +196,7 @@ const sites = websites.items.map((s) => ({ ...s, image: shot(s.slug) }));
       /* --- Nothing loaded yet ---------------------------------------------
          Dev only. In production the page simply ends after the copy and runs
          into the contact block below, which reads as a finished service page
-         rather than as a broken gallery — and a visitor is never shown a
+         rather than as a broken gallery - and a visitor is never shown a
          source path or told the site is unfinished. */
       isDev && (
         <section class="section">
@@ -210,7 +206,7 @@ const sites = websites.items.map((s) => ({ ...s, image: shot(s.slug) }));
               <p class="awaiting__body">
                 Drop the files from <strong>{category.source}</strong> into
                 <code>src/assets/work/{category.slug}/</code> and they appear
-                here automatically — there is no list to update. Name them{" "}
+                here automatically - there is no list to update. Name them{" "}
                 <code>01.jpg</code>, <code>02.jpg</code> … to set the order.
               </p>
             </div>
@@ -284,7 +280,7 @@ const sites = websites.items.map((s) => ({ ...s, image: shot(s.slug) }));
   </section>
 
   {
-    /* Lightbox. One dialog for the whole page, populated on open — cloning a
+    /* Lightbox. One dialog for the whole page, populated on open - cloning a
        full-size <img> per photograph would ship every original on page load. */
     photos.length > 0 && !isWeb && (
       <div class="lb" data-lightbox-root hidden>
@@ -468,7 +464,7 @@ const sites = websites.items.map((s) => ({ ...s, image: shot(s.slug) }));
     object-position: top center;
     transition: transform 1.6s var(--ease-signature);
   }
-  /* A website scrolls, so its card does too — the screenshot pans down on
+  /* A website scrolls, so its card does too - the screenshot pans down on
      hover instead of merely zooming. */
   a.site__link:hover .site__img,
   a.site__link:focus-visible .site__img {
@@ -663,7 +659,7 @@ const sites = websites.items.map((s) => ({ ...s, image: shot(s.slug) }));
      As a grid item of `.lb`, the stage's `height: 100%` had nothing definite to
      resolve against, so it grew to fit its content instead of filling the
      viewport. `max-height: 100%` on the photograph then resolved against that
-     content-driven height — circular, so it did nothing, and a portrait frame
+     content-driven height - circular, so it did nothing, and a portrait frame
      stretched the stage to 2096px inside a 900px window. The buttons centre
      inside the stage, so they landed 126px below the fold and could not be
      clicked at all. Absolute positioning gives the stage a definite box, which
@@ -719,7 +715,7 @@ const sites = websites.items.map((s) => ({ ...s, image: shot(s.slug) }));
      the 180° flip and the two would fight.
      Setting only `left`/`right` was a real bug: with no vertical offset the
      buttons fell back to their static position, which inside a `place-items:
-     center` grid is a row of their own BELOW the image — 126px past the bottom
+     center` grid is a row of their own BELOW the image - 126px past the bottom
      of the viewport, unreachable. */
   .lb__btn--prev,
   .lb__btn--next {
@@ -763,7 +759,7 @@ const sites = websites.items.map((s) => ({ ...s, image: shot(s.slug) }));
   /**
    * The gallery lightbox.
    *
-   * Sources are read off the thumbnails already in the page — Astro has
+   * Sources are read off the thumbnails already in the page - Astro has
    * generated a full srcset for each, so the viewer gets the largest candidate
    * the browser would have picked, without a second set of imports.
    *
@@ -820,7 +816,7 @@ const sites = websites.items.map((s) => ({ ...s, image: shot(s.slug) }));
       // RAF loop and keeps driving the page from whatever momentum was left
       // when the viewer opened, so the overlay's own buttons drift under the
       // pointer for a second or two. The site already has a convention for
-      // this — the search overlay uses it — so the lightbox joins it rather
+      // this - the search overlay uses it - so the lightbox joins it rather
       // than importing the motion module.
       document.body.style.overflow = "hidden";
       document.dispatchEvent(new CustomEvent("overlay:open"));

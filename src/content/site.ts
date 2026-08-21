@@ -5,8 +5,8 @@
 
    Two groups:
 
-     REAL     — supplied by the client or migrated verbatim from the live site.
-     PENDING  — structure is built, content is still owed. Rendered with
+     REAL     - supplied by the client or migrated verbatim from the live site.
+     PENDING  - structure is built, content is still owed. Rendered with
                 `data-placeholder`, which draws a badge in `astro dev` and is
                 inert in production.
 
@@ -18,7 +18,7 @@
 export const PENDING = 'pending' as const;
 
 // ---------------------------------------------------------------------------
-// Studio facts — drawn from the client's own "Who We Are" copy.
+// Studio facts - drawn from the client's own "Who We Are" copy.
 // These drive the wall labels, so they are stated once and reused.
 // ---------------------------------------------------------------------------
 
@@ -36,7 +36,7 @@ export const studio = {
 };
 
 // ---------------------------------------------------------------------------
-// Markets — the same four cities and two countries stated above, resolved to
+// Markets - the same four cities and two countries stated above, resolved to
 // the states and countries a search actually names.
 // ---------------------------------------------------------------------------
 // This exists because "Los Angeles" and "California" are the same fact to the
@@ -48,7 +48,7 @@ export const studio = {
 // named in "Who We Are"; the state and country around it is arithmetic.
 //
 // ⚠️  The `lead` and `body` lines are DRAFTS. They are written strictly from
-//     what the studio says it does — no market-specific client, project, award
+//     what the studio says it does - no market-specific client, project, award
 //     or office is claimed anywhere, because none has been supplied. Read them
 //     before launch and edit them here. If the studio has real work in a market,
 //     naming it in that market's `body` is worth more than every meta tag on
@@ -56,7 +56,7 @@ export const studio = {
 // ---------------------------------------------------------------------------
 
 export interface Market {
-  /** URL segment. Short and clean — the title carries the keywords. */
+  /** URL segment. Short and clean - the title carries the keywords. */
   slug: string;
   /** How the place is named in prose and in headings. */
   name: string;
@@ -72,7 +72,7 @@ export interface Market {
   lead: string;
   body: string[];
   /**
-   * The search result's second line. Written per market, not generated — a
+   * The search result's second line. Written per market, not generated - a
    * template with the place name swapped produces five descriptions that read
    * as one, and Google rewrites the ones it does not believe. Keep every one
    * of these under 160 characters or it is truncated mid-sentence.
@@ -127,7 +127,7 @@ export const markets: Market[] = [
     metaDescription:
       'Bilingual marketing agency and photography studio in Florida. Video production, restaurant and food photography, branding and social media content out of Miami.',
     body: [
-      'Miami is a bilingual market and the studio works in both languages — the same team, the same standard, whether the campaign runs in English, in Spanish, or in both at once.',
+      'Miami is a bilingual market and the studio works in both languages - the same team, the same standard, whether the campaign runs in English, in Spanish, or in both at once.',
       'The work here runs across restaurants and hospitality, brands, and artists: food photography that makes a menu sell, commercial production, and the social content that carries a campaign after launch.',
       'Miami is also the closest United States market to the studio’s Colombian side, which is what makes a production that spans both countries a scheduling question rather than a logistical one.',
     ],
@@ -145,7 +145,7 @@ export const markets: Market[] = [
       'Branding, marketing and photography in New York. Visual identity, corporate photography, commercial video production and advertising campaigns, end to end.',
     body: [
       'New York work leans toward brand: visual identity that holds together everywhere a company shows up, corporate photography that makes it look credible, and the advertising campaigns built on top of both.',
-      'Production is handled end to end — concept development through final delivery — so a brand gets one team accountable for the result instead of a photographer, an editor and an agency pointing at each other.',
+      'Production is handled end to end - concept development through final delivery - so a brand gets one team accountable for the result instead of a photographer, an editor and an agency pointing at each other.',
       'One of four United States markets the studio works across, alongside Utah, California and Florida.',
     ],
   },
@@ -168,14 +168,14 @@ export const markets: Market[] = [
 ];
 
 export const meta = {
-  title: 'JP Media Groups — Creative Agency, Photography & Audiovisual Production',
+  title: 'JP Media Groups - Creative Agency, Photography & Audiovisual Production',
   description:
     'A creative agency specializing in audiovisual production, professional photography, music videos, branding and strategic marketing. Nine years of work across Colombia and the United States.',
   locale: 'en-US',
 };
 
 // ---------------------------------------------------------------------------
-// Hero — migrated verbatim from the live site.
+// Hero - migrated verbatim from the live site.
 // ---------------------------------------------------------------------------
 // Note: the live headline is Utah-specific while the studio actually works
 // across Miami, New York, Los Angeles and Colombia. Rather than rewrite the
@@ -205,7 +205,7 @@ export const hero = {
 };
 
 // ---------------------------------------------------------------------------
-// Who We Are — supplied by the client, verbatim.
+// Who We Are - supplied by the client, verbatim.
 // ---------------------------------------------------------------------------
 
 export const about = {
@@ -223,7 +223,7 @@ export const about = {
   mission:
     'Our mission is simple: to help brands stand out, connect with their audience, and grow through powerful visual storytelling and strategic marketing.',
   closer:
-    'We don’t just create content — we create experiences, build brands, and deliver results.',
+    'We don’t just create content - we create experiences, build brands, and deliver results.',
   stats: [
     { value: '9+', label: 'Years' },
     { value: '2', label: 'Countries' },
@@ -233,7 +233,7 @@ export const about = {
 };
 
 // ---------------------------------------------------------------------------
-// Services — the studio's real disciplines, described from its own copy.
+// Services - the studio's real disciplines, described from its own copy.
 // ---------------------------------------------------------------------------
 
 export const services = {
@@ -243,7 +243,7 @@ export const services = {
   items: [
     {
       title: 'Audiovisual production',
-      body: 'Commercial productions and advertising campaigns, handled end to end — concept, shoot, post and delivery.',
+      body: 'Commercial productions and advertising campaigns, handled end to end - concept, shoot, post and delivery.',
       plate: 'plate-signal.webp',
     },
     {
@@ -270,7 +270,7 @@ export const services = {
 };
 
 // ---------------------------------------------------------------------------
-// Work — the expanding gallery. Structure is built; the cases are owed.
+// Work - the expanding gallery. Structure is built; the cases are owed.
 // ---------------------------------------------------------------------------
 
 export const work = {
@@ -289,11 +289,11 @@ export const work = {
 };
 
 // ---------------------------------------------------------------------------
-// Team — four people. Photos, names and roles supplied by the client.
+// Team - four people. Photos, names and roles supplied by the client.
 // ---------------------------------------------------------------------------
 // ⚠️  The `bio` lines are DRAFTS, written from each person's role and from what
 //     the studio says it does. They deliberately claim nothing that cannot be
-//     checked — no years of experience, no schools, no awards — because these
+//     checked - no years of experience, no schools, no awards - because these
 //     are statements about real people. Have each person read and approve their
 //     own line before this goes live, and edit it here.
 // ---------------------------------------------------------------------------
@@ -303,8 +303,8 @@ export const work = {
 /**
  * `focus` is the CSS object-position for each portrait.
  *
- * The photos come from different shoots at different crops — member-1 is a
- * full-length shot at 0.56 aspect, the rest are headshots around 0.67 — and
+ * The photos come from different shoots at different crops - member-1 is a
+ * full-length shot at 0.56 aspect, the rest are headshots around 0.67 - and
  * they all land in the same 3:4-ish frame. Centred cover crops the head off the
  * full-length one, so each portrait states where its subject actually is.
  */
@@ -340,7 +340,7 @@ export const team = {
       name: 'Valeria Martínez',
       role: 'Operations & Finance Manager',
       email: 'valeria@jpmediagroups.com',
-      bio: 'Holds the line between ambition and arithmetic. Budgets, invoices, payroll, suppliers — Valeria runs the business behind the work so nothing arrives as a surprise.',
+      bio: 'Holds the line between ambition and arithmetic. Budgets, invoices, payroll, suppliers - Valeria runs the business behind the work so nothing arrives as a surprise.',
     },
     {
       slot: 'member-4',
@@ -355,19 +355,19 @@ export const team = {
 };
 
 // ---------------------------------------------------------------------------
-// Testimonial — structure only.
+// Testimonial - structure only.
 // ---------------------------------------------------------------------------
 
 export const testimonial = {
   status: PENDING,
   label: ['Client', 'Testimonial'],
-  quote: 'Quote pending — a sentence from a real client about a real project.',
+  quote: 'Quote pending - a sentence from a real client about a real project.',
   name: 'Name pending',
   role: 'Company pending',
 };
 
 // ---------------------------------------------------------------------------
-// Packages — structure only. The previous prices were theme demo values.
+// Packages - structure only. The previous prices were theme demo values.
 // ---------------------------------------------------------------------------
 
 export const plans = {
@@ -401,7 +401,7 @@ export const plans = {
 // ---------------------------------------------------------------------------
 // Contact
 // ---------------------------------------------------------------------------
-// Every value the WordPress site showed here was theme demo — a New York
+// Every value the WordPress site showed here was theme demo - a New York
 // address for a Utah studio, plus placeholder phone and email. Removed. Only
 // the Instagram account is real.
 
@@ -431,19 +431,19 @@ export const search = {
 };
 
 // ---------------------------------------------------------------------------
-// Navigation — in-page destinations only. The WordPress menu's ~50 URLs were
+// Navigation - in-page destinations only. The WordPress menu's ~50 URLs were
 // all theme demo pages.
 // ---------------------------------------------------------------------------
 
 // Hashes are absolute (`/#about`, not `#about`). A bare hash resolves against
 // whatever page you are on, so from /contact/ the nav produced /contact/#about
-// — a section that does not exist there. With the leading slash the link always
+// - a section that does not exist there. With the leading slash the link always
 // means "the About block on the home page", and lib/motion.ts still intercepts
 // it for a smooth scroll when you are already on home.
 export const nav = [
   { label: 'Studio', href: '/#about' },
   // The portfolio index. First real destination in the nav, because the work is
-  // what a visitor came to see — everything else is context for it.
+  // what a visitor came to see - everything else is context for it.
   { label: 'Work', href: '/work/' },
   { label: 'Services', href: '/#services' },
   // The block that links the five market pages. In the main nav rather than
@@ -451,7 +451,7 @@ export const nav = [
   // every "<service> <place>" search and a nav link is the strongest internal
   // signal the site can give them.
   { label: 'Markets', href: '/#markets' },
-  // Restore alongside the <Work /> tag in index.astro — a nav item pointing at
+  // Restore alongside the <Work /> tag in index.astro - a nav item pointing at
   // a section that is not rendered is a dead link.
   // { label: 'Work', href: '/#work' },
   { label: 'Team', href: '/#team' },
@@ -459,7 +459,7 @@ export const nav = [
 ];
 
 // ---------------------------------------------------------------------------
-// Portfolio — the categories the client's own Drive is organised into.
+// Portfolio - the categories the client's own Drive is organised into.
 // ---------------------------------------------------------------------------
 // These mirror the supplied folders one for one (FOOD PHOTOS, MUSIC VIDEOS,
 // PHOTOS, PORTAFOLIO BODAS, SOCIAL MEDIA), plus the websites, so loading the
@@ -467,7 +467,7 @@ export const nav = [
 //
 // HOW TO ADD PHOTOGRAPHS
 //   Drop files into  src/assets/work/<slug>/
-//   They are picked up automatically — there is no list to maintain and no
+//   They are picked up automatically - there is no list to maintain and no
 //   import to write. Sorted by filename, so name them 01.jpg, 02.jpg … to
 //   control the order. Anything Astro reads works: .jpg .jpeg .png .webp .avif
 //
@@ -476,7 +476,7 @@ export const nav = [
 //     …
 //
 // Until a folder has files in it, its page renders empty frames stating what is
-// expected — the same convention the Team section uses. Nothing pretends to be
+// expected - the same convention the Team section uses. Nothing pretends to be
 // work that does not exist yet.
 //
 // ⚠️  `lead` and `body` are DRAFTS, written only from disciplines the studio
@@ -488,7 +488,7 @@ export const nav = [
 /**
  * The full portfolio, on Google Drive.
  *
- * The site carries a curated set — around two dozen photographs per category,
+ * The site carries a curated set - around two dozen photographs per category,
  * resized and stripped, because 466 camera originals is 2.7 GB and no visitor
  * scrolls 188 photographs. Everything else lives here, and every category page
  * links to it.
@@ -519,13 +519,28 @@ export interface WorkCategory {
 
 export const workCategories: WorkCategory[] = [
   {
+    slug: 'social-media',
+    name: 'Social media content',
+    short: 'Social media',
+    kind: 'photo',
+    discipline: 'Strategic marketing',
+    source: 'SOCIAL MEDIA',
+    lead: 'Content built to run - vertical video, stills and campaigns that keep going after launch day.',
+    metaDescription:
+      'Social media content production by JP Media Groups. Vertical video, photography and campaigns for brands, restaurants and artists.',
+    body: [
+      'Social is the one discipline where a single great picture is worth less than thirty good ones that arrive on schedule. The work is built around that: a shoot day produces a month, not a post.',
+      'Vertical video, stills, cutdowns and the copy that goes with them, formatted for where they are actually going to run rather than cropped out of something made for a different shape.',
+    ],
+  },
+  {
     slug: 'bodas',
     name: 'Wedding photography',
     short: 'Weddings',
     kind: 'photo',
     discipline: 'Professional photography',
     source: 'PORTAFOLIO BODAS',
-    lead: 'Weddings photographed the way they actually happened — the room, the light, the people, and the half-second nobody posed for.',
+    lead: 'Weddings photographed the way they actually happened - the room, the light, the people, and the half-second nobody posed for.',
     metaDescription:
       'Wedding photography by JP Media Groups. Ceremony, reception and portrait coverage in Utah, California, Florida, New York and Colombia.',
     body: [
@@ -540,12 +555,12 @@ export const workCategories: WorkCategory[] = [
     kind: 'photo',
     discipline: 'Professional photography',
     source: 'FOOD PHOTOS',
-    lead: 'Food photographed to sell it — for menus, delivery apps, social media and the window.',
+    lead: 'Food photographed to sell it - for menus, delivery apps, social media and the window.',
     metaDescription:
       'Food and restaurant photography by JP Media Groups. Menu, delivery-app and social media images for restaurants in Utah, Miami and beyond.',
     body: [
       'A dish has about one second to do its work on a delivery app, and roughly the same on a menu. Food photography is a commercial job before it is an aesthetic one: the picture either makes somebody order or it does not.',
-      'Shot on location, with the kitchen plating the way it does for a customer. The point is not a styled dish that arrives looking like something else — it is the real one, lit so it looks like what the cook already made.',
+      'Shot on location, with the kitchen plating the way it does for a customer. The point is not a styled dish that arrives looking like something else - it is the real one, lit so it looks like what the cook already made.',
     ],
   },
   {
@@ -557,10 +572,33 @@ export const workCategories: WorkCategory[] = [
     source: 'PHOTOS',
     lead: 'Corporate, brand and portrait photography for companies that need to look credible.',
     metaDescription:
-      'Professional photography by JP Media Groups — corporate, brand, product and portrait work for businesses across the United States and Colombia.',
+      'Professional photography by JP Media Groups - corporate, brand, product and portrait work for businesses across the United States and Colombia.',
     body: [
       'The pictures a business runs on: the team page, the press shot, the product against a clean ground, the founder who needs one good portrait instead of a cropped photo from somebody else’s wedding.',
-      'Everything is shot to be used, which means it is delivered in the crops and sizes the website, the deck and the social channels actually need — not as a folder of raw frames somebody else then has to work out.',
+      'Everything is shot to be used, which means it is delivered in the crops and sizes the website, the deck and the social channels actually need - not as a folder of raw frames somebody else then has to work out.',
+    ],
+  },
+  {
+    // ⚠️  The slug is what the URL says: /work/15th-birthday/. Worth knowing
+    //     before this is linked from anywhere - "quinceañera" is the term
+    //     people actually search, in English and in Spanish, in both of this
+    //     studio's markets. Renaming the slug (and the folder beside it) to
+    //     `quinceanera` is a two-line change while nothing points here yet; it
+    //     stops being free the moment a client has the link. The word is
+    //     carried in the copy and the meta description either way.
+    slug: '15th-birthday',
+    name: '15th birthday photography',
+    short: '15th Birthday',
+    kind: 'photo',
+    discipline: 'Professional photography',
+    source: '15 AÑOS',
+    lead: 'Quinceañeras photographed as the event they are - the dress, the waltz, the family, and the hours nobody thinks to plan for.',
+    metaDescription:
+      'Quinceañera and 15th birthday photography by JP Media Groups. Portrait sessions, ceremony and party coverage in Utah, California, Florida, New York and Colombia.',
+    body: [
+      'A quinceañera is two shoots in one: a portrait session built entirely around the girl and the dress, and then a party that only happens once. They are photographed differently on purpose - the first is directed, the second is left alone.',
+      'The coverage runs the whole night: the entrance, the waltz, the toast, the changing of the shoes, and the part after the formalities when the room finally relaxes. That last hour is usually where the photographs the family keeps come from.',
+      'Shot bilingually, which matters more here than in any other category - the people being photographed are family, and being spoken to in their own language is the difference between a posed picture and a real one.',
     ],
   },
   // {
@@ -575,43 +613,29 @@ export const workCategories: WorkCategory[] = [
   //     'Music video production by JP Media Groups. Concept, shoot and post for artists in Los Angeles, Miami, New York and Colombia.',
   //   body: [
   //     'The concept is developed with the artist, not handed to them. A video that does not sound like the record looks like an advert for somebody else, and no amount of production value fixes that.',
-  //     'Handled end to end — treatment, crew, shoot, edit, colour and delivery — so the artist deals with one team from the first conversation to the file that goes up.',
+  //     'Handled end to end - treatment, crew, shoot, edit, colour and delivery - so the artist deals with one team from the first conversation to the file that goes up.',
   //   ],
   // },
-  {
-    slug: 'social-media',
-    name: 'Social media content',
-    short: 'Social media',
-    kind: 'photo',
-    discipline: 'Strategic marketing',
-    source: 'SOCIAL MEDIA',
-    lead: 'Content built to run — vertical video, stills and campaigns that keep going after launch day.',
-    metaDescription:
-      'Social media content production by JP Media Groups. Vertical video, photography and campaigns for brands, restaurants and artists.',
-    body: [
-      'Social is the one discipline where a single great picture is worth less than thirty good ones that arrive on schedule. The work is built around that: a shoot day produces a month, not a post.',
-      'Vertical video, stills, cutdowns and the copy that goes with them, formatted for where they are actually going to run rather than cropped out of something made for a different shape.',
-    ],
-  },
+  
   // {
   //   slug: 'websites',
   //   name: 'Websites',
   //   short: 'Websites',
   //   kind: 'web',
   //   discipline: 'Branding',
-  //   source: '—',
+  //   source: '-',
   //   lead: 'Sites built for businesses that already had photographs worth showing.',
   //   metaDescription:
   //     'Web design and development by JP Media Groups. Fast, responsive sites for restaurants, brands and artists, built around their own photography.',
   //   body: [
-  //     'A studio that shoots the photographs is in an unusual position to build the site they go on. The images are not squeezed into a template somebody else designed — the layout is made around the work that exists.',
+  //     'A studio that shoots the photographs is in an unusual position to build the site they go on. The images are not squeezed into a template somebody else designed - the layout is made around the work that exists.',
   //     'Built to load fast on a phone on mobile data, to be found in search, and to be edited without having to call anybody. That last part is the one most sites get wrong.',
   //   ],
   // },
 ];
 
 // ---------------------------------------------------------------------------
-// Websites — the individual projects listed on /work/websites/.
+// Websites - the individual projects listed on /work/websites/.
 // ---------------------------------------------------------------------------
 // ⚠️  PENDING. These are empty slots, not real projects. Fill in `name`, `url`,
 //     `year` and `scope` for each site the studio has actually built, and
@@ -658,4 +682,140 @@ export const websites = {
       scope: ['Web design', 'Branding'],
     },
   ] as WebsiteProject[],
+};
+
+// ---------------------------------------------------------------------------
+// Reviews - what clients said, with the score they gave.
+// ---------------------------------------------------------------------------
+// Supersedes the single `testimonial` block further up, which held one pending
+// quote. That one is still exported because <Testimonial /> imports it; delete
+// both once you are sure you want the rated wall instead of the single quote.
+//
+// HOW TO ADD ONE
+//   Append an object to `testimonials` below. Nothing else to touch - the
+//   section reads the array, counts it, and works out the average itself.
+//
+//     {
+//       person: 'Maria Restrepo',
+//       role: 'Owner, El Parce Grill',        // optional, but it is what makes
+//       testimonial: 'They shot our whole …', // a stranger believe the quote
+//       rate: 5,
+//       year: '2024',
+//     }
+//
+// ⚠️  NOTHING IS INVENTED HERE. The array ships empty on purpose. Until a real
+//     client has actually said a real sentence, the section renders a note in
+//     `astro dev` and does not render at all in production - the same rule the
+//     empty galleries follow. A made-up review is the one thing on this site
+//     that could cost the studio a client rather than win one.
+//
+// ⚠️  DELIBERATELY NOT MARKED UP AS SCHEMA. Google's own guidelines forbid
+//     self-serving review markup: an Organization that publishes AggregateRating
+//     about itself is ineligible for the star rich result and risks a manual
+//     action. These reviews are for the reader. Stars in search come from the
+//     Google Business Profile, which is a different job (see lib/seo.ts).
+// ---------------------------------------------------------------------------
+
+export interface Testimonial {
+  /** Who said it. A real, checkable name. */
+  person: string;
+  /** The quote itself, verbatim. Two or three sentences reads best. */
+  testimonial: string;
+  /** Out of 5. Halves are fine - 4.5 renders as four and a half stars. */
+  rate: number;
+  /** Role and company, e.g. 'Owner, El Parce Grill'. Optional but worth having. */
+  role?: string;
+  /** The year the work was done, not the year the review was written. */
+  year: string;
+}
+
+export const testimonials: Testimonial[] = [];
+
+export const reviews = {
+  status: PENDING,
+  label: ['Clients', 'In their words'],
+  titleLines: ['What the', 'work earned'],
+  /** Index of the line that takes the brand gradient. */
+  accentLine: 1,
+  lead: 'Ratings and words from the people who hired the studio, on projects that shipped.',
+};
+
+// ---------------------------------------------------------------------------
+// Clients - the companies the studio has worked for.
+// ---------------------------------------------------------------------------
+// HOW TO ADD ONE
+//   1. Drop the logo into  src/assets/companies/
+//   2. Add an entry below naming the file. Nothing else.
+//
+//   Accepted: .png .jpg .jpeg .webp .avif   (NOT .jfif - Astro's image pipeline
+//   does not recognise the extension. It is ordinary JPEG data, so renaming the
+//   file to .jpg is all it takes.)
+//
+//   A transparent PNG or WebP is worth chasing down. A logo on a baked-in white
+//   square sits on the wall as a white square.
+//
+// ⚠️  `name` is the alt text, so it has to be the company's real name - it is
+//     the only thing a screen reader, and Google Images, gets from the logo.
+//     The names below were read off the logo files themselves; correct any that
+//     are wrong, and check the studio is entitled to show each mark before this
+//     goes live. Displaying a client's logo is normally fine as a factual
+//     statement of work done, but some contracts say otherwise.
+// ---------------------------------------------------------------------------
+
+export interface Client {
+  /** The company's real name. Used as the logo's alt text. */
+  name: string;
+  /** Filename in src/assets/companies/. */
+  logo: string;
+  /**
+   * The logo file's own background, not the tile's.
+   *
+   * These marks arrive from five different brand kits: some transparent, some
+   * on a baked-in white square, one on a black circle. A single tile colour
+   * makes half of them look like mistakes, so each logo states what it needs
+   * and gets a tile that matches. Defaults to `light`.
+   */
+  tone?: 'light' | 'dark';
+  /** What the studio did for them. Shown under the logo. Optional. */
+  work?: string;
+  /** Full https:// URL. With one, the tile becomes a link. */
+  url?: string;
+}
+
+export const clients = {
+  label: ['Selected clients', 'Brands served'],
+  // Two short lines. The display face runs about 0.8em per character, so a
+  // third line here starts wrapping on its own and the block falls apart.
+  titleLines: ['Who has', 'hired us'],
+  accentLine: 1,
+  lead: 'Restaurants, insurers, design studios and national brands, across the United States and Colombia.',
+  items: [
+    {
+      name: 'Anderson Insurance Group',
+      logo: 'companie1.png',
+      tone: 'light',
+    },
+    {
+      name: 'Vetro Steel Studio Design',
+      logo: 'companie3.png',
+      tone: 'light',
+    },
+    {
+      // Reads as a black mark, but the file is a black circle on a white
+      // square - checked, not assumed. On a dark tile its corners came out as
+      // a grey box around the logo.
+      name: 'El Parce Grill',
+      logo: 'companie4.jpg',
+      tone: 'light',
+    },
+    {
+      name: 'Boost Mobile',
+      logo: 'companie5.jpg',
+      tone: 'light',
+    },
+    // companie2.webp is JP Media Groups' own logo, so it is deliberately not in
+    // this list - a studio's own mark on its own client wall reads as padding
+    // and undermines the four that are real. The file is left in the folder in
+    // case it is wanted elsewhere.
+  ] as Client[],
 };

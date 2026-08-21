@@ -29,6 +29,20 @@ const portraits = import.meta.glob<{ default: ImageMetadata }>(
   { eager: true },
 );
 
+/**
+ * Client logos. Like the portraits, lookups return `null` rather than throwing:
+ * a mistyped filename in the content file should leave one empty tile on the
+ * wall, not take the whole build down.
+ *
+ * `.jfif` is absent from the pattern on purpose - Astro's image pipeline goes
+ * by extension and does not know it, so a `.jfif` here would resolve to a plain
+ * URL string and blow up inside <Image>. It is ordinary JPEG data; rename it.
+ */
+const logos = import.meta.glob<{ default: ImageMetadata }>(
+  "../assets/companies/*.{jpg,jpeg,png,webp,avif}",
+  { eager: true },
+);
+
 function lookup(
   map: Record<string, { default: ImageMetadata }>,
   dir: string,
@@ -60,6 +74,9 @@ export const plate = (file: string) => required(plates, "plates", file);
 
 /** Returns `null` when the portrait has not been supplied yet. */
 export const portrait = (file: string) => lookup(portraits, "team", file);
+
+/** A client logo. Returns `null` when the file named in site.ts is not there. */
+export const logo = (file: string) => lookup(logos, "companies", file);
 
 const workFiles = import.meta.glob<{ default: ImageMetadata }>(
   "../assets/work/**/*.{jpg,jpeg,png,webp,avif}",

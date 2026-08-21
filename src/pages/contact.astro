@@ -25,7 +25,7 @@ import { emailjs, emailjsReady, isDev } from "../lib/env";
  * The field `name` attributes are the contract with the EmailJS template:
  * `sendForm` turns each one into a template variable. Renaming a field here
  * without renaming `{{it}}` in the dashboard template silently ships empty
- * emails — the send still succeeds, the message just arrives blank.
+ * emails - the send still succeeds, the message just arrives blank.
  *
  *   name        → {{name}}
  *   email       → {{email}}        ← set the template's Reply To to this
@@ -73,11 +73,11 @@ const configured = emailjsReady;
           <input
             type="hidden"
             name="subject"
-            value="New project brief — jpmediagroups.com"
+            value="New project brief - jpmediagroups.com"
           />
 
           {
-            /* Honeypot. Unlike Web3Forms, EmailJS has no server-side honeypot —
+            /* Honeypot. Unlike Web3Forms, EmailJS has no server-side honeypot -
               the check below in the script is the whole of it, and a ticked box
               aborts before anything is sent. Hidden from sight, from screen
               readers and from tab order: all three, or it becomes a trap for
@@ -188,7 +188,7 @@ const configured = emailjsReady;
           {
             isDev && !configured && (
               <p class="contact-form__setup">
-                PENDIENTE — faltan las variables de EmailJS. Copiá{" "}
+                PENDIENTE - faltan las variables de EmailJS. Copiá{" "}
                 <code>.env.example</code> a <code>.env</code> y rellená{" "}
                 <code>PUBLIC_EMAILJS_SERVICE_ID</code>,{" "}
                 <code>PUBLIC_EMAILJS_TEMPLATE_ID</code> y{" "}
@@ -350,7 +350,7 @@ const configured = emailjsReady;
     color: var(--color-counter);
   }
   /* Success reads in the identity green, and is the only place on the page
-     where the gradient resolves to a single flat colour — it is a state, not
+     where the gradient resolves to a single flat colour - it is a state, not
      a piece of the composition. */
   .contact-form__status[data-state="ok"] {
     color: var(--color-signal-deep);
@@ -451,15 +451,15 @@ const configured = emailjsReady;
   /**
    * Submits the brief through EmailJS without leaving the page.
    *
-   * Unlike the Web3Forms setup this replaced, the send itself lives here —
+   * Unlike the Web3Forms setup this replaced, the send itself lives here -
    * EmailJS has no endpoint a browser can post to natively, so there is no
    * no-JavaScript path and the <noscript> block in the markup carries that
    * visitor instead.
    *
    * The SDK is imported dynamically, on first interaction rather than on page
    * load. It is ~4KB gzipped and only ever needed by somebody who is actually
-   * writing a brief, so paying for it up front on every visit to /contact/ —
-   * most of which never touch the form — would be spending the JS budget on
+   * writing a brief, so paying for it up front on every visit to /contact/ -
+   * most of which never touch the form - would be spending the JS budget on
    * nothing. Warming it at the first focus means it is already parsed by the
    * time anyone finishes typing.
    */
@@ -539,14 +539,14 @@ const configured = emailjsReady;
 
       // The honeypot, checked here because EmailJS has no server-side one.
       // A bot that fills every field it finds ticks this; a person never sees
-      // it. Reported as success on purpose — telling a bot it was blocked just
+      // it. Reported as success on purpose - telling a bot it was blocked just
       // teaches whoever wrote it which field to skip next time.
       const trap = form.querySelector<HTMLInputElement>(
         'input[name="botcheck"]',
       );
       if (trap?.checked) {
         form.reset();
-        say("ok", "Thank you — your brief is on its way.");
+        say("ok", "Thank you - your brief is on its way.");
         return;
       }
 
@@ -574,7 +574,7 @@ const configured = emailjsReady;
         'input[name="subject"]',
       );
       if (subject)
-        subject.value = `New project brief — ${nameField?.value.trim() ?? ""}`;
+        subject.value = `New project brief - ${nameField?.value.trim() ?? ""}`;
 
       try {
         const emailjs = await loadSdk();
@@ -593,12 +593,12 @@ const configured = emailjsReady;
           .forEach((f) => f.removeAttribute("data-invalid"));
         say(
           "ok",
-          "Thank you — your brief is on its way. We usually reply within two business days.",
+          "Thank you - your brief is on its way. We usually reply within two business days.",
         );
       } catch (err) {
         // EmailJS rejects with an object carrying `status` and `text`, or with
         // a plain string when an identifier is missing. Neither is worth
-        // showing raw — every branch ends by pointing at the address and phone
+        // showing raw - every branch ends by pointing at the address and phone
         // number that are printed beside the form.
         const status = (err as { status?: number } | null)?.status;
         const fallback =

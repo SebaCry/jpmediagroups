@@ -8,9 +8,15 @@ update, no import to write and no build step to run beyond `npm run build`.
 | `bodas/` | `/work/bodas/` | PORTAFOLIO BODAS |
 | `food/` | `/work/food/` | FOOD PHOTOS |
 | `photos/` | `/work/photos/` | PHOTOS |
+| `15th-birthday/` | `/work/15th-birthday/` | 15 AÑOS |
 | `music-videos/` | `/work/music-videos/` | MUSIC VIDEOS |
 | `social-media/` | `/work/social-media/` | SOCIAL MEDIA |
 | `websites/` | `/work/websites/` | — (screenshots) |
+
+> **El nombre de la carpeta tiene que ser igual al `slug`** de la categoría en
+> [`src/content/site.ts`](../../content/site.ts). Por eso `15/` pasó a llamarse
+> `15th-birthday/`: la galería se busca por slug, y con la carpeta llamada `15`
+> la página salía vacía sin dar ningún error.
 
 ## De dónde salen los archivos
 

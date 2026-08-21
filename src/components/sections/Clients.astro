@@ -1,0 +1,260 @@
+---
+/**
+ * The client wall.
+ *
+ * A logo row is the cheapest credibility on a page like this: it answers "has
+ * anybody actually hired them" before a visitor has read a word of the copy.
+ * So it sits directly under the work, where that question first occurs.
+ *
+ * The one design problem a logo wall always has is that the marks arrive from
+ * different brand kits - transparent, on white, on black, square, wide - and
+ * dropping them into one row makes half of them look broken. Two things fix it
+ * here: every tile is the same box regardless of the logo's own proportions,
+ * and each logo declares its own background `tone` in content/site.ts so a mark
+ * built for black gets a black tile instead of a black rectangle on a white one.
+ *
+ * At rest the whole row is grey - the same treatment the team portraits and the
+ * category covers get, so a row of five different palettes reads as one set.
+ * Each mark recovers its colour when it is pointed at.
+ *
+ * Logos are resolved by filename from src/assets/companies/. A name that does
+ * not match a file renders an empty tile rather than failing the build.
+ */
+import { Image } from "astro:assets";
+import WallLabel from "../WallLabel.astro";
+import { clients } from "../../content/site";
+import { logo } from "../../lib/images";
+import { isDev } from "../../lib/env";
+
+const items = clients.items.map((c) => ({ ...c, image: logo(c.logo) }));
+const ready = items.filter((c) => c.image).length;
+---
+
+<section id="clients" class="section">
+  <div class="shell">
+    <WallLabel items={[...clients.label, `${items.length} companies`]} />
+
+    {
+      /* Title on its own full-width line, lead underneath - the same shape the
+        /work/ index uses. Set side by side in a half-width column, a display
+        heading at --text-h1 re-wraps its authored lines into six, which is the
+        one thing `.display-title` cannot rescue. */
+    }
+    <h2 data-reveal="lines" class="clients__title display-title">
+      {
+        clients.titleLines.map((line, i) => (
+          <span
+            data-line
+            class:list={["block", i === clients.accentLine && "clients__accent"]}
+          >
+            {line}
+          </span>
+        ))
+      }
+    </h2>
+    <p data-reveal="rise" class="lead clients__lead">{clients.lead}</p>
+
+    <ul class="clients__grid" data-reveal="rise">
+      {
+        items.map((c) => {
+          const live = Boolean(c.url);
+          const Tag = live ? "a" : "div";
+          return (
+            <li class="client" data-tone={c.tone ?? "light"}>
+              <Tag
+                class="client__tile"
+                {...(live
+                  ? { href: c.url, target: "_blank", rel: "noopener noreferrer" }
+                  : {})}
+              >
+                {c.image ? (
+                  /* The alt is the company name and nothing else. A logo's job
+                     in alt text is to name the entity - "logo of" adds a word
+                     every screen reader already announces by itself. */
+                  <Image
+                    src={c.image}
+                    alt={c.name}
+                    widths={[220, 440]}
+                    sizes="(min-width: 1024px) 220px, 44vw"
+                    loading="lazy"
+                    class="client__img"
+                  />
+                ) : (
+                  <span class="frame-empty client__empty">
+                    <span>{c.name}</span>
+                    {isDev && (
+                      <span class="client__empty-note">
+                        src/assets/companies/{c.logo}
+                      </span>
+                    )}
+                  </span>
+                )}
+              </Tag>
+
+              {c.work && <p class="client__work">{c.work}</p>}
+            </li>
+          );
+        })
+      }
+    </ul>
+
+    {
+      /* Dev-only. Tells whoever is building the site that a filename in
+         content/site.ts does not match anything in the folder - a visitor is
+         never told the site is unfinished. */
+      isDev && ready !== items.length && (
+        <p class="clients__note" data-placeholder="pending">
+          {items.length - ready} of {items.length} logos are not resolving. Check
+          the filenames in <code>content/site.ts</code> against{" "}
+          <code>src/assets/companies/</code> - <code>.jfif</code> is not a format
+          Astro reads, rename those to <code>.jpg</code>.
+        </p>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .clients__title {
+    font-size: var(--text-h1);
+    font-weight: 800;
+    line-height: 0.98;
+  }
+  .clients__accent {
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .clients__lead {
+    margin-top: 1.75rem;
+    max-width: 46ch;
+  }
+
+  /* --- The wall --------------------------------------------------------- */
+
+  .clients__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    /* A single hairline between tiles rather than a border on each: two
+       adjacent 1px borders render as a 2px rule and the grid stops looking
+       drawn and starts looking assembled. */
+    gap: 1px;
+    margin: 3rem 0 0;
+    padding: 0;
+    list-style: none;
+    background: var(--color-hairline);
+    border: 1px solid var(--color-hairline);
+  }
+  @media (min-width: 768px) {
+    .clients__grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  /* Block, not flex. As a flex column the tile became a flex item whose
+     automatic minimum size is its content, and the logo's own intrinsic height
+     then won against `aspect-ratio` - which is why a 3:2 tile rendered square.
+     A block tile has a definite ratio and the image inside resolves against
+     it, not the other way round. */
+  .client {
+    display: block;
+    background: var(--color-chalk);
+  }
+  /* For a logo that arrives on a black background of its own. All four current
+     marks are on white or transparent, so nothing uses this yet - it is here
+     because the next restaurant logo will need it. */
+  .client[data-tone="dark"] {
+    background: var(--color-ink);
+  }
+
+  .client__tile {
+    display: block;
+    /* Wide wordmarks and square marks in the same row: the tile is the constant
+       and the logo contains itself inside it, so nothing is ever cropped and
+       no single logo sets the row height. */
+    aspect-ratio: 3 / 2;
+    padding: clamp(1.125rem, 2.5vw, 1.75rem);
+    color: inherit;
+  }
+
+  .client__img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    /* Grey at rest, colour on hover - the same treatment the portraits and the
+       category covers get, so five different brand palettes read as one row.
+       Held at 0.85 rather than dimmed further: below that the lighter marks
+       stop being legible, and an unreadable logo proves nothing. */
+    filter: grayscale(1);
+    opacity: 0.85;
+    transition:
+      filter var(--duration-media) var(--ease-signature),
+      opacity var(--duration-media) var(--ease-signature),
+      transform var(--duration-media) var(--ease-signature);
+  }
+  .client:hover .client__img,
+  .client:focus-within .client__img {
+    filter: grayscale(0);
+    opacity: 1;
+    transform: scale(1.04);
+  }
+
+  .client__empty {
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .client__empty-note {
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    color: var(--color-hairline);
+    text-transform: none;
+  }
+
+  .client__work {
+    margin: 0;
+    padding: 0 clamp(1.125rem, 2.5vw, 1.75rem) 1.25rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .client[data-tone="dark"] .client__work {
+    color: #8ba3a8;
+  }
+
+  .clients__note {
+    margin-top: 1.5rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    line-height: 1.8;
+    color: var(--color-counter);
+  }
+  .clients__note code {
+    color: var(--color-ink);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .client__img {
+      transition: none;
+      filter: none;
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .clients__title,
+    .clients__lead,
+    .clients__grid,
+    .clients__note,
+    :global(#clients) > .shell > .wall-label {
+      margin-inline-start: var(--rail);
+    }
+  }
+</style>

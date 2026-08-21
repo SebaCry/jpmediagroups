@@ -58,12 +58,23 @@ const total = items.reduce((n, c) => n + c.count, 0);
   </div>
 
   {
-    /* A horizontal rail on every size. Six categories in a grid on desktop
-      makes a wall of equal boxes; a rail keeps them reading as a sequence and
-      needs no separate mobile treatment. */
+    /* A horizontal rail on every size. Categories in a grid on desktop make a
+      wall of equal boxes; a rail keeps them reading as a sequence and needs no
+      separate mobile treatment.
+
+      On desktop the rail is DRIVEN BY THE PAGE SCROLL - the same pin-and-scrub
+      the Team row uses, wired up by the shared `[data-pin-row]` handler in
+      lib/motion.ts. Without it the rail was a plain `overflow-x` container, and
+      a plain overflow container is unreachable here: Lenis owns the wheel, so
+      the only way to move it was shift+wheel or a trackpad swipe. Five
+      categories overflow 1440px, which meant the fourth card sat permanently
+      cut in half and the fifth could not be seen at all.
+
+      Touch and narrow screens keep the native snap carousel - pinning fights
+      touch scrolling, and the CSS below already provides the fallback. */
   }
-  <div class="teaser__viewport">
-    <ul class="teaser__track">
+  <div class="teaser__viewport" data-pin-row>
+    <ul class="teaser__track" data-pin-track>
       {
         items.map((c) => (
           <li class="tcard">
@@ -126,6 +137,13 @@ const total = items.reduce((n, c) => n + c.count, 0);
   .teaser__viewport::-webkit-scrollbar {
     display: none;
   }
+  /* Added by the motion module once the track is pinned - native scrolling and
+     a pinned translate must not both be live at the same time, or the rail
+     fights itself and lands somewhere neither of them meant. */
+  .teaser__viewport.is-pinned {
+    overflow: hidden;
+    scroll-snap-type: none;
+  }
 
   .teaser__track {
     display: flex;
@@ -134,6 +152,7 @@ const total = items.reduce((n, c) => n + c.count, 0);
     margin: 0;
     padding: 0 var(--spacing-gutter);
     list-style: none;
+    will-change: transform;
   }
   @media (min-width: 1024px) {
     .teaser__track {

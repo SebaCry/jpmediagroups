@@ -18,8 +18,10 @@ import Marquee from "../components/sections/Marquee.astro";
 import About from "../components/sections/About.astro";
 import Services from "../components/sections/Services.astro";
 import WorkTeaser from "../components/sections/WorkTeaser.astro";
+import Clients from "../components/sections/Clients.astro";
 import Markets from "../components/sections/Markets.astro";
 import Team from "../components/sections/Team.astro";
+import Reviews from "../components/sections/Reviews.astro";
 import Testimonial from "../components/sections/Testimonial.astro";
 import { pages } from "../lib/seo";
 
@@ -35,7 +37,15 @@ import { pages } from "../lib/seo";
   <About />
   <Services />
   <WorkTeaser />
+  {/* Straight after the work, because "who has actually hired them" is the
+      question the work raises and the logo wall is the shortest answer. */}
+  <Clients />
   <Markets />
   <Team />
+  {/* Renders nothing in production until `testimonials` in content/site.ts has
+      at least one real entry - see the note there. */}
+  <Reviews />
+  {/* Superseded by <Reviews />. Left here until you decide whether the single
+      pulled quote is still wanted somewhere. */}
   <!-- <Testimonial /> -->
 </BaseLayout>

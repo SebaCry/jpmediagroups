@@ -98,7 +98,11 @@ pass = (await report('home → Team (pinned)')) && pass;
 //    translate the track sideways rather than leave it stuck.
 const trackX = () =>
   page.evaluate(() => {
-    const t = document.querySelector('[data-pin-track]');
+    // Scoped to #team. The Work teaser is also a pinned row now, and it comes
+    // first in the document - an unscoped query returned that track, which has
+    // already finished its scrub by the time the page is sitting on Team, so
+    // it never moves again and the check read that as a broken pin.
+    const t = document.querySelector('#team [data-pin-track]');
     if (!t) return null;
     const m = new DOMMatrixReadOnly(getComputedStyle(t).transform);
     return Math.round(m.m41);
