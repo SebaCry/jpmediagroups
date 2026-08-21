@@ -563,21 +563,21 @@ export const workCategories: WorkCategory[] = [
       'Everything is shot to be used, which means it is delivered in the crops and sizes the website, the deck and the social channels actually need — not as a folder of raw frames somebody else then has to work out.',
     ],
   },
-  {
-    slug: 'music-videos',
-    name: 'Music videos',
-    short: 'Music videos',
-    kind: 'video',
-    discipline: 'Music videos',
-    source: 'MUSIC VIDEOS',
-    lead: 'High-end music videos for artists working across Colombia and the United States.',
-    metaDescription:
-      'Music video production by JP Media Groups. Concept, shoot and post for artists in Los Angeles, Miami, New York and Colombia.',
-    body: [
-      'The concept is developed with the artist, not handed to them. A video that does not sound like the record looks like an advert for somebody else, and no amount of production value fixes that.',
-      'Handled end to end — treatment, crew, shoot, edit, colour and delivery — so the artist deals with one team from the first conversation to the file that goes up.',
-    ],
-  },
+  // {
+  //   slug: 'music-videos',
+  //   name: 'Music videos',
+  //   short: 'Music videos',
+  //   kind: 'video',
+  //   discipline: 'Music videos',
+  //   source: 'MUSIC VIDEOS',
+  //   lead: 'High-end music videos for artists working across Colombia and the United States.',
+  //   metaDescription:
+  //     'Music video production by JP Media Groups. Concept, shoot and post for artists in Los Angeles, Miami, New York and Colombia.',
+  //   body: [
+  //     'The concept is developed with the artist, not handed to them. A video that does not sound like the record looks like an advert for somebody else, and no amount of production value fixes that.',
+  //     'Handled end to end — treatment, crew, shoot, edit, colour and delivery — so the artist deals with one team from the first conversation to the file that goes up.',
+  //   ],
+  // },
   {
     slug: 'social-media',
     name: 'Social media content',
@@ -593,21 +593,21 @@ export const workCategories: WorkCategory[] = [
       'Vertical video, stills, cutdowns and the copy that goes with them, formatted for where they are actually going to run rather than cropped out of something made for a different shape.',
     ],
   },
-  {
-    slug: 'websites',
-    name: 'Websites',
-    short: 'Websites',
-    kind: 'web',
-    discipline: 'Branding',
-    source: '—',
-    lead: 'Sites built for businesses that already had photographs worth showing.',
-    metaDescription:
-      'Web design and development by JP Media Groups. Fast, responsive sites for restaurants, brands and artists, built around their own photography.',
-    body: [
-      'A studio that shoots the photographs is in an unusual position to build the site they go on. The images are not squeezed into a template somebody else designed — the layout is made around the work that exists.',
-      'Built to load fast on a phone on mobile data, to be found in search, and to be edited without having to call anybody. That last part is the one most sites get wrong.',
-    ],
-  },
+  // {
+  //   slug: 'websites',
+  //   name: 'Websites',
+  //   short: 'Websites',
+  //   kind: 'web',
+  //   discipline: 'Branding',
+  //   source: '—',
+  //   lead: 'Sites built for businesses that already had photographs worth showing.',
+  //   metaDescription:
+  //     'Web design and development by JP Media Groups. Fast, responsive sites for restaurants, brands and artists, built around their own photography.',
+  //   body: [
+  //     'A studio that shoots the photographs is in an unusual position to build the site they go on. The images are not squeezed into a template somebody else designed — the layout is made around the work that exists.',
+  //     'Built to load fast on a phone on mobile data, to be found in search, and to be edited without having to call anybody. That last part is the one most sites get wrong.',
+  //   ],
+  // },
 ];
 
 // ---------------------------------------------------------------------------
