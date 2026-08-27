@@ -415,6 +415,103 @@ export const contact = {
   locations: 'Colombia · United States',
 };
 
+// ---------------------------------------------------------------------------
+// FAQ - on /contact/, and the FAQPage node in the schema.
+// ---------------------------------------------------------------------------
+// ⚠️  READ THIS BEFORE ADDING ONE.
+//
+// Google DEPRECATED the FAQ rich result in May 2026. The expandable Q&A
+// dropdown under a search listing no longer appears for anybody, and Search
+// Console dropped its reporting. So this is NOT here for a SERP enhancement,
+// and nothing below should be written as though it were.
+//
+// It is here for the two things that did not go away:
+//
+//   1. The visible answers. "Do you shoot in Spanish", "what does wedding
+//      coverage include" and "where do you work" are real searches with real
+//      buying intent, and no page on this site answered any of them. The
+//      content is the point; the markup is a label on it.
+//   2. Citation. FAQPage is still a valid Schema.org type and is still parsed
+//      by the retrieval systems behind AI answers, which is where a question
+//      phrased as a question increasingly gets resolved.
+//
+// Every answer below restates something the site ALREADY says somewhere -
+// the markets array, the services list, the category bodies, foundingDate.
+// Nothing here is a new claim. Keep it that way: an answer that appears only
+// in the FAQ is an unverified promise, and one that contradicts the visible
+// page is a structured-data violation rather than a clever trick.
+// ---------------------------------------------------------------------------
+
+export const faq = {
+  label: ['Before you write', 'Questions'],
+  title: 'Asked often enough to answer here',
+  items: [
+    {
+      q: 'Where does JP Media Groups work?',
+      a: 'Across five markets in two countries: Utah, California, Florida and New York in the United States, and Colombia. The cities the studio names as its own are Salt Lake City, Los Angeles, Miami, New York and Bogotá. Travel outside them is a scheduling question, not a refusal — ask.',
+    },
+    {
+      q: 'Do you shoot and work in Spanish?',
+      a: 'Yes. The studio works in Spanish and in English, with the same team and the same standard in both countries. On a quinceañera or a family wedding that is not a convenience — being spoken to in your own language is the difference between a posed picture and a real one.',
+    },
+    {
+      q: 'What does the studio actually do?',
+      a: 'Five disciplines: audiovisual production, professional photography, music videos, branding and strategic marketing. Most projects use more than one — a restaurant that books food photography usually needs the social content that runs on it.',
+    },
+    {
+      q: 'What does wedding coverage include?',
+      a: 'Preparation through the reception: the ceremony, the portraits, the details that took months to choose, and the hours after dinner when people forget there is a photographer in the room. There is never only one camera on the room, because a wedding is the one shoot that cannot be done again.',
+    },
+    {
+      q: 'How are the photographs delivered?',
+      a: 'In the crops and sizes the website, the deck and the social channels actually need — not as a folder of raw frames somebody else then has to work out. Everything is shot to be used.',
+    },
+    {
+      q: 'Can I see more work than what is on the site?',
+      a: 'Yes. The site carries a curated set of around two dozen photographs per category; the complete archive is hundreds of frames and lives on Google Drive. Every category page links to it, and so does the portfolio index.',
+    },
+    {
+      q: 'How long has the studio been working?',
+      a: 'JP Media Groups was founded in 2016 — over nine years of work across Colombia and the United States, for artists, restaurants, businesses and marketing agencies.',
+    },
+  ],
+};
+
+// ---------------------------------------------------------------------------
+// Reviews - the ratings themselves.
+// ---------------------------------------------------------------------------
+// ⚠️  `items` IS EMPTY ON PURPOSE, AND MUST STAY EMPTY UNTIL THE REVIEWS ARE
+//     REAL. The schema below emits `Review` and `AggregateRating` nodes only
+//     when there is something in here, so the site says nothing rather than
+//     something false.
+//
+//     Inventing a rating is not an SEO shortcut, it is fabricated structured
+//     data: it is a manual-action risk, it is illegal in several of the
+//     markets this studio works in, and it is the single fastest way to lose
+//     the rich result it was meant to win.
+//
+//     Where the real ones come from: reviews left on the Google Business
+//     Profile once it exists. Reviews are ~20% of the weight of local ranking,
+//     which makes this the highest-value empty array on the site.
+//
+//     Each entry needs: the reviewer's name as they wrote it, the rating they
+//     actually gave, the date, and the text. `verifiedOn` records where it can
+//     be checked — that is what makes it auditable rather than a claim.
+// ---------------------------------------------------------------------------
+
+export interface ClientReview {
+  author: string;
+  /** 1-5, as given. Do not round up. */
+  rating: number;
+  /** ISO date, YYYY-MM-DD. */
+  date: string;
+  body: string;
+  /** Where this review can be read by a third party. */
+  verifiedOn?: string;
+}
+
+export const clientReviews: ClientReview[] = [];
+
 export const socials = [
   { name: 'Instagram', icon: 'instagram', href: 'https://www.instagram.com/jpmediagroups/' },
 ];
@@ -540,6 +637,23 @@ export interface WorkCategory {
   discipline: string;
   /** The Drive folder these assets come from. Kept so the mapping is explicit. */
   source: string;
+  /**
+   * The stem every photograph in this folder is named after, after its number:
+   * `01-wedding-photography.jpg`. It is what the served image URL carries, and
+   * a filename is a ranking signal in Google Images — `01.jpg` and a UUID both
+   * throw that away.
+   *
+   * It is also the boilerplate the caption reader ignores, so a file named only
+   * this produces no caption. A file that says more than the discipline —
+   * `02-caviar-and-avocado-tostada.jpg` — becomes the alt text and the label
+   * revealed on hover. That is how a dish or a client name gets added: rename
+   * the file. There is no list to maintain.
+   *
+   * ⚠️  Prefer the searched term over the internal one. This is why the
+   *     quinceañera folder is named `quinceanera-photography` while the slug
+   *     stays `15th-birthday` — the URL is already spent, the filename is not.
+   */
+  imageSlug: string;
   lead: string;
   metaDescription: string;
   body: string[];
@@ -559,6 +673,7 @@ export const workCategories: WorkCategory[] = [
     kind: 'photo',
     discipline: 'Strategic marketing',
     source: 'SOCIAL MEDIA',
+    imageSlug: 'social-media-content',
     lead: 'Content built to run - vertical video, stills and campaigns that keep going after launch day.',
     metaDescription:
       'Social media content production by JP Media Groups. Vertical video, photography and campaigns for brands, restaurants and artists.',
@@ -579,6 +694,7 @@ export const workCategories: WorkCategory[] = [
     kind: 'photo',
     discipline: 'Professional photography',
     source: 'FOOD PHOTOS',
+    imageSlug: 'food-photography',
     lead: 'Food photographed to sell it - from tasting menus to the window of a burger counter.',
     metaDescription:
       'Food and restaurant photography by JP Media Groups. Fine dining plating, menu, delivery-app and social media images for restaurants in Utah, Miami and beyond.',
@@ -611,6 +727,7 @@ export const workCategories: WorkCategory[] = [
     kind: 'photo',
     discipline: 'Professional photography',
     source: 'PORTAFOLIO BODAS',
+    imageSlug: 'wedding-photography',
     lead: 'Weddings photographed the way they actually happened - the room, the light, the people, and the half-second nobody posed for.',
     metaDescription:
       'Wedding photography by JP Media Groups. Ceremony, reception and portrait coverage in Utah, California, Florida, New York and Colombia.',
@@ -626,6 +743,7 @@ export const workCategories: WorkCategory[] = [
     kind: 'photo',
     discipline: 'Professional photography',
     source: 'PHOTOS',
+    imageSlug: 'corporate-photography',
     lead: 'Corporate, brand and portrait photography for companies that need to look credible.',
     metaDescription:
       'Professional photography by JP Media Groups - corporate, brand, product and portrait work for businesses across the United States and Colombia.',
@@ -648,6 +766,7 @@ export const workCategories: WorkCategory[] = [
     kind: 'photo',
     discipline: 'Professional photography',
     source: '15 AÑOS',
+    imageSlug: 'quinceanera-photography',
     lead: 'Quinceañeras photographed as the event they are - the dress, the waltz, the family, and the hours nobody thinks to plan for.',
     metaDescription:
       'Quinceañera and 15th birthday photography by JP Media Groups. Portrait sessions, ceremony and party coverage in Utah, California, Florida, New York and Colombia.',

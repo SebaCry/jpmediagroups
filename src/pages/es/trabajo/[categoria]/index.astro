@@ -1,0 +1,26 @@
+---
+/**
+ * Una categoría del portafolio, en español — /es/trabajo/fotografia-de-bodas/ …
+ *
+ * Misma plantilla que la ruta en inglés. Sólo se generan las categorías que
+ * tienen ficha en `site.es.ts`: una página en español que cae de vuelta al copy
+ * en inglés es peor que no existir — Google la lee como duplicado y el lector
+ * la abandona.
+ */
+import WorkCategoryPage from "../../../../components/WorkCategoryPage.astro";
+import { workCategories } from "../../../../content/site";
+import { esCategories } from "../../../../content/site.es";
+
+export function getStaticPaths() {
+  return workCategories
+    .filter((category) => esCategories[category.slug])
+    .map((category) => ({
+      params: { categoria: esCategories[category.slug].slug },
+      props: { category },
+    }));
+}
+
+const { category } = Astro.props;
+---
+
+<WorkCategoryPage category={category} lang="es" />

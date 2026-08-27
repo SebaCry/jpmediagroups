@@ -4,13 +4,23 @@ import WallLabel from "../WallLabel.astro";
 import Icon from "../Icon.astro";
 import horizon from "../../assets/plates/plate-horizon.webp";
 import { hero, studio } from "../../content/site";
+import { esHome } from "../../content/site.es";
+import { localeOf } from "../../lib/i18n";
+const es = localeOf(Astro.url.pathname) === "es";
+/* One hero, two languages. The line ARRAYS differ, not just the words: the
+   headline is set `nowrap` per line, so a Spanish break that works at 360px
+   has to be authored, not translated into an overflow. */
+const h = es
+  ? { label: esHome.heroLabel, lines: esHome.heroLines, linesMobile: esHome.heroLines,
+      kicker: esHome.heroKicker, primaryCta: esHome.primaryCta, secondaryCta: esHome.secondaryCta }
+  : hero;
 ---
 
 <section data-hero data-parallax-scope class="hero" aria-label="Introduction">
   <div class="shell">
     <div class="hero__inner">
       <WallLabel
-        items={[...hero.label, studio.cities.join(" · ")]}
+        items={[...h.label, studio.cities.join(" · ")]}
         class="hero__label"
       />
 
@@ -20,7 +30,7 @@ import { hero, studio } from "../../content/site";
           a screen reader - so it is hidden and the sentence is exposed once. */
         }
         <span class="sr-only"
-          >{hero.lines.map((l) => l.text).join(" ")} {hero.kicker}</span
+          >{h.lines.map((l) => l.text).join(" ")} {h.kicker}</span
         >
 
         {
@@ -36,8 +46,8 @@ import { hero, studio } from "../../content/site";
            clip and renders them invisible. They rise as whole lines instead -
            which also lands the accent as one gesture. */
           [
-            { set: hero.lines, cls: "hero__set--wide" },
-            { set: hero.linesMobile, cls: "hero__set--narrow" },
+            { set: h.lines, cls: "hero__set--wide" },
+            { set: h.linesMobile, cls: "hero__set--narrow" },
           ].map(({ set, cls }) => (
             <span class:list={["hero__set", cls]} aria-hidden="true">
               {set.map((line) =>
@@ -56,23 +66,23 @@ import { hero, studio } from "../../content/site";
         }
       </h1>
 
-      <p data-hero-trail class="hero__kicker">{hero.kicker}</p>
+      <p data-hero-trail class="hero__kicker">{h.kicker}</p>
 
       <div data-hero-trail class="hero__actions">
         <a
-          href={hero.primaryCta.href}
+          href={h.primaryCta.href}
           class="btn btn--primary"
           data-magnetic="0.22"
         >
-          <span class="btn__label">{hero.primaryCta.label}</span>
+          <span class="btn__label">{h.primaryCta.label}</span>
           <span class="btn__fill" aria-hidden="true"></span>
         </a>
         <a
-          href={hero.secondaryCta.href}
+          href={h.secondaryCta.href}
           class="btn btn--ghost"
           data-magnetic="0.18"
         >
-          {hero.secondaryCta.label}
+          {h.secondaryCta.label}
           <Icon name="arrow-right" class="h-4 w-4" />
         </a>
       </div>

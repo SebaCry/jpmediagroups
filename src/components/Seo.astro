@@ -10,17 +10,16 @@
  * 1024 bytes of the document or the browser re-parses the head, so they stay
  * ahead of everything else.
  */
+import { SITE_NAME, OG, GEO, abs, jsonLd, type PageSeo } from "../lib/seo";
 import {
-  SITE_NAME,
-  LOCALE,
-  LOCALE_ALT,
-  LANG,
-  OG,
-  GEO,
-  abs,
-  jsonLd,
-  type PageSeo,
-} from "../lib/seo";
+  alternatesFor,
+  localeOf,
+  normalise,
+  LOCALE_TAG,
+  OG_LOCALE,
+  DEFAULT_LOCALE,
+  type Locale,
+} from "../lib/i18n";
 
 interface Props {
   page: PageSeo;
@@ -33,8 +32,24 @@ const { page } = Astro.props;
 //
 // The trailing slash is normalised: /contact and /contact/ are two URLs to a
 // crawler and only one of them should ever be declared canonical.
-const path = Astro.url.pathname.replace(/\/+$/, "") || "/";
-const canonical = abs(path === "/" ? "/" : `${path}/`);
+const path = normalise(Astro.url.pathname);
+const canonical = abs(path);
+
+const lang: Locale = localeOf(path);
+
+/**
+ * The hreflang set for this page, or `null` when it has no counterpart.
+ *
+ * The site used to declare `hreflang="en"` and `x-default` both pointing at the
+ * page itself — a set of one, which states "there is no other version" while
+ * the studio's own copy said it works in two languages. Now that /es/ exists,
+ * the set is real for the pages that have both, and absent for the pages that
+ * do not: declaring an alternate that 404s is worse than declaring none.
+ *
+ * `x-default` goes to English, which is where a visitor whose language matches
+ * neither should land — it is the market the studio's own site was built for.
+ */
+const alternates = alternatesFor(path);
 
 const image = abs(page.image ?? OG.image);
 const imageAlt = page.imageAlt ?? OG.alt;
@@ -63,11 +78,30 @@ const schema = jsonLd(page, canonical);
 <meta name="googlebot" content={robots} />
 
 {
-  /* One language, stated rather than left for Google to infer. `x-default`
-    points at the same URL: there is no alternate to send anyone to yet. */
+  /* Reciprocal by construction — both sides come out of the same map, so one
+    of them cannot drift out of the set. A page with no counterpart declares
+    nothing at all rather than pointing hreflang at itself. */
 }
-<link rel="alternate" hreflang={LANG} href={canonical} />
-<link rel="alternate" hreflang="x-default" href={canonical} />
+{
+  alternates ? (
+    <>
+      {alternates.map((alt) => (
+        <link
+          rel="alternate"
+          hreflang={LOCALE_TAG[alt.locale]}
+          href={abs(alt.path)}
+        />
+      ))}
+      <link
+        rel="alternate"
+        hreflang="x-default"
+        href={abs(
+          alternates.find((a) => a.locale === DEFAULT_LOCALE)?.path ?? path,
+        )}
+      />
+    </>
+  ) : null
+}
 
 <meta name="author" content={SITE_NAME} />
 <meta name="publisher" content={SITE_NAME} />
@@ -91,8 +125,14 @@ const schema = jsonLd(page, canonical);
 <meta property="og:title" content={page.title} />
 <meta property="og:description" content={page.description} />
 <meta property="og:url" content={canonical} />
-<meta property="og:locale" content={LOCALE} />
-{LOCALE_ALT.map((l) => <meta property="og:locale:alternate" content={l} />)}
+<meta property="og:locale" content={OG_LOCALE[lang]} />
+{
+  alternates
+    ?.filter((a) => a.locale !== lang)
+    .map((a) => (
+      <meta property="og:locale:alternate" content={OG_LOCALE[a.locale]} />
+    ))
+}
 <meta property="og:image" content={image} />
 <meta property="og:image:secure_url" content={image} />
 <meta property="og:image:type" content="image/jpeg" />

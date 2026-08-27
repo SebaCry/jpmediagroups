@@ -87,6 +87,37 @@ export interface WorkImage {
   /** Bare filename, used for the alt fallback and the empty-slot label. */
   file: string;
   image: ImageMetadata;
+  /**
+   * What is in the frame, read off the filename. `null` when the file carries
+   * nothing but its category's boilerplate.
+   */
+  caption: string | null;
+}
+
+/**
+ * Turns `03-caviar-and-avocado-tostada.jpg` into "Caviar and avocado tostada".
+ *
+ * The filename is the only per-photograph field this project has, and it is
+ * already doing SEO work — it is carried in the served URL, and a filename is a
+ * ranking signal in Google Images. Reading the caption off it means one rename
+ * improves the URL, the alt text and the on-hover label at once, with no list
+ * to keep in sync.
+ *
+ * `boilerplate` is the category's own slug (`wedding-photography`). A file
+ * named only that carries no information the alt text does not already state,
+ * so it yields no caption rather than "Wedding photography — Wedding
+ * photography by JP Media Groups".
+ */
+export function captionFrom(file: string, boilerplate?: string): string | null {
+  const stem = file
+    .replace(/\.\w+$/, "")
+    .replace(/^\d+[-_]?/, "")
+    .trim();
+  if (!stem) return null;
+  if (boilerplate && stem.toLowerCase() === boilerplate.toLowerCase()) return null;
+  const words = stem.replace(/[-_]+/g, " ").trim();
+  if (!words) return null;
+  return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
 /**
@@ -101,15 +132,21 @@ export interface WorkImage {
  * subfolders sort among themselves, so `01-fine-dining/01.jpg` is the first
  * frame of /work/food/ and therefore the cover of the category.
  */
-export function gallery(category: string): WorkImage[] {
+export function gallery(category: string, boilerplate?: string): WorkImage[] {
   const prefix = `../assets/work/${category}/`;
   return Object.entries(workFiles)
     .filter(([path]) => path.startsWith(prefix))
     .sort(([a], [b]) => a.localeCompare(b, "en", { numeric: true }))
-    .map(([path, mod]) => ({
-      file: path.slice(prefix.length),
-      image: mod.default,
-    }));
+    .map(([path, mod]) => {
+      const file = path.slice(prefix.length);
+      return {
+        file,
+        image: mod.default,
+        // The name is read off the leaf, not the whole path: a photograph in a
+        // chapter folder is `01-fine-dining/02-caviar…jpg`.
+        caption: captionFrom(file.split("/").pop() ?? file, boilerplate),
+      };
+    });
 }
 
 /** How many photographs a category has. Drives the wall labels and the schema. */
@@ -122,8 +159,11 @@ export const galleryCount = (category: string) => gallery(category).length;
  * 01.jpg, 02.jpg … to order it. Moving a photograph between chapters is a move
  * between folders and nothing else; there is no list anywhere that has to agree.
  */
-export const gallerySection = (category: string, dir: string): WorkImage[] =>
-  gallery(`${category}/${dir}`);
+export const gallerySection = (
+  category: string,
+  dir: string,
+  boilerplate?: string,
+): WorkImage[] => gallery(`${category}/${dir}`, boilerplate);
 
 /**
  * One named screenshot, for the website cards. Returns `null` when it has not

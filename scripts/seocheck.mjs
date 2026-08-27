@@ -122,6 +122,66 @@ stale.length
   ? bad(`robots.txt mixes origins: ${[...new Set(stale)].join(', ')} alongside ${SITE}`)
   : ok(`every origin in robots.txt is ${SITE}`);
 
+/* --- robots.txt must not block what the pages are built out of ------------
+   This existed as a real bug: `Disallow: /_astro/` sat in the `*` group while
+   every stylesheet, script and optimised photograph was served from /_astro/.
+   Googlebot was refused the CSS it needs to render the page and the images the
+   schema points at, and nothing in the build failed — the site simply got
+   judged as a broken page.
+
+   The Googlebot-Image group did NOT cover for it. robots.txt groups do not
+   stack: a crawler obeys the single most specific group that names it and
+   ignores every other, so an `Allow: /` for one bot says nothing about what
+   Googlebot itself may fetch. That is why only the `*` group is read here.
+
+   Rather than hard-coding a directory, this reads the rules that actually
+   apply to Googlebot and tests them against the paths the built HTML asks for.
+   A future asset directory is covered without anyone remembering to add it. */
+const starGroup = (() => {
+  // Everything from `User-agent: *` up to the next User-agent line.
+  const lines = robots.split(/\r?\n/).map((l) => l.replace(/#.*/, '').trim());
+  const out = [];
+  let inside = false;
+  for (const line of lines) {
+    const ua = line.match(/^User-agent:\s*(\S+)/i);
+    if (ua) {
+      inside = ua[1] === '*';
+      continue;
+    }
+    if (inside) out.push(line);
+  }
+  return out;
+})();
+
+const disallowed = starGroup
+  .map((l) => (l.match(/^Disallow:\s*(\S+)/i) ?? [])[1])
+  .filter((p) => p && !p.includes('?'))
+  .map((p) => p.replace(/\*$/, ''));
+
+// Every same-origin asset the built pages actually request.
+const assetPaths = new Set();
+for (const file of pages) {
+  // `pages` already carries the path from the project root — `htmlFiles` builds
+  // it with join(DIST, …) — so joining DIST again looks for dist/dist/.
+  const html = readFileSync(file, 'utf8');
+  for (const m of html.matchAll(/(?:href|src)="(\/[^"]+\.(?:css|js|mjs|webp|avif|jpe?g|png|svg|woff2?))"/g))
+    assetPaths.add(m[1]);
+  for (const m of html.matchAll(/(?:srcset|imagesrcset)="([^"]+)"/g))
+    for (const part of m[1].split(','))
+      if (part.trim().startsWith('/')) assetPaths.add(part.trim().split(/\s+/)[0]);
+}
+
+const blocked = [...assetPaths].filter((p) => disallowed.some((d) => p.startsWith(d)));
+if (blocked.length) {
+  const dirs = [...new Set(blocked.map((p) => p.replace(/(\/[^/]+\/).*/, '$1')))];
+  bad(
+    `robots.txt blocks ${blocked.length} asset(s) the pages need to render — ` +
+      `${dirs.join(', ')}. Googlebot cannot style, script or illustrate the page.`,
+  );
+} else {
+  ok(`robots.txt blocks none of the ${assetPaths.size} assets the pages request`);
+}
+
 /* ------------------------------------------------------------- per page */
 
 for (const file of pages) {

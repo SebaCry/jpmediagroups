@@ -4,13 +4,31 @@ import logo from '../assets/images/logo-lockup.png';
 import Icon from './Icon.astro';
 import SearchOverlay from './SearchOverlay.tsx';
 import { nav, socials, search, studio } from '../content/site';
+import { esUi } from '../content/site.es';
+import { localeOf, counterpart, LOCALE_NAME } from '../lib/i18n';
+
+/**
+ * The header is `transition:persist`, so it survives a client-side navigation
+ * without re-rendering. That is fine for the nav — but the language switch has
+ * to point at the counterpart of whatever page is showing, which changes on
+ * every navigation. The href is therefore refreshed by the script at the
+ * bottom on `astro:page-load`, using the same map this build-time render uses.
+ */
+const here = Astro.url.pathname;
+const lang = localeOf(here);
+const items = lang === 'es' ? esUi.nav : nav;
+const other = counterpart(here);
 ---
 
 {/* Permanently fixed. No hide-on-scroll, no transform — see the note in the
     stylesheet below and in lib/motion.ts. */}
 <header data-header class="fixed inset-x-0 top-0 z-50" transition:persist="site-header">
   <div class="header-shell">
-    <a href="/" class="shrink-0" aria-label="JP Media Groups — home">
+    <a
+      href={lang === 'es' ? '/es/' : '/'}
+      class="shrink-0"
+      aria-label="JP Media Groups"
+    >
       <Image
         src={logo}
         alt="JP Media Groups"
@@ -23,13 +41,32 @@ import { nav, socials, search, studio } from '../content/site';
     <nav aria-label="Main" class="ml-auto hidden lg:block">
       <ul class="flex items-center gap-9">
         {
-          nav.map((item) => (
+          items.map((item) => (
             <li>
               <a href={item.href} class="nav-link">
                 {item.label}
               </a>
             </li>
           ))
+        }
+        {
+          /* Only shown when this page really exists in the other language.
+            A switch that lands on a 404 teaches a visitor not to trust it,
+            and it is the same rule hreflang follows two lines above. */
+          other && (
+            <li>
+              <a
+                href={other.path}
+                class="nav-link lang-switch"
+                hreflang={other.locale}
+                lang={other.locale}
+                data-lang-switch
+                rel="alternate"
+              >
+                {LOCALE_NAME[other.locale]}
+              </a>
+            </li>
+          )
         }
       </ul>
     </nav>
@@ -89,7 +126,7 @@ import { nav, socials, search, studio } from '../content/site';
     <nav aria-label="Mobile" class="mt-8">
       <ul class="flex flex-col">
         {
-          nav.map((item, i) => (
+          items.map((item, i) => (
             <li class="overflow-hidden">
               <a href={item.href} class="mobile-link" style={`--i:${i}`} data-menu-close>
                 {item.label}
@@ -97,11 +134,31 @@ import { nav, socials, search, studio } from '../content/site';
             </li>
           ))
         }
+        {
+          other && (
+            <li class="overflow-hidden">
+              <a
+                href={other.path}
+                class="mobile-link"
+                style={`--i:${items.length}`}
+                hreflang={other.locale}
+                lang={other.locale}
+                rel="alternate"
+                data-lang-switch
+                data-menu-close
+              >
+                {LOCALE_NAME[other.locale]}
+              </a>
+            </li>
+          )
+        }
       </ul>
     </nav>
 
     <div class="mt-10 border-t border-[var(--color-hairline-dark)] pt-8">
-      <a href="/contact/" class="btn btn--ghost" data-menu-close>Start a project</a>
+      <a href={lang === 'es' ? '/es/contacto/' : '/contact/'} class="btn btn--ghost" data-menu-close>
+        {lang === 'es' ? esUi.startProject : 'Start a project'}
+      </a>
 
       <ul class="mt-8 flex gap-2">
         {
@@ -344,4 +401,72 @@ import { nav, socials, search, studio } from '../content/site';
   }
 
   document.addEventListener('astro:page-load', setupMenu);
+</script>
+
+<script>
+  /**
+   * Keeps the header honest across a client-side navigation.
+   *
+   * The header carries `transition:persist`, so it is rendered ONCE, on the
+   * first page a visitor lands on, and then survives every navigation after
+   * that. That is exactly what you want for the logo and for not re-animating
+   * the nav on every click — and exactly wrong for anything that depends on
+   * which page is showing.
+   *
+   * Two things do: the nav labels (English on /, Spanish on /es/) and the
+   * language switch, whose target is a different URL on every page. Without
+   * this, a visitor who lands on /es/ and clicks through to the portfolio ends
+   * up with a Spanish nav pointing at Spanish URLs — correct — but a language
+   * switch still aimed at the counterpart of the page they arrived on.
+   */
+  import { nav } from '../content/site';
+  import { esUi } from '../content/site.es';
+  import { localeOf, counterpart, LOCALE_NAME } from '../lib/i18n';
+
+  function syncHeader() {
+    const path = window.location.pathname;
+    const lang = localeOf(path);
+    const items = lang === 'es' ? esUi.nav : nav;
+
+    // The nav lists, desktop and mobile. Both render the same source array, so
+    // both are rewritten from it rather than from each other.
+    document
+      .querySelectorAll<HTMLElement>('[data-header] nav ul, [data-mobile-panel] nav ul')
+      .forEach((list) => {
+        const links = Array.from(list.querySelectorAll<HTMLAnchorElement>('a'));
+        items.forEach((item, i) => {
+          const link = links[i];
+          if (!link) return;
+          link.href = item.href;
+          link.textContent = item.label;
+        });
+      });
+
+    const home = document.querySelector<HTMLAnchorElement>('[data-header] a[aria-label]');
+    if (home) home.href = lang === 'es' ? '/es/' : '/';
+
+    const cta = document.querySelector<HTMLAnchorElement>('[data-mobile-panel] .btn');
+    if (cta) {
+      cta.href = lang === 'es' ? '/es/contacto/' : '/contact/';
+      cta.textContent = lang === 'es' ? esUi.startProject : 'Start a project';
+    }
+
+    // The switch is hidden rather than left pointing somewhere wrong when the
+    // current page has no counterpart — the same rule the hreflang follows.
+    const other = counterpart(path);
+    document.querySelectorAll<HTMLAnchorElement>('[data-lang-switch]').forEach((el) => {
+      const li = el.closest('li');
+      if (!other) {
+        if (li) li.hidden = true;
+        return;
+      }
+      if (li) li.hidden = false;
+      el.href = other.path;
+      el.textContent = LOCALE_NAME[other.locale];
+      el.hreflang = other.locale;
+      el.lang = other.locale;
+    });
+  }
+
+  document.addEventListener('astro:page-load', syncHeader);
 </script>

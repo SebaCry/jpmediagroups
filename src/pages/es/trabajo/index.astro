@@ -1,0 +1,306 @@
+---
+/**
+ * El índice del portafolio, en español — /es/trabajo/.
+ *
+ * Sólo lista las categorías que existen en español. Enlazar desde acá a una URL
+ * en inglés rompería la única cosa que hace que el árbol /es/ funcione como un
+ * sitio y no como cinco páginas sueltas: que cada enlace interno vote por la
+ * versión en el idioma del lector.
+ */
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import WallLabel from "../../../components/WallLabel.astro";
+import Icon from "../../../components/Icon.astro";
+import Marquee from "../../../components/sections/Marquee.astro";
+import { Image } from "astro:assets";
+import { workCategories, driveFolder } from "../../../content/site";
+import { esCategories, esWork, esUi } from "../../../content/site.es";
+import { cover, galleryCount } from "../../../lib/images";
+import { pages } from "../../../lib/seo";
+
+const items = workCategories
+  .filter((c) => esCategories[c.slug])
+  .map((c) => ({
+    ...esCategories[c.slug],
+    discipline: c.discipline,
+    image: cover(c.slug),
+    count: galleryCount(c.slug),
+  }));
+
+const total = items.reduce((n, c) => n + c.count, 0);
+---
+
+<BaseLayout seo={pages.workEs}>
+  <section class="section pt-[calc(var(--header-height)+4rem)]">
+    <div class="shell">
+      <nav class="crumbs" aria-label={esUi.breadcrumb}>
+        <ol>
+          <li><a href="/es/">{esUi.home}</a></li>
+          <li aria-current="page">{esWork.crumb}</li>
+        </ol>
+      </nav>
+
+      <WallLabel
+        items={[
+          esWork.label[0],
+          `${items.length} categorías`,
+          `${total} ${esUi.pieces}`,
+        ]}
+      />
+
+      <h1 data-reveal="lines" class="work-index__title display-title">
+        {
+          esWork.h1.map((line, i) => (
+            <span
+              data-line
+              class={`block${i === 1 ? " work-index__accent" : ""}`}
+            >
+              {line}
+            </span>
+          ))
+        }
+      </h1>
+
+      <p data-reveal="rise" class="lead work-index__lead">{esWork.lead}</p>
+
+      <div data-reveal="rise" class="work-index__actions">
+        <a
+          href={driveFolder}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn--ghost"
+          data-magnetic="0.18"
+        >
+          {esWork.driveCta}
+          <Icon name="arrow-right" class="h-4 w-4" />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <Marquee source="disciplines" />
+
+  <section class="section">
+    <div class="shell">
+      <ul class="cat-grid">
+        {
+          items.map((c) => (
+            <li class="cat" data-reveal="rise">
+              <a href={`/es/trabajo/${c.slug}/`} class="cat__link">
+                <span class="cat__frame">
+                  {c.image && (
+                    <Image
+                      src={c.image}
+                      alt={`${c.name} — JP Media Groups`}
+                      widths={[420, 700, 1000]}
+                      sizes="(min-width: 1024px) 32vw, 90vw"
+                      loading="lazy"
+                      class="cat__img"
+                    />
+                  )}
+                  <span class="cat__sheen" aria-hidden="true" />
+                </span>
+
+                <span class="cat__body">
+                  <span class="cat__meta">
+                    {c.discipline}
+                    <span class="wall-label__sep" aria-hidden="true">
+                      {" "}
+                      /{" "}
+                    </span>
+                    {`${c.count} ${esUi.photographs}`}
+                  </span>
+                  <span class="cat__name">
+                    {c.name}
+                    <Icon name="arrow-right" class="cat__cue h-4 w-4" />
+                  </span>
+                  <span class="cat__lead">{c.lead}</span>
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .crumbs {
+    margin-bottom: 1.75rem;
+  }
+  .crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .crumbs li + li::before {
+    content: "/";
+    margin-right: 0.5rem;
+    color: var(--color-hairline);
+  }
+
+  .work-index__title {
+    font-size: var(--text-h1);
+    font-weight: 800;
+    line-height: 0.98;
+  }
+  .work-index__accent {
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .work-index__lead {
+    margin-top: 2rem;
+    max-width: 46ch;
+  }
+  .work-index__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.875rem;
+    margin-top: 2.25rem;
+  }
+
+  .cat-grid {
+    display: grid;
+    gap: 3rem 1.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  @media (min-width: 640px) {
+    .cat-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    .cat-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 3.5rem 2rem;
+    }
+  }
+
+  .cat__link {
+    display: block;
+    color: inherit;
+  }
+  .cat__frame {
+    position: relative;
+    display: block;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: var(--color-chalk);
+  }
+  .cat__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1) contrast(1.05);
+    transform: scale(1.05);
+    transition:
+      filter var(--duration-media) var(--ease-signature),
+      transform var(--duration-media) var(--ease-signature);
+  }
+  .cat__link:hover .cat__img,
+  .cat__link:focus-visible .cat__img {
+    filter: grayscale(0) contrast(1);
+    transform: scale(1);
+  }
+
+  .cat__sheen {
+    position: absolute;
+    inset: -40%;
+    background: linear-gradient(
+      104deg,
+      transparent 44%,
+      rgba(255, 255, 255, 0.32) 50%,
+      transparent 56%
+    );
+    transform: translateX(-115%);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .cat__link:hover .cat__sheen,
+  .cat__link:focus-visible .cat__sheen {
+    opacity: 1;
+    transform: translateX(115%);
+    transition:
+      transform 950ms var(--ease-signature),
+      opacity 180ms linear;
+  }
+
+  .cat__body {
+    display: block;
+    padding-top: 1.1rem;
+  }
+  .cat__meta {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .cat__name {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.4rem;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    transition: color var(--duration-micro) var(--ease-soft);
+  }
+  .cat__link:hover .cat__name,
+  .cat__link:focus-visible .cat__name {
+    color: var(--color-signal-deep);
+  }
+  .cat__cue {
+    flex: none;
+    transition: transform var(--duration-micro) var(--ease-signature);
+  }
+  .cat__link:hover .cat__cue,
+  .cat__link:focus-visible .cat__cue {
+    transform: translateX(5px);
+  }
+  .cat__lead {
+    display: block;
+    margin-top: 0.5rem;
+    max-width: 40ch;
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: var(--color-muted);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cat__img,
+    .cat__name,
+    .cat__cue {
+      transition: none;
+      filter: none;
+      transform: none;
+    }
+    .cat__sheen {
+      display: none;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .crumbs,
+    .work-index__title,
+    .work-index__lead,
+    .work-index__actions,
+    :global(.section) > .shell > .wall-label {
+      margin-inline-start: var(--rail);
+    }
+  }
+</style>

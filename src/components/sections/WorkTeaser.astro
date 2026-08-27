@@ -15,12 +15,24 @@ import WallLabel from "../WallLabel.astro";
 import Icon from "../Icon.astro";
 import { workCategories, driveFolder } from "../../content/site";
 import { cover, galleryCount } from "../../lib/images";
+import { esCategories, esUi, esWork, esHome } from "../../content/site.es";
+import { localeOf, esCategoryPath } from "../../lib/i18n";
 
-const items = workCategories.map((c) => ({
-  ...c,
-  image: cover(c.slug),
-  count: galleryCount(c.slug),
-}));
+const es = localeOf(Astro.url.pathname) === "es";
+
+/* On the Spanish home only the categories that exist in Spanish are shown. A
+   card that links into the English site is a dead end for a reader who arrived
+   in Spanish, and a vote for the wrong URL for a crawler. */
+const items = workCategories
+  .filter((c) => (es ? Boolean(esCategories[c.slug]) : true))
+  .map((c) => ({
+    ...c,
+    name: es ? (esCategories[c.slug]?.name ?? c.name) : c.name,
+    short: es ? (esCategories[c.slug]?.short ?? c.short) : c.short,
+    href: es ? (esCategoryPath(c.slug) ?? `/work/${c.slug}/`) : `/work/${c.slug}/`,
+    image: cover(c.slug),
+    count: galleryCount(c.slug),
+  }));
 const total = items.reduce((n, c) => n + c.count, 0);
 ---
 
@@ -28,19 +40,25 @@ const total = items.reduce((n, c) => n + c.count, 0);
   <div class="shell">
     <WallLabel
       items={[
-        "Selected work",
-        `${workCategories.length} disciplines`,
-        total ? `${total} pieces` : "Loading pending",
+        es ? esWork.label[0] : "Selected work",
+        `${items.length} ${es ? "disciplinas" : "disciplines"}`,
+        total ? `${total} ${es ? esUi.pieces : "pieces"}` : "Loading pending",
       ]}
     />
 
     <div class="teaser__head">
       <h2 data-reveal="lines" class="teaser__title display-title">
-        <span data-line class="block">The work</span>
+        <span data-line class="block">{es ? esHome.workTitle : "The work"}</span>
       </h2>
       <div class="teaser__actions">
-        <a href="/work/" class="btn btn--primary" data-magnetic="0.18">
-          <span class="btn__label">See all work</span>
+        <a
+          href={es ? "/es/trabajo/" : "/work/"}
+          class="btn btn--primary"
+          data-magnetic="0.18"
+        >
+          <span class="btn__label">
+            {es ? esHome.workCta : "See all work"}
+          </span>
           <span class="btn__fill" aria-hidden="true"></span>
         </a>
         <a
@@ -50,7 +68,7 @@ const total = items.reduce((n, c) => n + c.count, 0);
           class="btn btn--ghost"
           data-magnetic="0.18"
         >
-          Full portfolio
+          {es ? esWork.driveCta : "Full portfolio"}
           <Icon name="arrow-right" class="h-4 w-4" />
         </a>
       </div>
@@ -78,7 +96,7 @@ const total = items.reduce((n, c) => n + c.count, 0);
       {
         items.map((c) => (
           <li class="tcard">
-            <a href={`/work/${c.slug}/`} class="tcard__link">
+            <a href={c.href} class="tcard__link">
               <span class="tcard__frame">
                 {c.image ? (
                   <Image

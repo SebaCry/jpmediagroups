@@ -3,6 +3,14 @@ import { Image } from "astro:assets";
 import WallLabel from "../WallLabel.astro";
 import { services } from "../../content/site";
 import { plate } from "../../lib/images";
+import { esHome } from "../../content/site.es";
+import { localeOf } from "../../lib/i18n";
+const es = localeOf(Astro.url.pathname) === "es";
+/* The plate images stay: they belong to the discipline, not to the language. */
+const sv = es
+  ? { label: esHome.servicesLabel, titleLines: esHome.servicesTitleLines,
+      items: esHome.services.map((s, i) => ({ ...services.items[i], ...s })) }
+  : services;
 ---
 
 {
@@ -36,10 +44,10 @@ import { plate } from "../../lib/images";
   />
 
   <div class="shell">
-    <WallLabel items={services.label} />
+    <WallLabel items={sv.label} />
     <h2 data-reveal="lines" class="services__title display-title">
       {
-        services.titleLines.map((line) => (
+        sv.titleLines.map((line) => (
           <span data-line class="block">
             {line}
           </span>
@@ -55,7 +63,7 @@ import { plate } from "../../lib/images";
     <div class="services__body" data-services>
       <ol class="services__list" data-skew>
         {
-          services.items.map((item, i) => (
+          sv.items.map((item, i) => (
             <li class="service" data-service={i}>
               <div class="service__head">
                 <h3 class="service__title">{item.title}</h3>
@@ -69,7 +77,7 @@ import { plate } from "../../lib/images";
 
       <div class="services__preview" aria-hidden="true">
         {
-          services.items.map((item, i) => (
+          sv.items.map((item, i) => (
             <span class="services__plate" data-service-plate={i}>
               <Image
                 src={plate(item.plate)}

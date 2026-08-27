@@ -3,18 +3,25 @@ import { Image } from "astro:assets";
 import WallLabel from "../WallLabel.astro";
 import plate from "../../assets/plates/plate-signal.webp";
 import { about, studio } from "../../content/site";
+import { esHome } from "../../content/site.es";
+import { localeOf } from "../../lib/i18n";
+const es = localeOf(Astro.url.pathname) === "es";
+const a = es
+  ? { label: esHome.aboutLabel, titleLines: esHome.aboutTitleLines, accentLine: esHome.aboutAccentLine,
+      body: esHome.aboutBody, stats: esHome.aboutStats, mission: esHome.aboutMission, closer: esHome.aboutCloser }
+  : about;
 ---
 
 <section id="about" class="section band-ink" data-band data-parallax-scope>
   <div class="shell">
     <div class="about__head">
-      <WallLabel items={about.label} />
+      <WallLabel items={a.label} />
       <h2 data-reveal="lines" class="about__title display-title">
         {
-          about.titleLines.map((line, i) => (
+          a.titleLines.map((line, i) => (
             <span
               data-line
-              class:list={["block", i === about.accentLine && "about__accent"]}
+              class:list={["block", i === a.accentLine && "about__accent"]}
             >
               {line}
             </span>
@@ -25,7 +32,7 @@ import { about, studio } from "../../content/site";
 
     <div class="about__grid">
       <div class="about__copy" data-reveal="rise">
-        {about.body.map((p) => <p>{p}</p>)}
+        {a.body.map((p) => <p>{p}</p>)}
       </div>
 
       <aside class="about__aside">
@@ -42,7 +49,7 @@ import { about, studio } from "../../content/site";
 
         <dl class="about__stats" data-reveal="rise">
           {
-            about.stats.map((s) => (
+            a.stats.map((s) => (
               <div class="about__stat">
                 <dt class="about__stat-label">{s.label}</dt>
                 <dd class="about__stat-value">{s.value}</dd>
@@ -56,8 +63,8 @@ import { about, studio } from "../../content/site";
     </div>
 
     <blockquote class="about__mission" data-reveal="rise">
-      <p class="about__mission-text">{about.mission}</p>
-      <p class="about__closer">{about.closer}</p>
+      <p class="about__mission-text">{a.mission}</p>
+      <p class="about__closer">{a.closer}</p>
     </blockquote>
   </div>
 </section>

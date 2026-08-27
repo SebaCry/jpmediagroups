@@ -36,9 +36,18 @@ import {
   team,
   markets,
   workCategories,
+  faq,
+  clientReviews,
   type Market,
   type WorkCategory,
 } from "../content/site";
+import {
+  esWork,
+  esHome,
+  esContact,
+  esFaq,
+  type EsCategory,
+} from "../content/site.es";
 
 /* -------------------------------------------------------------- constants */
 
@@ -291,13 +300,12 @@ export function organization(): Record<string, unknown> {
       })),
     },
 
-    employee: team.members.map((m) => ({
-      "@type": "Person",
-      name: m.name,
-      jobTitle: m.role,
-      email: m.email,
-      worksFor: { "@id": ID.org },
-    })),
+    // Referenced by @id rather than inlined. The Person nodes are emitted once
+    // as their own entries in the graph (see `people()`), so the team exists as
+    // four resolvable entities Google can attach to the organisation instead of
+    // four anonymous objects buried inside it. That is what lets a search for
+    // a person's name resolve to this business.
+    employee: team.members.map((m) => ({ "@id": personId(m.name) })),
 
     // Every profile the business controls. This is the single strongest signal
     // for entity resolution — add the Google Business Profile, YouTube, Vimeo,
@@ -320,7 +328,121 @@ export function organization(): Record<string, unknown> {
     node.priceRange = "$$";
   }
 
+  // Attached only when there are real reviews behind it. An `aggregateRating`
+  // on a business with no reviews is the schema equivalent of printing a star
+  // rating on the letterhead.
+  if (clientReviews.length) node.aggregateRating = { "@id": `${SITE_URL}/#rating` };
+
   return node;
+}
+
+/**
+ * A stable @id per person, derived from the name.
+ *
+ * Anchored on the home page because that is where the team section is rendered.
+ * Never change the shape: an @id is how Google keeps an entity together across
+ * crawls, and rewriting one reads as a different person appearing.
+ */
+export const personId = (name: string) =>
+  `${SITE_URL}/#person-${name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "")}`;
+
+/**
+ * The team, as real entities.
+ *
+ * These were inlined inside `employee` as bare objects, which tells Google that
+ * four people exist and nothing else — there is no @id to point at, so nothing
+ * else in the graph, on this site or anywhere on the web, can refer to them.
+ * As nodes they are addressable, which is the whole mechanism behind a name
+ * search resolving to the business that employs them.
+ *
+ * Only what the site already states about each person: name, role, work email.
+ * No years, no schools, no awards — those are claims about real people and none
+ * were supplied.
+ */
+export function people(): Record<string, unknown>[] {
+  return team.members.map((m) => ({
+    "@type": "Person",
+    "@id": personId(m.name),
+    name: m.name,
+    jobTitle: m.role,
+    email: m.email,
+    worksFor: { "@id": ID.org },
+    url: `${SITE_URL}/#team`,
+  }));
+}
+
+/**
+ * Reviews, and the rating they average to.
+ *
+ * Returns nothing at all while `clientReviews` is empty, which is the point:
+ * an AggregateRating with no reviews behind it is fabricated structured data,
+ * not a placeholder. See the warning above the array in content/site.ts.
+ *
+ * `bestRating` is stated explicitly. Left out, a 4.8 is ambiguous between a
+ * five-point and a ten-point scale, and Google has to guess which.
+ */
+export function reviewNodes(): Record<string, unknown>[] {
+  if (!clientReviews.length) return [];
+
+  const total = clientReviews.reduce((n, r) => n + r.rating, 0);
+  const average = Math.round((total / clientReviews.length) * 10) / 10;
+
+  return [
+    {
+      "@type": "AggregateRating",
+      "@id": `${SITE_URL}/#rating`,
+      itemReviewed: { "@id": ID.org },
+      ratingValue: average,
+      reviewCount: clientReviews.length,
+      bestRating: 5,
+      worstRating: 1,
+    },
+    ...clientReviews.map((r, i) => ({
+      "@type": "Review",
+      "@id": `${SITE_URL}/#review-${i + 1}`,
+      itemReviewed: { "@id": ID.org },
+      author: { "@type": "Person", name: r.author },
+      datePublished: r.date,
+      reviewBody: r.body,
+      reviewRating: {
+        "@type": "Rating",
+        ratingValue: r.rating,
+        bestRating: 5,
+        worstRating: 1,
+      },
+      ...(r.verifiedOn ? { url: r.verifiedOn } : {}),
+    })),
+  ];
+}
+
+/**
+ * The FAQ, as a node.
+ *
+ * ⚠️  This does NOT produce a rich result. Google deprecated the FAQ rich
+ *     result in May 2026 and it appears for nobody. The node is emitted for
+ *     what survived: FAQPage is still valid Schema.org and is still read by the
+ *     retrieval systems behind AI answers.
+ *
+ *     The one hard rule is that every question and answer here must be VISIBLE
+ *     on the page that emits this. Markup describing content a visitor cannot
+ *     see is a structured-data violation, and it always has been - the rich
+ *     result going away does not soften it, it only removes the reward.
+ */
+export function faqNode(url: string): Record<string, unknown> {
+  return {
+    "@type": "FAQPage",
+    "@id": `${url}#faq`,
+    mainEntity: faq.items.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a },
+    })),
+  };
 }
 
 /** The logo, as its own node so both the Organization and the site can cite it. */
@@ -400,6 +522,13 @@ export function jsonLd(page: PageSeo, url: string): string {
   const graph = [
     organization(),
     logoNode(),
+    // The Person nodes travel with the Organization rather than living only on
+    // the home page, because `organization().employee` points at them by @id on
+    // every page — a reference that resolves to nothing is a dangling edge, and
+    // `npm run check:seo` fails the page for it.
+    ...people(),
+    // Empty until there are real reviews. See content/site.ts.
+    ...reviewNodes(),
     website(),
     webPage(page, url),
     breadcrumbs(page.breadcrumbs ?? [], url),
@@ -445,6 +574,10 @@ export const pages = {
         name: "Contact JP Media Groups",
         mainEntity: { "@id": ID.org },
       },
+      // The questions are rendered on this page, right under the form. That is
+      // not a formality: markup for answers a visitor cannot see is a
+      // violation, and the answers are the reason the block exists at all.
+      faqNode(`${SITE_URL}/contact/`),
     ],
   },
 
@@ -539,12 +672,23 @@ export const pages = {
   workCategory(
     c: WorkCategory,
     images: { url: string; caption: string }[],
+    es?: EsCategory,
   ): PageSeo {
+    // One function for both languages, so a Spanish category page cannot ship
+    // with an English title, an English description, or — worse — a @id and a
+    // breadcrumb pointing at the English URL, which would make the two pages
+    // fight each other instead of pairing through hreflang.
+    const path = es ? `/es/trabajo/${es.slug}/` : `/work/${c.slug}/`;
+    const name = es ? es.name : c.name;
+    const short = es ? es.short : c.short;
+    const lead = es ? es.lead : c.lead;
+
     const node: Record<string, unknown> = {
       "@type": c.kind === "web" ? "CollectionPage" : "ImageGallery",
-      "@id": `${SITE_URL}/work/${c.slug}/#gallery`,
-      name: `${c.name} — JP Media Groups`,
-      description: c.lead,
+      "@id": `${SITE_URL}${path}#gallery`,
+      name: `${name} — JP Media Groups`,
+      description: lead,
+      inLanguage: es ? "es" : LANG,
       isPartOf: { "@id": ID.website },
       about: { "@id": ID.org },
     };
@@ -571,22 +715,28 @@ export const pages = {
     }
 
     return {
-      title: `${c.name} | JP Media Groups`,
-      description: c.metaDescription,
-      breadcrumbs: [
-        { name: "Work", path: "/work/" },
-        { name: c.short, path: `/work/${c.slug}/` },
-      ],
+      title: es ? es.title : `${c.name} | JP Media Groups`,
+      description: es ? es.metaDescription : c.metaDescription,
+      breadcrumbs: es
+        ? [
+            { name: "Trabajo", path: "/es/trabajo/" },
+            { name: short, path },
+          ]
+        : [
+            { name: "Work", path: "/work/" },
+            { name: short, path },
+          ],
       schema: [
         node,
         {
           "@type": "Service",
-          "@id": `${SITE_URL}/work/${c.slug}/#service`,
-          name: c.name,
-          description: c.lead,
+          "@id": `${SITE_URL}${path}#service`,
+          name,
+          description: lead,
           serviceType: c.discipline,
           provider: { "@id": ID.org },
           areaServed: markets.map((m) => ({ "@type": m.kind, name: m.name })),
+          ...(es ? { availableLanguage: ["es", "en"] } : {}),
         },
       ],
     };
@@ -615,6 +765,52 @@ export const pages = {
           "Copyright and licensing terms for the photography published on jpmediagroups.com.",
         publisher: { "@id": ID.org },
         about: { "@id": ID.org },
+      },
+    ],
+  },
+
+  /* ------------------------------------------------------------- español */
+  /* Escritos, no traducidos. Un título en español calcado del inglés compite
+     con su propia contraparte en vez de responder una búsqueda distinta. */
+
+  homeEs: {
+    title: esHome.title,
+    description: esHome.metaDescription,
+    image: "/og/jp-media-groups.jpg",
+    breadcrumbs: [],
+  },
+
+  workEs: {
+    title: esWork.title,
+    description: esWork.metaDescription,
+    breadcrumbs: [{ name: esWork.crumb, path: "/es/trabajo/" }],
+  },
+
+  contactEs: {
+    title: esContact.title,
+    description: esContact.metaDescription,
+    image: "/og/contact.jpg",
+    imageAlt:
+      "Contacto JP Media Groups — empezá un proyecto de video, fotografía o marketing.",
+    breadcrumbs: [{ name: esContact.crumb, path: "/es/contacto/" }],
+    schema: [
+      {
+        "@type": "ContactPage",
+        "@id": `${SITE_URL}/es/contacto/#contactpage`,
+        url: `${SITE_URL}/es/contacto/`,
+        name: "Contacto — JP Media Groups",
+        inLanguage: "es",
+        mainEntity: { "@id": ID.org },
+      },
+      {
+        "@type": "FAQPage",
+        "@id": `${SITE_URL}/es/contacto/#faq`,
+        inLanguage: "es",
+        mainEntity: esFaq.items.map((item) => ({
+          "@type": "Question",
+          name: item.q,
+          acceptedAnswer: { "@type": "Answer", text: item.a },
+        })),
       },
     ],
   },

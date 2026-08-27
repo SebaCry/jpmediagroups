@@ -1,0 +1,29 @@
+---
+/**
+ * Home en español — /es/.
+ *
+ * Mismo conjunto de secciones que la home en inglés. Cada una lee el idioma de
+ * la propia URL, así que no hay una segunda plantilla que mantener: arreglar el
+ * hero lo arregla en los dos idiomas.
+ *
+ * Team, Clients y Markets quedan fuera por ahora. No es un olvido: sus textos
+ * todavía no están escritos en español, y media sección en inglés dentro de una
+ * página en español es exactamente lo que hace que un sitio traducido se lea
+ * como salida de máquina. Se agregan cuando el copy exista.
+ */
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Hero from "../../components/sections/Hero.astro";
+import Marquee from "../../components/sections/Marquee.astro";
+import About from "../../components/sections/About.astro";
+import Services from "../../components/sections/Services.astro";
+import WorkTeaser from "../../components/sections/WorkTeaser.astro";
+import { pages } from "../../lib/seo";
+---
+
+<BaseLayout seo={pages.homeEs}>
+  <Hero />
+  <Marquee source="cities" />
+  <About />
+  <Services />
+  <WorkTeaser />
+</BaseLayout>

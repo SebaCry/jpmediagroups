@@ -8,10 +8,24 @@
 User-agent: *
 Allow: /
 
-# Build output and the search index are served, not crawled. They are not
-# pages, and letting them into the index dilutes the two that matter.
+# ⚠️  DO NOT ADD `Disallow: /_astro/`.
+#
+# It was here, and it was the single most expensive line on the site. Every
+# stylesheet, every script and every optimised photograph is emitted into
+# /_astro/ — 30 of the 34 assets the home page requests. Googlebot matches this
+# `*` group, so it was being refused the CSS it needs to render the page, the
+# JS it needs to run it, and the images the ImageObject schema points at with
+# `contentUrl`. The Googlebot-Image group below did not rescue it: robots.txt
+# groups do not stack, so an exception for one crawler says nothing about what
+# the rest are allowed to fetch.
+#
+# Hashed asset URLs do not "dilute the index" — Google does not index a
+# stylesheet as a page, and a photography studio WANTS its photographs in
+# Google Images. `npm run check:seo` now fails if this comes back.
+#
+# The search index is a different case: it is fetched by the visitor's browser
+# on demand, never renders anything, and nothing on the page depends on it.
 Disallow: /pagefind/
-Disallow: /_astro/
 
 # Tracking parameters create an unlimited number of duplicate URLs. The
 # canonical tag already resolves them; this stops the crawl budget being spent

@@ -12,17 +12,52 @@ import {
   workCategories,
 } from "../content/site";
 
+import { esUi, esContact, esCategories } from "../content/site.es";
+import { localeOf, esCategoryPath } from "../lib/i18n";
+
 const year = 2026;
+
+/**
+ * The footer is NOT `transition:persist` — it re-renders on every navigation,
+ * so unlike the header it can read the locale at build time and be done.
+ */
+const lang = localeOf(Astro.url.pathname);
+const es = lang === "es";
+
+const t = {
+  label: es ? esContact.label : contact.label,
+  titleLines: es ? esContact.titleLines : contact.titleLines,
+  cta: es ? esUi.startProject : "Start a project",
+  ctaHref: es ? "/es/contacto/" : "/contact/",
+  email: es ? esContact.emailLabel : "Email",
+  phone: es ? esContact.phoneLabel : "Phone",
+  from: es ? esContact.fromLabel : "Working from",
+  work: es ? esUi.work : "Work",
+  where: es ? esUi.whereWeWork : "Where we work",
+  marketingIn: es ? esUi.marketingIn : "Marketing & photography in",
+  licensing: es ? esUi.imageLicensing : "Image licensing",
+  years: es ? "años" : "years across",
+};
+
+/**
+ * The category links follow the reader's language. A Spanish page whose footer
+ * links back into the English site undoes the point of having one: every
+ * internal link is a vote, and these would all be votes for the wrong URL.
+ */
+const categoryLinks = workCategories.map((c) => ({
+  href: es ? (esCategoryPath(c.slug) ?? `/work/${c.slug}/`) : `/work/${c.slug}/`,
+  label: es ? (esCategories[c.slug]?.name ?? c.name) : c.name,
+}));
 ---
 
 <footer id="contact" data-pagefind-ignore data-band class="band-ink">
   <div class="shell section">
     <div class="footer__top">
       <div>
-        <WallLabel items={contact.label} />
+        <WallLabel items={t.label} />
         <h2 data-reveal="lines" class="footer__title display-title">
           {
-            contact.titleLines.map((line) => (
+            t.titleLines.map((line) => (
               <span data-line class="block">
                 {line}
               </span>
@@ -30,23 +65,23 @@ const year = 2026;
           }
         </h2>
 
-        <a href="/contact/" class="btn btn--ghost mt-8" data-magnetic="0.2">
-          Start a project
+        <a href={t.ctaHref} class="btn btn--ghost mt-8" data-magnetic="0.2">
+          {t.cta}
           <Icon name="arrow-right" class="h-4 w-4" />
         </a>
       </div>
 
       <div class="footer__details" data-placeholder={contact.status}>
         <div>
-          <p class="footer__label">Email</p>
+          <p class="footer__label">{t.email}</p>
           <p class="footer__value">{contact.email}</p>
         </div>
         <div>
-          <p class="footer__label">Phone</p>
+          <p class="footer__label">{t.phone}</p>
           <p class="footer__value">{contact.phone}</p>
         </div>
         <div>
-          <p class="footer__label">Working from</p>
+          <p class="footer__label">{t.from}</p>
           <p class="footer__value">{contact.locations}</p>
         </div>
       </div>
@@ -63,12 +98,12 @@ const year = 2026;
         site search does not return the footer on every query. */
     }
     <nav class="footer__markets" aria-label="Work">
-      <p class="footer__label">Work</p>
+      <p class="footer__label">{t.work}</p>
       <ul>
         {
-          workCategories.map((c) => (
+          categoryLinks.map((c) => (
             <li>
-              <a href={`/work/${c.slug}/`}>{c.name}</a>
+              <a href={c.href}>{c.label}</a>
             </li>
           ))
         }
@@ -78,14 +113,15 @@ const year = 2026;
     <hr class="rule my-12" />
 
     <nav class="footer__markets" aria-label="Where we work">
-      <p class="footer__label">Where we work</p>
+      <p class="footer__label">{t.where}</p>
       <ul>
         {
           markets.map((m) => (
             <li>
-              <a href={`/${m.slug}/`}>
-                Marketing &amp; photography in {m.name}
-              </a>
+              {/* The market pages are English-only for now, so a Spanish page
+                  labels them in Spanish but still sends the reader to the URL
+                  that exists. Translating them is the next batch. */}
+              <a href={`/${m.slug}/`}>{t.marketingIn} {m.name}</a>
             </li>
           ))
         }
@@ -95,7 +131,7 @@ const year = 2026;
     <hr class="rule my-12" />
 
     <div class="footer__bottom">
-      <a href="/" aria-label="JP Media Groups — home">
+      <a href={es ? "/es/" : "/"} aria-label="JP Media Groups">
         <Image
           src={logo}
           alt="JP Media Groups"
@@ -108,7 +144,7 @@ const year = 2026;
       <nav aria-label="Footer">
         <ul class="footer__nav">
           {
-            nav.map((item) => (
+            (es ? esUi.nav : nav).map((item) => (
               <li>
                 <a href={item.href}>{item.label}</a>
               </li>
@@ -144,9 +180,9 @@ const year = 2026;
         leave the image metadata pointing somewhere it has never fetched. */
     }
     <p class="footer__legal">
-      © {year} JP Media Groups. {studio.years} years across {
+      © {year} JP Media Groups. {studio.years} {t.years} {
         studio.cities.join(", ")
-      }. <a href="/licensing/" class="footer__legal-link">Image licensing</a>.
+      }. <a href="/licensing/" class="footer__legal-link">{t.licensing}</a>.
     </p>
   </div>
 </footer>
