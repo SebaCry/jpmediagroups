@@ -94,6 +94,12 @@ export interface WorkImage {
  *
  * Sorted with `numeric` so `2.jpg` comes before `10.jpg`. A plain string sort
  * puts 10 first, which silently reorders any gallery named 1..n.
+ *
+ * The match is on the path PREFIX, so a category split into subfolders still
+ * returns all of its photographs from one call - which is what keeps the count,
+ * the schema and `cover()` correct whether or not a category has chapters. The
+ * subfolders sort among themselves, so `01-fine-dining/01.jpg` is the first
+ * frame of /work/food/ and therefore the cover of the category.
  */
 export function gallery(category: string): WorkImage[] {
   const prefix = `../assets/work/${category}/`;
@@ -108,6 +114,16 @@ export function gallery(category: string): WorkImage[] {
 
 /** How many photographs a category has. Drives the wall labels and the schema. */
 export const galleryCount = (category: string) => gallery(category).length;
+
+/**
+ * One chapter of a split category — src/assets/work/<category>/<dir>/.
+ *
+ * Same rules as `gallery()`: drop a file in the folder and it appears, named
+ * 01.jpg, 02.jpg … to order it. Moving a photograph between chapters is a move
+ * between folders and nothing else; there is no list anywhere that has to agree.
+ */
+export const gallerySection = (category: string, dir: string): WorkImage[] =>
+  gallery(`${category}/${dir}`);
 
 /**
  * One named screenshot, for the website cards. Returns `null` when it has not

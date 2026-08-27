@@ -137,10 +137,16 @@ const year = 2026;
       </ul>
     </div>
 
+    {
+      /* The licensing page is linked from every URL on the site on purpose.
+        It is what `license` / `acquireLicensePage` in the gallery schema point
+        at, and Google crawls an orphan page late or not at all — which would
+        leave the image metadata pointing somewhere it has never fetched. */
+    }
     <p class="footer__legal">
       © {year} JP Media Groups. {studio.years} years across {
         studio.cities.join(", ")
-      }.
+      }. <a href="/licensing/" class="footer__legal-link">Image licensing</a>.
     </p>
   </div>
 </footer>
@@ -269,6 +275,17 @@ const year = 2026;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: #7e969b;
+  }
+  .footer__legal-link {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+    transition: color var(--duration-micro) var(--ease-soft);
+  }
+  .footer__legal-link:hover,
+  .footer__legal-link:focus-visible {
+    color: #fff;
   }
 
   @media (prefers-reduced-motion: reduce) {

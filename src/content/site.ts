@@ -499,6 +499,34 @@ export const nav = [
  */
 export const driveFolder = 'https://drive.google.com/drive/folders/1j_ZN1NpyYFm-fcNhMLSLfpCDxjLmX-qo';
 
+/**
+ * One chapter inside a category page.
+ *
+ * A category whose photographs are all the same kind of thing does not need
+ * these - the page renders one grid and that is the honest shape of the work.
+ * Food does need them: a plated tasting menu and a double smash burger are two
+ * different services sold to two different buyers, and a single grid that
+ * alternates between them makes the studio look like it does neither well.
+ *
+ * `dir` is a real subfolder of src/assets/work/<slug>/. The number in front of
+ * it is what orders the sections, exactly the way 01.jpg orders a photograph -
+ * so the first frame of the first section is also the category cover, and
+ * putting a different dish on the front of /work/ is a rename, not a code
+ * change.
+ */
+export interface WorkSection {
+  /** Subfolder under src/assets/work/<slug>/, e.g. '01-fine-dining'. */
+  dir: string;
+  /** Heading for the section. */
+  title: string;
+  /** Spanish alternative, shown under the title. The market is bilingual. */
+  titleAlt: string;
+  /** Mono kicker above the heading. */
+  kicker: string;
+  /** One sentence. What this section is and who buys it. */
+  lead: string;
+}
+
 export interface WorkCategory {
   /** URL segment under /work/ and the folder name under src/assets/work/. */
   slug: string;
@@ -515,6 +543,12 @@ export interface WorkCategory {
   lead: string;
   metaDescription: string;
   body: string[];
+  /**
+   * Optional. When present the gallery is split into these chapters instead of
+   * rendering one flat grid, and the page switches to the editorial layout.
+   * Absent on every other category, which keeps their pages exactly as they were.
+   */
+  sections?: WorkSection[];
 }
 
 export const workCategories: WorkCategory[] = [
@@ -534,6 +568,43 @@ export const workCategories: WorkCategory[] = [
     ],
   },
   {
+    // Second, immediately after social media. The order of this array is the
+    // order of the /work/ grid, the home teaser and the footer - all three read
+    // it, so this is the one place the position is decided. Nothing is reordered
+    // in CSS: a grid whose visual order contradicts its DOM order reads
+    // backwards to a screen reader and to a crawler.
+    slug: 'food',
+    name: 'Food photography',
+    short: 'Food',
+    kind: 'photo',
+    discipline: 'Professional photography',
+    source: 'FOOD PHOTOS',
+    lead: 'Food photographed to sell it - from tasting menus to the window of a burger counter.',
+    metaDescription:
+      'Food and restaurant photography by JP Media Groups. Fine dining plating, menu, delivery-app and social media images for restaurants in Utah, Miami and beyond.',
+    body: [
+      'A dish has about one second to do its work on a delivery app, and roughly the same on a menu. Food photography is a commercial job before it is an aesthetic one: the picture either makes somebody order or it does not.',
+      'Shot on location, with the kitchen plating the way it does for a customer. The point is not a styled dish that arrives looking like something else - it is the real one, lit so it looks like what the cook already made.',
+      'Two kitchens, two jobs. A tasting menu is photographed for the room it is served in; a burger is photographed for a phone screen at eleven at night. They are lit, framed and graded differently on purpose, which is why the gallery below is in two parts rather than one.',
+    ],
+    sections: [
+      {
+        dir: '01-fine-dining',
+        title: 'Fine dining',
+        titleAlt: 'Comida elegante',
+        kicker: 'Chapter 01',
+        lead: 'Plated courses, tasting menus and the ceramics they arrive on. Shot for restaurants that are selling a room, not only a dish.',
+      },
+      {
+        dir: '02-fast-casual',
+        title: 'Fast & casual',
+        titleAlt: 'Comida rápida',
+        kicker: 'Chapter 02',
+        lead: 'Burgers, sandwiches and counter food, lit for the delivery app, the menu board and the window. Appetite first.',
+      },
+    ],
+  },
+  {
     slug: 'bodas',
     name: 'Wedding photography',
     short: 'Weddings',
@@ -546,21 +617,6 @@ export const workCategories: WorkCategory[] = [
     body: [
       'A wedding is the one shoot that cannot be done again. There is no second take on the vows and no going back for the light at six o’clock. That is why the day is planned before it starts, and why there is never only one camera on the room.',
       'Coverage runs from preparation through the reception: the ceremony, the portraits, the details that took months to choose, and the hours after dinner when people forget there is a photographer in the room. That last part is usually where the pictures people keep come from.',
-    ],
-  },
-  {
-    slug: 'food',
-    name: 'Food photography',
-    short: 'Food',
-    kind: 'photo',
-    discipline: 'Professional photography',
-    source: 'FOOD PHOTOS',
-    lead: 'Food photographed to sell it - for menus, delivery apps, social media and the window.',
-    metaDescription:
-      'Food and restaurant photography by JP Media Groups. Menu, delivery-app and social media images for restaurants in Utah, Miami and beyond.',
-    body: [
-      'A dish has about one second to do its work on a delivery app, and roughly the same on a menu. Food photography is a commercial job before it is an aesthetic one: the picture either makes somebody order or it does not.',
-      'Shot on location, with the kitchen plating the way it does for a customer. The point is not a styled dish that arrives looking like something else - it is the real one, lit so it looks like what the cook already made.',
     ],
   },
   {

@@ -23,7 +23,7 @@ import {
   contact,
   driveFolder,
 } from "../../../content/site";
-import { gallery, shot } from "../../../lib/images";
+import { gallery, gallerySection, shot } from "../../../lib/images";
 import { pages, abs } from "../../../lib/seo";
 import { isDev } from "../../../lib/env";
 
@@ -37,6 +37,33 @@ export function getStaticPaths() {
 const { category } = Astro.props;
 const photos = gallery(category.slug);
 const isWeb = category.kind === "web";
+
+/**
+ * Chapters, for the categories that declare them (today: food).
+ *
+ * A chapter with nothing in its folder is dropped rather than rendered as an
+ * empty heading — the same rule the flat gallery follows. If none survive, the
+ * page falls back to the single grid every other category uses, so declaring
+ * sections can never leave a category worse off than not declaring them.
+ *
+ * `start` is the offset of each chapter inside the page's single lightbox
+ * sequence. Two grids, one viewer: a visitor who opens the last fine-dining
+ * plate and keeps pressing → walks straight into the burgers, which is the
+ * whole point of keeping one dialog for the page.
+ */
+let cursor = 0;
+const chapters = (category.sections ?? [])
+  .map((s) => ({ ...s, photos: gallerySection(category.slug, s.dir) }))
+  .filter((c) => c.photos.length > 0)
+  .map((c) => {
+    const start = cursor;
+    cursor += c.photos.length;
+    return { ...c, start };
+  });
+
+const isSplit = !isWeb && chapters.length > 0;
+/** How many frames the lightbox walks. Chapters may cover fewer than `photos`. */
+const shownCount = isSplit ? cursor : photos.length;
 
 // The schema needs absolute, post-build URLs. `Image` rewrites `src` at build
 // time, so the optimised path is read off the metadata rather than guessed.
@@ -161,6 +188,64 @@ const sites = websites.items.map((s) => ({ ...s, image: shot(s.slug) }));
           </ul>
         </div>
       </section>
+    ) : isSplit ? (
+      /* --- Photographs, in chapters --------------------------------------- */
+      /* Two headed grids instead of one. Each chapter is its own <section> with
+         its own <h2>, so the split is in the document outline rather than only
+         in the spacing — a crawler and a screen reader both get told that a
+         plated course and a burger are different work, which is the argument
+         the client is making by asking for the split at all. */
+      chapters.map((chapter, ci) => (
+        <section class="section chapter" data-chapter={ci}>
+          <div class="shell">
+            <header class="chapter__head" data-reveal="rise">
+              <p class="chapter__kicker">
+                {chapter.kicker}
+                <span class="wall-label__sep" aria-hidden="true">
+                  {" "}
+                  /{" "}
+                </span>
+                {chapter.photos.length} photographs
+              </p>
+              <h2 class="chapter__title">
+                {chapter.title}
+                <span class="chapter__title-alt">{chapter.titleAlt}</span>
+              </h2>
+              <p class="chapter__lead">{chapter.lead}</p>
+            </header>
+          </div>
+
+          <div class="grid-wrap">
+            <ul class="stills" data-lightbox-scope>
+              {chapter.photos.map((p, i) => {
+                /* One sequence across both grids, so the viewer can walk the
+                   whole page from any thumbnail. */
+                const n = chapter.start + i;
+                return (
+                  <li class="still">
+                    <button
+                      type="button"
+                      class="still__btn"
+                      data-lightbox={n}
+                      aria-label={`Open image ${n + 1} of ${shownCount} — ${chapter.title}`}
+                    >
+                      <Image
+                        src={p.image}
+                        alt={`${chapter.title} — ${category.name} by JP Media Groups - ${i + 1}`}
+                        widths={[400, 700, 1100, 1600]}
+                        sizes="(min-width: 1280px) 30vw, (min-width: 768px) 45vw, 92vw"
+                        loading={n < 3 ? "eager" : "lazy"}
+                        fetchpriority={n === 0 ? "high" : "auto"}
+                        class="still__img"
+                      />
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </section>
+      ))
     ) : photos.length ? (
       /* --- Photographs ---------------------------------------------------- */
       /* A column grid rather than a row grid: portraits and landscapes from the
@@ -374,6 +459,60 @@ const sites = websites.items.map((s) => ({ ...s, image: shot(s.slug) }));
   }
   .cat-page__copy p + p {
     margin-top: 1.25rem;
+  }
+
+  /* --- Chapters ----------------------------------------------------------
+     Structural only for now: what separates the two halves of the gallery and
+     what the heading of each one is. The editorial treatment - the full-bleed
+     hero, the dark band between the chapters, the hover captions - is a
+     separate pass and does not live here yet. */
+
+  .chapter {
+    padding-block: clamp(2.5rem, 4.5vw, 4.5rem);
+  }
+
+  .chapter__head {
+    max-width: 62ch;
+  }
+
+  .chapter__kicker {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .chapter__title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.9rem;
+    margin-top: 0.6rem;
+    font-family: var(--font-display);
+    font-size: var(--text-h2);
+    line-height: var(--text-h2--line-height);
+    letter-spacing: var(--text-h2--letter-spacing);
+    font-weight: 800;
+  }
+
+  /* The Spanish name is not a translation bolted on - both markets are real,
+     and a Utah kitchen run by a Colombian chef is read by both. Kept smaller so
+     it reads as a subtitle rather than competing with the English. */
+  .chapter__title-alt {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .chapter__lead {
+    margin-top: 1rem;
+    max-width: 52ch;
+    line-height: 1.7;
+    color: var(--color-muted);
   }
 
   /* --- Stills ----------------------------------------------------------- */
@@ -749,6 +888,7 @@ const sites = websites.items.map((s) => ({ ...s, image: shot(s.slug) }));
     .crumbs,
     .cat-page__title,
     .cat-page__intro,
+    .chapter__head,
     :global(.section) > .shell > .wall-label {
       margin-inline-start: var(--rail);
     }
@@ -769,14 +909,26 @@ const sites = websites.items.map((s) => ({ ...s, image: shot(s.slug) }));
    */
   function setupLightbox() {
     const root = document.querySelector<HTMLElement>("[data-lightbox-root]");
-    const scope = document.querySelector<HTMLElement>("[data-lightbox-scope]");
-    if (!root || !scope) return;
+    const scopes = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-lightbox-scope]"),
+    );
+    if (!root || !scopes.length) return;
 
     const img = root.querySelector<HTMLImageElement>("[data-lightbox-img]");
     const count = root.querySelector<HTMLElement>("[data-lightbox-count]");
-    const triggers = Array.from(
-      scope.querySelectorAll<HTMLButtonElement>("[data-lightbox]"),
-    );
+
+    // Every grid on the page, as ONE sequence. A split category renders two
+    // scopes, and querying only the first left the second grid's thumbnails
+    // opening nothing at all. Sorted by the index the page stamped on them
+    // rather than by DOM order, so the two never disagree about what "next" is.
+    const triggers = scopes
+      .flatMap((s) =>
+        Array.from(s.querySelectorAll<HTMLButtonElement>("[data-lightbox]")),
+      )
+      .sort(
+        (a, b) =>
+          Number(a.dataset.lightbox ?? 0) - Number(b.dataset.lightbox ?? 0),
+      );
     if (!img || !triggers.length) return;
 
     let index = 0;

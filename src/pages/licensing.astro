@@ -1,0 +1,227 @@
+---
+/**
+ * Image licensing — /licensing/.
+ *
+ * This page exists for one concrete reason: Search Console reported every
+ * photograph on the /work/ pages as missing `license` and `acquireLicensePage`
+ * in its ImageObject metadata. Those two fields must point at real, crawlable
+ * URLs — Google will not accept a mailto:, an anchor, or a page it cannot
+ * fetch — and there was nowhere on the site that stated the terms.
+ *
+ * Filling them in is not only about clearing the warning. It is what makes the
+ * photographs eligible for the "Licensable" badge in Google Images, which for a
+ * studio that sells photography is a channel, not a footnote.
+ *
+ * The terms below state what is already true — the studio owns its work and
+ * licenses it on request. Nothing here promises a price, a term or a usage
+ * right that has not been agreed with the client, because a licence page that
+ * over-promises is worse than none at all.
+ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import WallLabel from "../components/WallLabel.astro";
+import { contact, studio } from "../content/site";
+import { pages } from "../lib/seo";
+
+const year = new Date().getFullYear();
+
+const terms = [
+  {
+    title: "Who owns the photographs",
+    body: `Every photograph and every frame of video on this site was made by JP Media Groups and remains its property. Copyright © ${year} JP Media Groups. All rights reserved.`,
+  },
+  {
+    title: "What you may do without asking",
+    body: "Nothing on this site is stock. The images are not released for reuse, redistribution, resale, or training of machine-learning models. Linking to a page that carries them is always fine.",
+  },
+  {
+    title: "What a client already has",
+    body: "Clients hold the usage rights agreed in their own contract — normally their own marketing, menus, delivery apps and social channels. Those rights are set per project and are not affected by anything on this page.",
+  },
+  {
+    title: "Licensing anything else",
+    body: "Press, publishers, brands and anyone who needs an image for a use that was not already agreed: write to the studio with the page it appears on and what it is for. Terms are quoted per use.",
+  },
+];
+---
+
+<BaseLayout seo={pages.licensing}>
+  <section class="section pt-[calc(var(--header-height)+4rem)]">
+    <div class="shell">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <ol>
+          <li><a href="/">Home</a></li>
+          <li aria-current="page">Image licensing</li>
+        </ol>
+      </nav>
+
+      <WallLabel items={["Image licensing", "Terms of use"]} />
+
+      <h1 data-reveal="lines" class="lic__title display-title">
+        <span data-line class="block">Image</span>
+        <span data-line class="block">licensing</span>
+      </h1>
+
+      <p data-reveal="rise" class="lead lic__lead">
+        The photography on this site is the studio's own work, made across {
+          studio.cities.join(", ")
+        }. Here is what may be done with it, and how to license anything else.
+      </p>
+
+      <ol class="lic__terms">
+        {
+          terms.map((t, i) => (
+            <li class="lic__term" data-reveal="rise">
+              <p class="lic__num">{String(i + 1).padStart(2, "0")}</p>
+              <div>
+                <h2 class="lic__term-title">{t.title}</h2>
+                <p class="lic__term-body">{t.body}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+
+      <hr class="rule my-12" />
+
+      <div class="lic__foot" data-reveal="rise">
+        <div>
+          <p class="lic__label">Licensing enquiries</p>
+          <a href={`mailto:${contact.email}`} class="lic__email">
+            {contact.email}
+          </a>
+          <p class="lic__note">
+            Include the page the image appears on and the intended use.
+          </p>
+        </div>
+
+        <a href="/contact/" class="btn btn--primary" data-magnetic="0.2">
+          <span class="btn__label">Start a project instead</span>
+          <span class="btn__fill" aria-hidden="true"></span>
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .crumbs {
+    margin-bottom: 1.75rem;
+  }
+  .crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .crumbs li + li::before {
+    content: "/";
+    margin-right: 0.5rem;
+    color: var(--color-hairline);
+  }
+
+  .lic__title {
+    font-size: var(--text-h1);
+    font-weight: 800;
+    line-height: 0.98;
+  }
+  .lic__lead {
+    margin-top: 2rem;
+    max-width: 52ch;
+  }
+
+  .lic__terms {
+    display: grid;
+    gap: 2.5rem;
+    margin: 3.5rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  @media (min-width: 768px) {
+    .lic__terms {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 3rem 3.5rem;
+    }
+  }
+
+  .lic__term {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1.25rem;
+    align-items: start;
+  }
+
+  .lic__num {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.14em;
+    color: var(--color-muted);
+    padding-top: 0.3rem;
+  }
+
+  .lic__term-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .lic__term-body {
+    margin-top: 0.6rem;
+    max-width: 46ch;
+    line-height: 1.75;
+    color: var(--color-muted);
+  }
+
+  .lic__foot {
+    display: grid;
+    gap: 2rem;
+  }
+  @media (min-width: 768px) {
+    .lic__foot {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 3rem;
+    }
+  }
+
+  .lic__label {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .lic__email {
+    display: inline-block;
+    margin-top: 0.5rem;
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .lic__email:hover {
+    color: var(--color-signal-deep);
+  }
+  .lic__note {
+    margin-top: 0.5rem;
+    font-size: 0.9375rem;
+    color: var(--color-muted);
+  }
+
+  @media (min-width: 1024px) {
+    .crumbs,
+    .lic__title,
+    .lic__lead,
+    .lic__terms,
+    .lic__foot,
+    :global(.section) > .shell > .wall-label {
+      margin-inline-start: var(--rail);
+    }
+  }
+</style>
