@@ -957,22 +957,125 @@ export interface Client {
   url?: string;
 }
 
+// ── ADDING A COMPANY ───────────────────────────────────────────────────────
+// 1. Drop the logo file into src/assets/companies/ (.png, .jpg, .webp or
+//    .avif - NOT .jfif, Astro does not read it; rename those to .jpg).
+//    Transparent PNG is best; a logo on a baked-in white square also works.
+// 2. Add one entry below: the real company name and the exact filename.
+//    That is the whole job - the carousel sizes itself, repeats the set to
+//    fill the screen and re-counts the label on its own.
+// 3. Only if the mark is white/light and needs a black card: `tone: 'dark'`.
+//    Check the actual file first - a black mark printed on a white square is
+//    still `light`, and putting it on a dark card frames it in a grey box.
+// ───────────────────────────────────────────────────────────────────────────
+
 export const clients = {
   label: ['Selected clients', 'Brands served'],
   // Two short lines. The display face runs about 0.8em per character, so a
   // third line here starts wrapping on its own and the block falls apart.
   titleLines: ['Who has', 'hired us'],
   accentLine: 1,
-  lead: 'Restaurants, insurers, design studios and national brands, across the United States and Colombia.',
+  lead: 'National broadcasters and networks, restaurants, insurers and design studios - across Colombia and the United States.',
+  // Order is deliberate. The carousel loops, so nobody sees a "last" logo, but
+  // the first cards on screen are the ones that decide whether the strip is
+  // worth watching - the broadcasters lead, the local businesses follow.
   items: [
+    {
+      name: 'Caracol Televisión',
+      logo: 'caracol.png',
+      tone: 'light',
+    },
+    {
+      name: 'RCN Televisión',
+      logo: 'rcn.png',
+      tone: 'light',
+    },
+    {
+      name: 'Telemundo',
+      logo: 'telemundo.png',
+      tone: 'light',
+    },
+    {
+      // The file is named tvmusic.png; the mark in it is MTV's. Named for what
+      // it shows, because the name is printed under the logo.
+      //
+      // tvmusic-mark.png is that file trimmed and lifted off its ground: the
+      // original is a black mark printed on #f7f7f7, which the duotone maps to
+      // a shade just off the card and leaves showing as a pale rectangle
+      // around the logo. Turning the ground into alpha removes the rectangle.
+      // Original untouched.
+      name: 'MTV',
+      logo: 'tvmusic-mark.png',
+      tone: 'light',
+    },
+    {
+      name: 'Blu Radio',
+      logo: 'bluradio.png',
+      tone: 'light',
+    },
+    {
+      // A production, not a company - carried here because the title is the
+      // credential, and a viewer reads it as one.
+      //
+      // Dark card. The mark is gold and silver drawn with black outlines, for
+      // a black screen: under the duotone the gold reads as a highlight, so on
+      // a white card the whole thing thins out to a pale scribble and on a
+      // black one the outlines drop away and the mark lights up.
+      name: 'La Reina del Flow',
+      logo: 'reina-flow.png',
+      tone: 'dark',
+    },
+    {
+      // Not a logo - a portrait. It only works here because every card is run
+      // through the same duotone, which is what lets a photograph and a
+      // wordmark sit in one row without one of them looking like a mistake.
+      // The file is 150x150, the smallest in the folder; a bigger one would
+      // hold up better at card size.
+      name: 'Jerónimo Cantillo',
+      logo: 'jeronimocantillo.png',
+      tone: 'light',
+    },
+    {
+      // companie5.jpg is a square avatar: the wordmark sits in the middle
+      // third with white above and below it and a cream JPEG smear along the
+      // bottom edge. Baked-in margin is the one thing a bigger card cannot
+      // fix - it just renders the same small logo in more space - so
+      // boost-mobile.png is the mark cut out of it, with the white ground
+      // lifted into alpha. Original untouched.
+      name: 'Boost Mobile',
+      logo: 'boost-mobile.png',
+      tone: 'light',
+    },
+    {
+      // Gold on transparent. On a white card the gradient washes out to a pale
+      // smudge; the mark was drawn to sit on black, so it gets a black card.
+      name: 'Monarca',
+      logo: 'monarca.png',
+      tone: 'dark',
+    },
+    {
+      // maia.png is a brand sheet - two lockups stacked on one black square, so
+      // dropped into a card each one renders at half size. maia-mark.png is the
+      // top lockup cut out of it, with the baked-in black turned back into a
+      // real alpha channel so it composites on the dark card instead of laying
+      // a pure-black rectangle over it. The original is left untouched.
+      // It is only 165px wide - a bigger file from the client would help.
+      name: 'Maia',
+      logo: 'maia-mark.png',
+      tone: 'dark',
+    },
     {
       name: 'Anderson Insurance Group',
       logo: 'companie1.png',
       tone: 'light',
     },
     {
+      // 59% of companie3.png is empty pixels - the mark occupies 377x271 of a
+      // 500x500 canvas, so it rendered a third smaller than everything beside
+      // it however wide the card got. vetro-steel.png is the same file cropped
+      // to the mark. Original untouched.
       name: 'Vetro Steel Studio Design',
-      logo: 'companie3.png',
+      logo: 'vetro-steel.png',
       tone: 'light',
     },
     {
@@ -983,14 +1086,9 @@ export const clients = {
       logo: 'companie4.jpg',
       tone: 'light',
     },
-    {
-      name: 'Boost Mobile',
-      logo: 'companie5.jpg',
-      tone: 'light',
-    },
-    // companie2.webp is JP Media Groups' own logo, so it is deliberately not in
-    // this list - a studio's own mark on its own client wall reads as padding
-    // and undermines the four that are real. The file is left in the folder in
-    // case it is wanted elsewhere.
+    // companie2.webp is the one file in src/assets/companies/ deliberately not
+    // on this list: it is JP Media Groups' own logo, and a studio's own mark on
+    // its own client wall reads as padding and undermines the ones that are
+    // real.
   ] as Client[],
 };

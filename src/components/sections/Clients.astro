@@ -1,24 +1,53 @@
 ---
 /**
- * The client wall.
+ * The client wall, running as a carousel.
  *
  * A logo row is the cheapest credibility on a page like this: it answers "has
  * anybody actually hired them" before a visitor has read a word of the copy.
  * So it sits directly under the work, where that question first occurs.
  *
+ * It used to be a fixed four-column grid inside the shell. Two problems with
+ * that: the tiles were small enough to read as footnotes, and the list only
+ * looked right at exactly four or eight logos - the studio keeps signing more.
+ * A full-bleed track fixes both. It breaks out of the shell so the marks are
+ * the widest thing on the page, the cards are sized in absolute terms rather
+ * than as a fraction of a grid, and the row absorbs a fifth, ninth or
+ * fifteenth logo without a layout decision being made about it.
+ *
+ * The motion is the site's existing marquee: `[data-marquee]` is picked up by
+ * lib/motion.ts, which translates the track by exactly half its width on a
+ * GSAP loop, leans on the speed with scroll velocity and pauses on hover. That
+ * is why the strip below is rendered twice - the second half is the seam.
+ *
  * The one design problem a logo wall always has is that the marks arrive from
  * different brand kits - transparent, on white, on black, square, wide - and
- * dropping them into one row makes half of them look broken. Two things fix it
- * here: every tile is the same box regardless of the logo's own proportions,
- * and each logo declares its own background `tone` in content/site.ts so a mark
- * built for black gets a black tile instead of a black rectangle on a white one.
+ * dropping them into one row makes half of them look broken. Two things fix
+ * it: every card is the same box regardless of the logo's own proportions, and
+ * each logo declares its own background `tone` in content/site.ts so a mark
+ * built for black gets a black card instead of a black rectangle on a white
+ * one.
  *
- * At rest the whole row is grey - the same treatment the team portraits and the
- * category covers get, so a row of five different palettes reads as one set.
- * Each mark recovers its colour when it is pointed at.
+ * The colour problem, and the duotone that solves it.
+ * Thirteen marks from thirteen brand kits is thirteen palettes running past in
+ * one strip - Telemundo red, RCN green, Caracol blue, Monarca gold - and the
+ * row stops reading as one thing. Flat greyscale would fix that and kill the
+ * logos with it: a mark reduced to grey is a mark with nothing left but its
+ * shape. So every image is run through one duotone instead, mapping luminance
+ * onto the site's own ramp - ink in the shadows, the brand cyan through the
+ * midtones, chalk in the highlights. Each logo keeps its internal contrast and
+ * its shape, and the strip has exactly one palette: this one.
+ *
+ * Two things fall out of it for free. A photograph can sit in the row without
+ * looking misfiled, which is why the artist portrait is in the list at all.
+ * And a logo that arrives on a baked-in white square lands on chalk - the same
+ * colour as the card - so the square disappears instead of being framed.
+ *
+ * It is an SVG filter rather than a CSS one because `feComponentTransfer`
+ * leaves the alpha channel alone. Nothing in CSS tints a transparent PNG
+ * without also tinting the card underneath it.
  *
  * Logos are resolved by filename from src/assets/companies/. A name that does
- * not match a file renders an empty tile rather than failing the build.
+ * not match a file renders an empty card rather than failing the build.
  */
 import { Image } from "astro:assets";
 import WallLabel from "../WallLabel.astro";
@@ -28,9 +57,21 @@ import { isDev } from "../../lib/env";
 
 const items = clients.items.map((c) => ({ ...c, image: logo(c.logo) }));
 const ready = items.filter((c) => c.image).length;
+
+/**
+ * Four logos do not fill a 1600px viewport, and a loop with a gap in it reads
+ * as broken rather than as a loop. So the set is repeated until one half of
+ * the track is wider than any screen, then the whole half is repeated once
+ * more for the seam. Nine cards at the 24rem cap is ~3450px, which clears the
+ * widest display anyone browses on. As the list grows the repeat count falls
+ * to 1 on its own - nothing here needs editing when logos are added.
+ */
+const reps = items.length ? Math.max(1, Math.ceil(9 / items.length)) : 0;
+const half = Array.from({ length: reps }, () => items).flat();
+const track = [...half, ...half];
 ---
 
-<section id="clients" class="section">
+<section id="clients" class="section clients">
   <div class="shell">
     <WallLabel items={[...clients.label, `${items.length} companies`]} />
 
@@ -53,18 +94,50 @@ const ready = items.filter((c) => c.image).length;
       }
     </h2>
     <p data-reveal="rise" class="lead clients__lead">{clients.lead}</p>
+  </div>
 
-    <ul class="clients__grid" data-reveal="rise">
+  {
+    /* Outside the shell on purpose: `.section` carries no horizontal padding,
+       so a direct child spans the viewport. The band is what makes the section
+       impossible to scroll past. */
+  }
+  <div
+    class="clients__rail"
+    data-marquee="6"
+    data-reveal="rise"
+    role="group"
+    aria-label="Companies we have worked with"
+  >
+    <ul class="clients__track" data-marquee-track>
       {
-        items.map((c) => {
+        track.map((c, i) => {
+          /* Only the first pass through the real list is announced. The
+             repeats exist to fill the track and to give the loop its seam;
+             read out, they would just say every company four times. */
+          const dupe = i >= items.length;
           const live = Boolean(c.url);
           const Tag = live ? "a" : "div";
+          /* A logo with no `work` line gets its name printed under it instead,
+             and the image goes decorative - the caption is then the accessible
+             name and a screen reader is not handed it twice. */
+          const caption = c.work ?? c.name;
+          const named = caption === c.name;
+
           return (
-            <li class="client" data-tone={c.tone ?? "light"}>
+            <li
+              class="client"
+              data-tone={c.tone ?? "light"}
+              aria-hidden={dupe ? "true" : undefined}
+            >
               <Tag
                 class="client__tile"
                 {...(live
-                  ? { href: c.url, target: "_blank", rel: "noopener noreferrer" }
+                  ? {
+                      href: c.url,
+                      target: "_blank",
+                      rel: "noopener noreferrer",
+                      tabindex: dupe ? "-1" : undefined,
+                    }
                   : {})}
               >
                 {c.image ? (
@@ -73,9 +146,9 @@ const ready = items.filter((c) => c.image).length;
                      every screen reader already announces by itself. */
                   <Image
                     src={c.image}
-                    alt={c.name}
-                    widths={[220, 440]}
-                    sizes="(min-width: 1024px) 220px, 44vw"
+                    alt={named ? "" : c.name}
+                    widths={[320, 640]}
+                    sizes="(min-width: 1024px) 384px, 62vw"
                     loading="lazy"
                     class="client__img"
                   />
@@ -91,27 +164,57 @@ const ready = items.filter((c) => c.image).length;
                 )}
               </Tag>
 
-              {c.work && <p class="client__work">{c.work}</p>}
+              <p class="client__work">{caption}</p>
             </li>
           );
         })
       }
     </ul>
-
-    {
-      /* Dev-only. Tells whoever is building the site that a filename in
-         content/site.ts does not match anything in the folder - a visitor is
-         never told the site is unfinished. */
-      isDev && ready !== items.length && (
-        <p class="clients__note" data-placeholder="pending">
-          {items.length - ready} of {items.length} logos are not resolving. Check
-          the filenames in <code>content/site.ts</code> against{" "}
-          <code>src/assets/companies/</code> - <code>.jfif</code> is not a format
-          Astro reads, rename those to <code>.jpg</code>.
-        </p>
-      )
-    }
   </div>
+
+  {
+    /* The ramp itself. Three stops, sampled straight out of theme.css:
+       0.0 -> --color-ink     #12232b
+       0.5 -> #337387, the brand cyan taken down to a midtone. At full
+              --color-cyan the strip glowed; this is the same hue with the
+              light let out of it.
+       1.0 -> --color-chalk   #fafbf9, the card's own background.
+
+       `color-interpolation-filters="sRGB"` is not optional. The SVG default is
+       linearRGB, which lands the midpoint far lighter than these numbers say
+       and washes the whole row out. */
+  }
+  <svg class="clients__filter" aria-hidden="true" focusable="false">
+    <filter id="client-duotone" color-interpolation-filters="sRGB">
+      <feColorMatrix
+        type="matrix"
+        values="0.2126 0.7152 0.0722 0 0
+                0.2126 0.7152 0.0722 0 0
+                0.2126 0.7152 0.0722 0 0
+                0      0      0      1 0"></feColorMatrix>
+      <feComponentTransfer>
+        <feFuncR type="table" tableValues="0.0706 0.2000 0.9804"></feFuncR>
+        <feFuncG type="table" tableValues="0.1373 0.4510 0.9843"></feFuncG>
+        <feFuncB type="table" tableValues="0.1686 0.5294 0.9765"></feFuncB>
+      </feComponentTransfer>
+    </filter>
+  </svg>
+
+  {
+    /* Dev-only. Tells whoever is building the site that a filename in
+       content/site.ts does not match anything in the folder - a visitor is
+       never told the site is unfinished. */
+    isDev && ready !== items.length && (
+      <div class="shell">
+        <p class="clients__note" data-placeholder="pending">
+          {items.length - ready} of {items.length} logos are not resolving.
+          Check the filenames in <code>content/site.ts</code> against{" "}
+          <code>src/assets/companies/</code> - <code>.jfif</code> is not a
+          format Astro reads, rename those to <code>.jpg</code>.
+        </p>
+      </div>
+    )
+  }
 </section>
 
 <style>
@@ -131,73 +234,96 @@ const ready = items.filter((c) => c.image).length;
     max-width: 46ch;
   }
 
-  /* --- The wall --------------------------------------------------------- */
+  /* --- The rail ---------------------------------------------------------- */
 
-  .clients__grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    /* A single hairline between tiles rather than a border on each: two
-       adjacent 1px borders render as a 2px rule and the grid stops looking
-       drawn and starts looking assembled. */
-    gap: 1px;
-    margin: 3rem 0 0;
+  .clients__rail {
+    position: relative;
+    overflow: hidden;
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    /* Its own ground, a shade off the page, so the band is read as one object
+       rather than as logos floating on the section. */
+    background: var(--color-chalk);
+    border-block: 1px solid var(--color-hairline);
+    user-select: none;
+  }
+
+  .clients__track {
+    display: flex;
+    width: max-content;
+    margin: 0;
     padding: 0;
     list-style: none;
-    background: var(--color-hairline);
-    border: 1px solid var(--color-hairline);
-  }
-  @media (min-width: 768px) {
-    .clients__grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
+    will-change: transform;
   }
 
-  /* Block, not flex. As a flex column the tile became a flex item whose
-     automatic minimum size is its content, and the logo's own intrinsic height
-     then won against `aspect-ratio` - which is why a 3:2 tile rendered square.
-     A block tile has a definite ratio and the image inside resolves against
-     it, not the other way round. */
   .client {
+    /* Block, not flex. As a flex column the card became a flex item whose
+       automatic minimum size is its content, and the logo's own intrinsic
+       height then won against `aspect-ratio` - which is why a 4:3 card
+       rendered square. A block card has a definite ratio and the image inside
+       resolves against it, not the other way round. */
     display: block;
+    flex: 0 0 auto;
+    /* Absolute, not a grid fraction: this is the number that decides how big a
+       logo reads, and it should not change because a fifth company signed. */
+    width: clamp(16rem, 26vw, 24rem);
+    /* A single hairline between cards rather than a border on each: two
+       adjacent 1px borders render as a 2px rule and the row stops looking
+       drawn and starts looking assembled. */
+    border-inline-end: 1px solid var(--color-hairline);
     background: var(--color-chalk);
+    transition: background var(--duration-media) var(--ease-signature);
   }
-  /* For a logo that arrives on a black background of its own. All four current
+  /* For a logo that arrives on a black background of its own. All five current
      marks are on white or transparent, so nothing uses this yet - it is here
      because the next restaurant logo will need it. */
   .client[data-tone="dark"] {
     background: var(--color-ink);
   }
+  .client:hover {
+    background: var(--color-salt);
+  }
+  .client[data-tone="dark"]:hover {
+    background: var(--color-ink-soft);
+  }
 
   .client__tile {
     display: block;
-    /* Wide wordmarks and square marks in the same row: the tile is the constant
-       and the logo contains itself inside it, so nothing is ever cropped and
-       no single logo sets the row height. */
-    aspect-ratio: 3 / 2;
-    padding: clamp(1.125rem, 2.5vw, 1.75rem);
+    /* Wide wordmarks and square marks in the same row: the card is the
+       constant and the logo contains itself inside it, so nothing is ever
+       cropped and no single logo sets the row height. 4:3 rather than the old
+       3:2 - a contained square mark is bound by the shorter side, and the
+       taller box is what gives the round logos their size back. */
+    aspect-ratio: 4 / 3;
+    padding: clamp(1.25rem, 2.2vw, 2rem);
     color: inherit;
+  }
+
+  /* Zero-size, position-fixed: the filter has to be in the document to be
+     referenced, but it must not take part in the layout. `display: none` on an
+     SVG that carries a referenced filter kills the reference in Firefox. */
+  .clients__filter {
+    position: fixed;
+    width: 0;
+    height: 0;
+    pointer-events: none;
   }
 
   .client__img {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    /* Grey at rest, colour on hover - the same treatment the portraits and the
-       category covers get, so five different brand palettes read as one row.
-       Held at 0.85 rather than dimmed further: below that the lighter marks
-       stop being legible, and an unreadable logo proves nothing. */
-    filter: grayscale(1);
-    opacity: 0.85;
-    transition:
-      filter var(--duration-media) var(--ease-signature),
-      opacity var(--duration-media) var(--ease-signature),
-      transform var(--duration-media) var(--ease-signature);
+    /* The whole point of the section - see the note at the top of the file. */
+    filter: url(#client-duotone);
+    transition: transform var(--duration-media) var(--ease-signature);
   }
+  /* The hover does not hand the logo its real colours back. Two reasons: an
+     SVG filter cannot cross-fade to `none`, so it would snap rather than
+     resolve, and the row is quiet on purpose. Scale and the card ground carry
+     the hover instead. */
   .client:hover .client__img,
   .client:focus-within .client__img {
-    filter: grayscale(0);
-    opacity: 1;
-    transform: scale(1.04);
+    transform: scale(1.05);
   }
 
   .client__empty {
@@ -217,15 +343,41 @@ const ready = items.filter((c) => c.image).length;
 
   .client__work {
     margin: 0;
-    padding: 0 clamp(1.125rem, 2.5vw, 1.75rem) 1.25rem;
+    padding: 0 clamp(1.25rem, 2.2vw, 2rem) 1.5rem;
     font-family: var(--font-mono);
     font-size: var(--text-label);
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--color-muted);
+    /* One line. A long company name truncates rather than making its card
+       taller than the one beside it. */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .client[data-tone="dark"] .client__work {
     color: #8ba3a8;
+  }
+
+  /* The strip has to run off both edges of the screen to read as continuous,
+     which means the first and last card are always cut. Fading them is what
+     turns a cut card into an implied continuation. */
+  .clients__rail::before,
+  .clients__rail::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    width: clamp(2rem, 9vw, 9rem);
+    z-index: 1;
+    pointer-events: none;
+  }
+  .clients__rail::before {
+    left: 0;
+    background: linear-gradient(to right, var(--color-chalk), transparent);
+  }
+  .clients__rail::after {
+    right: 0;
+    background: linear-gradient(to left, var(--color-chalk), transparent);
   }
 
   .clients__note {
@@ -239,19 +391,32 @@ const ready = items.filter((c) => c.image).length;
     color: var(--color-ink);
   }
 
+  /* Nothing moves on its own; the row becomes a strip the visitor scrolls by
+     hand, with the duplicate half still there as more of the same. */
   @media (prefers-reduced-motion: reduce) {
+    .clients__rail {
+      overflow-x: auto;
+      scroll-snap-type: x proximity;
+    }
+    .clients__track {
+      transform: none !important;
+    }
+    .client {
+      scroll-snap-align: start;
+    }
     .client__img {
       transition: none;
-      filter: none;
-      opacity: 1;
       transform: none;
+    }
+    .clients__rail::before,
+    .clients__rail::after {
+      display: none;
     }
   }
 
   @media (min-width: 1024px) {
     .clients__title,
     .clients__lead,
-    .clients__grid,
     .clients__note,
     :global(#clients) > .shell > .wall-label {
       margin-inline-start: var(--rail);
