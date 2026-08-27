@@ -1,34 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-
-  "//": [
-    "Host-level SEO. Astro decides what the pages ARE; this decides what the",
-    "host answers for URLs that are not pages any more.",
-    "",
-    "1. trailingSlash — astro.config.mjs sets `trailingSlash: 'always'`, but",
-    "   that only governs what Astro LINKS to. Vercel was answering both",
-    "   /contact and /contact/ with a 200, so every page existed at two URLs.",
-    "   The canonical tag kept them from competing, but Search Console still",
-    "   had to resolve a duplicate it should never have been shown. With this",
-    "   set, the slashless form 308s to the canonical one.",
-    "",
-    "2. redirects — the site this replaced was WordPress, and Google still has",
-    "   its URLs. Only the ones with a real equivalent here are redirected.",
-    "   The WooCommerce demo pages (/shop/, /cart/, /checkout/, /wishlist/)",
-    "   and the theme's ~50 demo pages are deliberately left to 404: they",
-    "   never held this studio's content, and mass-redirecting dead URLs to",
-    "   the home page is read as a soft 404 — worse than the 404 it replaces.",
-    "",
-    "   Both the slashed and the slashless form of every source is listed on",
-    "   purpose. `trailingSlash: true` normalises the URL BEFORE these rules",
-    "   are matched, so a rule written only as `/contacts` would never fire",
-    "   for the request Google actually makes.",
-    "",
-    "   `permanent: true` emits a 308, which Google treats exactly as a 301."
-  ],
-
   "trailingSlash": true,
-
   "redirects": [
     { "source": "/contacts", "destination": "/contact/", "permanent": true },
     { "source": "/contacts/", "destination": "/contact/", "permanent": true },
