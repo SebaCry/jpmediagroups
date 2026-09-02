@@ -29,6 +29,15 @@
     { "source": "/about-us", "destination": "/#about", "permanent": true },
     { "source": "/about-us/", "destination": "/#about", "permanent": true },
 
+    { "source": "/california", "destination": "/", "permanent": true },
+    { "source": "/california/", "destination": "/", "permanent": true },
+    { "source": "/florida", "destination": "/", "permanent": true },
+    { "source": "/florida/", "destination": "/", "permanent": true },
+    { "source": "/new-york", "destination": "/", "permanent": true },
+    { "source": "/new-york/", "destination": "/", "permanent": true },
+    { "source": "/colombia", "destination": "/", "permanent": true },
+    { "source": "/colombia/", "destination": "/", "permanent": true },
+
     { "source": "/home", "destination": "/", "permanent": true },
     { "source": "/home/", "destination": "/", "permanent": true },
     { "source": "/index.php", "destination": "/", "permanent": true },

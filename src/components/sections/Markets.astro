@@ -1,19 +1,24 @@
 ---
 /**
- * Where the studio works, as real content and as the entry point to the five
- * market pages.
+ * Where the studio works, as real content and as the entry point to /utah/.
  *
- * Two jobs, and both of them are load-bearing:
+ * This used to be a five-row coverage index across two countries. It is one
+ * row now, and the section still earns its place for both of the reasons it
+ * always did:
  *
- *   1. The home page says "Colombia and the United States" in its prose and
- *      runs the cities through a marquee that is `aria-hidden`. Neither of
- *      those states plainly, in indexable text, that the studio works in
- *      California — and a search engine cannot infer California from
- *      "Los Angeles" reliably enough to rank on it.
+ *   1. It is the one block on the home page that states the service area
+ *      plainly, in indexable text, in a heading. The marquee is `aria-hidden`
+ *      and the About prose is discursive; a crawler reading this page for
+ *      "where does this business operate" reads this H2. While a Business
+ *      Profile appeal is open that is the most useful sentence on the site.
  *
- *   2. New pages need links. A page with no link pointing at it is crawled
+ *   2. /utah/ needs a link. A page with nothing pointing at it is crawled
  *      last, ranked lowest, and inherits none of the home page's authority.
- *      This block is the link.
+ *
+ * A one-item list is not a mistake to be tidied away. It renders from
+ * `markets`, so it is still correct the day a second service area exists, and
+ * a single row reads as a statement rather than as a menu — which is what one
+ * service area actually is.
  */
 import WallLabel from "../WallLabel.astro";
 import { markets, studio } from "../../content/site";
@@ -21,23 +26,24 @@ import { markets, studio } from "../../content/site";
 
 <section id="markets" class="section">
   <div class="shell">
+    {
+      /* `${markets.length} markets` used to sit in the middle slot. With one
+         record it printed "1 markets", and the fix is not pluralisation — the
+         label should name the place, which is the fact worth stating. */
+    }
     <WallLabel
-      items={[
-        "Where we work",
-        `${markets.length} markets`,
-        `${studio.years} years`,
-      ]}
+      items={["Where we work", "Utah", `${studio.years} years`]}
     />
 
     <h2 data-reveal="lines" class="markets__title display-title">
-      <span data-line class="block">Utah, California,</span>
-      <span data-line class="block markets__accent">Florida, New York</span>
-      <span data-line class="block">and Colombia</span>
+      <span data-line class="block">Video, photography</span>
+      <span data-line class="block markets__accent">and marketing</span>
+      <span data-line class="block">in Utah</span>
     </h2>
 
     <p data-reveal="rise" class="lead markets__lead">
-      Video production, professional photography and strategic marketing,
-      delivered in five markets across two countries.
+      Based in Salt Lake City and working across the state. That is the whole
+      service area — every project produced locally, in English and in Spanish.
     </p>
 
     <ul class="markets__list">

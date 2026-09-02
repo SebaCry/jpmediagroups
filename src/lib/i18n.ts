@@ -43,7 +43,11 @@ export const LOCALE_TAG: Record<Locale, string> = {
 
 export const OG_LOCALE: Record<Locale, string> = {
   en: 'en_US',
-  es: 'es_CO',
+  // `es_CO` hasta que el área de servicio pasó a ser solo Utah. El público del
+  // sitio en español son los hispanohablantes de Utah, no Colombia, y un
+  // `og:locale:alternate` que nombra un país donde el estudio no atiende es el
+  // mismo reclamo que se quitó de todo el copy, escrito en una etiqueta.
+  es: 'es_US',
 };
 
 export const LOCALE_NAME: Record<Locale, string> = {

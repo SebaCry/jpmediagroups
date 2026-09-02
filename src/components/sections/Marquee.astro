@@ -2,8 +2,12 @@
 /**
  * The letters carousel, kept from the WordPress site but given something true
  * to say. It used to read "Your Startup Adventure Begins" — demo copy from a
- * different niche. Now it runs the studio's actual reach, which is the most
- * persuasive fact it has: four cities, two countries.
+ * different niche.
+ *
+ * It then ran the studio's reach: four cities, two countries. That is no
+ * longer what the studio claims, so the home page passes `disciplines` and the
+ * strip runs the five things it makes instead. `cities` still works and is
+ * still wired up — it is one entry long, which is why nothing calls it.
  *
  * The GSAP loop in lib/motion.ts translates the track by exactly half its
  * width, so the strip is rendered twice. Scroll velocity leans on the speed and

@@ -33,7 +33,12 @@ import { pages } from "../lib/seo";
 
 <BaseLayout seo={pages.home}>
   <Hero />
-  <Marquee source="cities" />
+  {/* Was `source="cities"`, running Miami / New York / Los Angeles / Utah.
+      `studio.cities` is one entry now, and a marquee looping a single city
+      reads as a site with nothing to say rather than as a strip. Disciplines
+      are five real facts and fill it honestly. Switch it back the day the
+      studio can document more Utah cities than Salt Lake City. */}
+  <Marquee source="disciplines" />
   <About />
   <Services />
   <WorkTeaser />

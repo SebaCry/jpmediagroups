@@ -63,8 +63,15 @@ export const SITE_NAME = "JP Media Groups";
 export const LOCALE = "en_US";
 export const LANG = "en";
 
-/** Secondary audience — Colombia. Signals the market, does not promise a page. */
-export const LOCALE_ALT = ["es_CO"];
+/**
+ * The Spanish half of the site.
+ *
+ * Was `es_CO` when Colombia was a market. It is `es_US` now: the audience is
+ * Utah's Spanish-speaking residents, not Colombia, and a locale naming a
+ * country the studio does not serve is the same claim the rest of this change
+ * removed — stated in a tag instead of in prose.
+ */
+export const LOCALE_ALT = ["es_US"];
 
 /** Stable node ids. Never change these: they are how Google keeps the entity together. */
 export const ID = {
@@ -95,7 +102,7 @@ export const OG = {
   image: "/og/jp-media-groups.jpg",
   width: 1200,
   height: 630,
-  alt: "JP Media Groups — video production, photography and marketing across Utah, Miami, New York, Los Angeles and Colombia.",
+  alt: "JP Media Groups — video production, photography and marketing in Utah.",
 };
 
 /**
@@ -133,21 +140,12 @@ export const KEYWORDS = {
     "social media content creation",
     "branding agency",
   ],
-  /* The state names matter as much as the city names, and for a search like
-     "marketing california" they matter more. Somebody looking for an agency
-     types the state roughly as often as the city, and a site that only ever
-     says "Los Angeles" cannot answer them. Each of these has a page. */
-  places: [
-    "Utah",
-    "Salt Lake City",
-    "California",
-    "Los Angeles",
-    "Florida",
-    "Miami",
-    "New York",
-    "Colombia",
-    "Bogotá",
-  ],
+  /* One service area, so one state and one city. This list used to carry nine
+     entries across two countries; the other seven were the vocabulary the
+     deleted market pages were written against. Adding a place back here is
+     adding it to the site's whole keyword surface — see the service-area note
+     at the top of content/site.ts before doing it. */
+  places: ["Utah", "Salt Lake City"],
 };
 
 /**
@@ -256,9 +254,17 @@ export function organization(): Record<string, unknown> {
     telephone: contact.phone,
 
     // Where the work actually happens. Built from the same market records the
-    // market pages render, so the schema and the visible pages can never drift
-    // apart — and stated as states, not only as cities, because "California"
-    // and "Los Angeles" are one fact to the studio and two searches to Google.
+    // market page renders, so the schema and the visible pages can never drift
+    // apart — which is exactly the property that matters while a Business
+    // Profile appeal is open, because Google reads this node and the page in
+    // the same crawl and a contradiction between them is the thing that sinks
+    // an appeal.
+    //
+    // This list used to end with `{ "@type": "Country", name: "United States" }`
+    // as a catch-all above the five markets. That node is gone: it declared a
+    // nationwide service area in structured data, which is a broader claim than
+    // anything the site says in prose and broader than the business can
+    // document. State and city only.
     areaServed: [
       ...markets.map((m) => ({
         "@type": m.kind,
@@ -270,7 +276,6 @@ export function organization(): Record<string, unknown> {
       ...markets.flatMap((m) =>
         m.cities.map((c) => ({ "@type": "City", name: c })),
       ),
-      { "@type": "Country", name: "United States" },
     ],
 
     knowsAbout: [
@@ -544,15 +549,14 @@ export function jsonLd(page: PageSeo, url: string): string {
 
 export const pages = {
   home: {
-    // Two states in 61 characters, which is what fits. The home page carries
-    // the brand and the two biggest markets; every other market is carried by
-    // its own page, because one URL cannot be the best answer for five places.
+    // One market now, so the title can spend its 60 characters on what the
+    // studio does instead of splitting them across states.
     // "JP Media" rather than the full name is deliberate — it is a real
     // alternateName, it catches the brand searches people actually type, and
     // Google prints "JP Media Groups" above the title from the schema anyway.
-    title: "Photography, Video & Marketing — Utah & California | JP Media",
+    title: "Photography, Video & Marketing in Utah | JP Media",
     description:
-      "Creative agency for video production, photography and marketing in Utah, California, Florida, New York and Colombia. Music videos, commercials and food photography.",
+      "Creative agency in Utah for video production, photography and marketing. Music videos, commercials, food photography and branding, produced in Salt Lake City.",
     image: "/og/jp-media-groups.jpg",
     // A home page is the site root; a breadcrumb trail on it is noise.
     breadcrumbs: [],
@@ -561,7 +565,7 @@ export const pages = {
   contact: {
     title: "Contact — Start a Project | JP Media Groups",
     description:
-      "Tell JP Media Groups about your project. Video production, photography, music videos, branding and marketing in Utah, Miami, New York, Los Angeles and Colombia.",
+      "Tell JP Media Groups about your project. Video production, photography, music videos, branding and marketing in Utah, in English and in Spanish.",
     image: "/og/contact.jpg",
     imageAlt:
       "Contact JP Media Groups — start a video, photography or marketing project.",
@@ -582,18 +586,16 @@ export const pages = {
   },
 
   /**
-   * One record per market, built from the same data the page renders.
+   * One record per market, built from the same data the page renders. There is
+   * one market: Utah.
    *
-   * These pages exist because a single home page cannot rank for Utah AND
-   * California AND Florida at once — Google picks one subject per URL. A page
-   * that names a market in its URL, its title, its H1 and its opening sentence
-   * is the only thing that answers "marketing california", and no amount of
-   * meta-tag work on the home page substitutes for it.
-   *
-   * They are deliberately NOT the same page with the place name swapped. Each
-   * one leads with different disciplines and carries its own copy, because
-   * near-identical location pages are doorway pages, and Google demotes those
-   * rather than ranking them.
+   * With a single service area this page and the home page are the two URLs on
+   * the site competing for the same searcher, so they are written to be about
+   * different things — the home page is about the studio, /utah/ is about the
+   * work in the state. Near-identical pages are doorway pages and Google
+   * demotes them, and two pages saying the same thing about one place is the
+   * shape it looks for. Keep the copy in `markets[0].body` distinct from
+   * `about.body`.
    */
   market(m: Market): PageSeo {
     return {
@@ -818,7 +820,7 @@ export const pages = {
   notFound: {
     title: "Page Not Found | JP Media Groups",
     description:
-      "That page does not exist. Head back to JP Media Groups — video production, photography and marketing in Utah, the United States and Colombia.",
+      "That page does not exist. Head back to JP Media Groups — video production, photography and marketing in Utah.",
     // A 404 that gets indexed competes with the pages that matter.
     noindex: true,
     breadcrumbs: [],

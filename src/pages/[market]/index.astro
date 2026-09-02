@@ -34,8 +34,8 @@ const { market } = Astro.props;
 const seo = pages.market(market);
 
 // The market's own disciplines first, in the order that market leads with,
-// then the rest. A California visitor reads "Music videos" before "Branding";
-// a New York visitor reads the reverse. Same five services, different page.
+// then the rest. With one market this is just Utah's order — kept because the
+// mechanism costs nothing and the route still generates from `markets`.
 const ordered = [
   ...market.leads
     .map((t) => services.items.find((s) => s.title === t)!)

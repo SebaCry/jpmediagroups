@@ -22,10 +22,26 @@ export const PENDING = 'pending' as const;
 // These drive the wall labels, so they are stated once and reused.
 // ---------------------------------------------------------------------------
 
+// ⚠️  SERVICE AREA: UTAH ONLY.
+//     This file used to state four cities in two countries. It does not any
+//     more, and the reason is not editorial - Google was rejecting the studio's
+//     Business Profile appeals, and a site claiming service areas the business
+//     cannot verify is corroborating evidence against it. Every page, every
+//     schema node and every meta description now names Utah and nothing else.
+//
+//     If a place name goes back into this file, it goes back onto the site's
+//     structured data and into the appeal. Do not add one that the studio
+//     cannot document serving.
+//
+//     `cities` is deliberately just Salt Lake City: it is the only Utah city
+//     the client has actually named. Adding Provo, Ogden or Park City would be
+//     inventing the exact kind of claim this change exists to remove - if the
+//     studio does serve them, list them here and they flow everywhere.
+
 export const studio = {
   years: '9+',
-  countries: ['Colombia', 'United States'],
-  cities: ['Miami', 'New York', 'Los Angeles', 'Utah'],
+  countries: ['United States'],
+  cities: ['Salt Lake City'],
   disciplines: [
     'Audiovisual production',
     'Professional photography',
@@ -36,23 +52,29 @@ export const studio = {
 };
 
 // ---------------------------------------------------------------------------
-// Markets - the same four cities and two countries stated above, resolved to
-// the states and countries a search actually names.
+// Markets - one market. Utah.
 // ---------------------------------------------------------------------------
-// This exists because "Los Angeles" and "California" are the same fact to the
-// studio and two different searches to Google. Somebody looking for a
-// marketing agency types the state, not the city, roughly as often as not, and
-// a page that only ever says "Los Angeles" cannot answer them.
+// This array used to hold five records: Utah, California, Florida, New York and
+// Colombia, each generating its own page, its own `areaServed` schema node and
+// its own block of keywords. All four of the others are gone, for the reason at
+// the top of this file - they were service-area claims the business could not
+// document, on a site backing a Business Profile appeal.
 //
-// Nothing here is a new claim. Every city listed is one the client already
-// named in "Who We Are"; the state and country around it is arithmetic.
+// The structure is left as an array rather than collapsed into a single object
+// on purpose. Nothing downstream needs rewriting when a market is added or
+// removed, so the day the studio can document a second service area it is one
+// record here, not a refactor. It also means the four deleted pages left no
+// dead code behind them.
+//
+// The four deleted URLs are 301'd to the home page in vercel.json. Removing a
+// page Google has indexed without redirecting it leaves a 404 where the claim
+// used to be, which is worse than either the claim or a clean redirect.
 //
 // ⚠️  The `lead` and `body` lines are DRAFTS. They are written strictly from
-//     what the studio says it does - no market-specific client, project, award
-//     or office is claimed anywhere, because none has been supplied. Read them
-//     before launch and edit them here. If the studio has real work in a market,
-//     naming it in that market's `body` is worth more than every meta tag on
-//     the site put together.
+//     what the studio says it does - no client, project, award or office is
+//     claimed anywhere, because none has been supplied. Read them before launch
+//     and edit them here. If the studio has real Utah work, naming it in `body`
+//     is worth more than every meta tag on the site put together.
 // ---------------------------------------------------------------------------
 
 export interface Market {
@@ -62,7 +84,8 @@ export interface Market {
   name: string;
   /** ISO region for structured data. Omitted for a country-level market. */
   region?: string;
-  country: 'US' | 'CO';
+  /** Narrowed from 'US' | 'CO' - see the service-area note at the top. */
+  country: 'US';
   /** Schema.org place type for the areaServed node. */
   kind: 'State' | 'Country';
   /** Cities inside this market that the studio already names. */
@@ -89,80 +112,19 @@ export const markets: Market[] = [
     kind: 'State',
     cities: ['Salt Lake City'],
     leads: ['Professional photography', 'Strategic marketing', 'Audiovisual production'],
+    // Written to sit BESIDE the home page, not to repeat it. The home page
+    // sells the studio - who it is, what it makes, who has hired it. This page
+    // answers one search, "marketing agency / photographer in Utah", and every
+    // line here is about the place and how the work gets done in it. Nothing in
+    // this body appears on the home page, which is the whole reason both are
+    // allowed to exist.
     lead: 'A creative agency working in Utah across video production, professional photography and strategic marketing.',
     metaDescription:
-      'Marketing agency and photography studio working in Utah. Video production, corporate and food photography, branding and social media for Salt Lake City businesses.',
+      'Marketing agency and photography studio in Utah. Video production, corporate and food photography, branding and social media for Salt Lake City businesses.',
     body: [
-      'Utah is where the day-to-day production happens. Corporate and food photography for restaurants and local businesses, commercial video, and the social media content that has to keep running long after the shoot day is over.',
+      'Utah is where the studio works. All of it - corporate and food photography for restaurants and local businesses, commercial video, music videos, and the social media content that has to keep running long after the shoot day is over.',
       'The studio works the way an in-house team would, without the headcount: concept, production, post and delivery handled end to end, so a Utah business gets a campaign rather than a folder of files it then has to figure out what to do with.',
-      'The same team that produces music videos in Los Angeles and campaigns in Miami shoots a Salt Lake City menu. The scale of the job changes; the standard does not.',
-    ],
-  },
-  {
-    slug: 'california',
-    name: 'California',
-    region: 'CA',
-    country: 'US',
-    kind: 'State',
-    cities: ['Los Angeles'],
-    leads: ['Music videos', 'Audiovisual production', 'Branding'],
-    lead: 'Music video, commercial and brand production in California, working out of Los Angeles.',
-    metaDescription:
-      'Marketing and video production in California. High-end music videos, commercials, advertising campaigns and brand photography, produced out of Los Angeles.',
-    body: [
-      'Los Angeles is where the music video work concentrates. High-end videos for artists, shot and finished to the standard the market expects, with the concept developed alongside the artist rather than handed to them.',
-      'Alongside the music work: commercial productions, advertising campaigns and brand content for companies that need something with production value behind it, not another phone edit.',
-      'California is one of four United States markets the studio works across, and the reason a Los Angeles shoot can be crewed without the client paying to build a team from scratch.',
-    ],
-  },
-  {
-    slug: 'florida',
-    name: 'Florida',
-    region: 'FL',
-    country: 'US',
-    kind: 'State',
-    cities: ['Miami'],
-    leads: ['Audiovisual production', 'Professional photography', 'Strategic marketing'],
-    lead: 'Video production, photography and marketing in Florida, working out of Miami.',
-    metaDescription:
-      'Bilingual marketing agency and photography studio in Florida. Video production, restaurant and food photography, branding and social media content out of Miami.',
-    body: [
-      'Miami is a bilingual market and the studio works in both languages - the same team, the same standard, whether the campaign runs in English, in Spanish, or in both at once.',
-      'The work here runs across restaurants and hospitality, brands, and artists: food photography that makes a menu sell, commercial production, and the social content that carries a campaign after launch.',
-      'Miami is also the closest United States market to the studio’s Colombian side, which is what makes a production that spans both countries a scheduling question rather than a logistical one.',
-    ],
-  },
-  {
-    slug: 'new-york',
-    name: 'New York',
-    region: 'NY',
-    country: 'US',
-    kind: 'State',
-    cities: ['New York'],
-    leads: ['Branding', 'Professional photography', 'Audiovisual production'],
-    lead: 'Brand campaigns, corporate photography and video production in New York.',
-    metaDescription:
-      'Branding, marketing and photography in New York. Visual identity, corporate photography, commercial video production and advertising campaigns, end to end.',
-    body: [
-      'New York work leans toward brand: visual identity that holds together everywhere a company shows up, corporate photography that makes it look credible, and the advertising campaigns built on top of both.',
-      'Production is handled end to end - concept development through final delivery - so a brand gets one team accountable for the result instead of a photographer, an editor and an agency pointing at each other.',
-      'One of four United States markets the studio works across, alongside Utah, California and Florida.',
-    ],
-  },
-  {
-    slug: 'colombia',
-    name: 'Colombia',
-    country: 'CO',
-    kind: 'Country',
-    cities: ['Bogotá'],
-    leads: ['Music videos', 'Audiovisual production', 'Professional photography'],
-    lead: 'Producción audiovisual, fotografía profesional y marketing en Colombia.',
-    metaDescription:
-      'Producción audiovisual, fotografía profesional y marketing en Colombia. Videos musicales, producción comercial y contenido para marcas, restaurantes y artistas.',
-    body: [
-      'Half of the studio’s nine years are Colombian. Music videos, commercial production and photography for artists, restaurants, businesses and marketing agencies across the country.',
-      'Working in two countries is what gives the studio its perspective: a campaign built in Bogotá and a campaign built in Salt Lake City are not the same brief, and treating them as though they were is how work ends up looking like everybody else’s.',
-      'Trabajamos en español y en inglés, con el mismo equipo y el mismo estándar en los dos países.',
+      'Everything is produced locally, in English and in Spanish. For a Salt Lake City restaurant, a Wasatch Front business or an artist working out of Utah, that means one team on the ground for the whole job rather than a crew flown in for a day and gone by the next.',
     ],
   },
 ];
@@ -170,16 +132,17 @@ export const markets: Market[] = [
 export const meta = {
   title: 'JP Media Groups - Creative Agency, Photography & Audiovisual Production',
   description:
-    'A creative agency specializing in audiovisual production, professional photography, music videos, branding and strategic marketing. Nine years of work across Colombia and the United States.',
+    'A creative agency in Utah specializing in audiovisual production, professional photography, music videos, branding and strategic marketing. Nine years of work.',
   locale: 'en-US',
 };
 
 // ---------------------------------------------------------------------------
 // Hero - migrated verbatim from the live site.
 // ---------------------------------------------------------------------------
-// Note: the live headline is Utah-specific while the studio actually works
-// across Miami, New York, Los Angeles and Colombia. Rather than rewrite the
-// client's own headline, the reach is stated in the label beside it.
+// The live headline was always Utah-specific; it is now the only thing on the
+// page that has not had to change. The `linesMobile` variant still carries a
+// commented-out 'Utah' line from the original WordPress headline - it can be
+// uncommented now without contradicting anything else on the site.
 
 export const hero = {
   label: ['Creative agency', 'Est. 2016'],
@@ -216,7 +179,11 @@ export const about = {
   body: [
     'At JP Media Groups, we are a creative agency specializing in audiovisual production, professional photography, music videos, branding, and strategic marketing. With over nine years of experience, we help businesses, restaurants, brands, entrepreneurs, and artists bring their vision to life through creative solutions that inspire, engage, and deliver real results.',
     'Over the years, we have produced high-end music videos, commercial productions, advertising campaigns, social media content, corporate photography, food photography, and professional audiovisual content for clients across a wide range of industries. Every project is driven by creativity, innovation, attention to detail, and a commitment to excellence.',
-    'Our portfolio includes collaborations with artists, restaurants, businesses, and marketing agencies throughout Colombia and the United States, with projects in Miami, New York, Los Angeles, and Utah. These experiences have allowed us to develop a global perspective while delivering creative work tailored to each client’s unique goals.',
+    // Rewritten for the Utah-only service area. The client's original sentence
+    // listed Colombia, Miami, New York and Los Angeles; what it was actually
+    // saying - that the portfolio spans artists, restaurants, businesses and
+    // agencies - survives intact. Only the geography is gone.
+    'Our portfolio includes collaborations with artists, restaurants, businesses, and marketing agencies across Utah. These experiences have allowed us to develop a broad perspective while delivering creative work tailored to each client’s unique goals.',
     'At JP Media Groups, we believe every brand has a story worth telling. That’s why we combine creativity, strategy, and technology to produce content that not only captures attention but also strengthens brand identity, builds meaningful connections with audiences, and supports long-term business growth.',
     'More than producing videos or taking photographs, we create visual experiences that leave a lasting impression. From concept development to final delivery, we work closely with our clients to ensure every detail reflects their vision and contributes to their success.',
   ],
@@ -224,11 +191,15 @@ export const about = {
     'Our mission is simple: to help brands stand out, connect with their audience, and grow through powerful visual storytelling and strategic marketing.',
   closer:
     'We don’t just create content - we create experiences, build brands, and deliver results.',
+  // Two of these four used to be the reach claim - "2 Countries", "4 Cities".
+  // Replaced rather than dropped, because three stats break the 2x2 grid. Both
+  // replacements are facts the studio already states elsewhere on the site: it
+  // was founded in 2016, and it works bilingually.
   stats: [
+    { value: 'Utah', label: 'Based in' },
     { value: '9+', label: 'Years' },
-    { value: '2', label: 'Countries' },
-    { value: '4', label: 'Cities' },
     { value: '5', label: 'Disciplines' },
+    { value: '2', label: 'Languages' },
   ],
 };
 
@@ -253,7 +224,7 @@ export const services = {
     },
     {
       title: 'Music videos',
-      body: 'High-end music videos for artists working across Colombia and the United States.',
+      body: 'High-end music videos for artists working in Utah, produced end to end from concept to final cut.',
       plate: 'plate-deep.webp',
     },
     {
@@ -280,11 +251,14 @@ export const work = {
   titleLines: ['Selected work'],
   note: 'Six slots, ready for real case studies. Each one takes an image, a title, a discipline and a city.',
   items: [
-    { title: 'Case one', discipline: 'Music video', city: 'Miami' },
+    // Placeholders, but placeholders that render - the city on each card was a
+    // different out-of-state market, which put four service-area claims on the
+    // page in a section that has no real cases in it yet.
+    { title: 'Case one', discipline: 'Music video', city: 'Salt Lake City' },
     { title: 'Case two', discipline: 'Food photography', city: 'Salt Lake City' },
-    { title: 'Case three', discipline: 'Brand campaign', city: 'New York' },
-    { title: 'Case four', discipline: 'Corporate photography', city: 'Los Angeles' },
-    { title: 'Case five', discipline: 'Audiovisual', city: 'Bogotá' },
+    { title: 'Case three', discipline: 'Brand campaign', city: 'Utah' },
+    { title: 'Case four', discipline: 'Corporate photography', city: 'Utah' },
+    { title: 'Case five', discipline: 'Audiovisual', city: 'Salt Lake City' },
   ],
 };
 
@@ -412,7 +386,7 @@ export const contact = {
   titleLines: ['Tell us about', 'the project'],
   email: 'contact@jpmediagroups.com',
   phone: '+1 (385) 867-7440',
-  locations: 'Colombia · United States',
+  locations: 'Salt Lake City · Utah',
 };
 
 // ---------------------------------------------------------------------------
@@ -447,12 +421,16 @@ export const faq = {
   title: 'Asked often enough to answer here',
   items: [
     {
+      // This answer is the single most load-bearing sentence on the site for
+      // the Business Profile appeal: it is the FAQPage schema node Google reads
+      // when it asks the site where the business serves. It says Utah, it says
+      // it first, and it says nothing else.
       q: 'Where does JP Media Groups work?',
-      a: 'Across five markets in two countries: Utah, California, Florida and New York in the United States, and Colombia. The cities the studio names as its own are Salt Lake City, Los Angeles, Miami, New York and Bogotá. Travel outside them is a scheduling question, not a refusal — ask.',
+      a: 'Utah. The studio is based in Salt Lake City and works across the state — that is the whole service area, and every project is produced locally rather than crewed in for the day.',
     },
     {
       q: 'Do you shoot and work in Spanish?',
-      a: 'Yes. The studio works in Spanish and in English, with the same team and the same standard in both countries. On a quinceañera or a family wedding that is not a convenience — being spoken to in your own language is the difference between a posed picture and a real one.',
+      a: 'Yes. The studio works in Spanish and in English, with the same team and the same standard in both. On a quinceañera or a family wedding that is not a convenience — being spoken to in your own language is the difference between a posed picture and a real one.',
     },
     {
       q: 'What does the studio actually do?',
@@ -472,7 +450,7 @@ export const faq = {
     },
     {
       q: 'How long has the studio been working?',
-      a: 'JP Media Groups was founded in 2016 — over nine years of work across Colombia and the United States, for artists, restaurants, businesses and marketing agencies.',
+      a: 'JP Media Groups was founded in 2016 — over nine years of work for artists, restaurants, businesses and marketing agencies.',
     },
   ],
 };
@@ -697,7 +675,7 @@ export const workCategories: WorkCategory[] = [
     imageSlug: 'food-photography',
     lead: 'Food photographed to sell it - from tasting menus to the window of a burger counter.',
     metaDescription:
-      'Food and restaurant photography by JP Media Groups. Fine dining plating, menu, delivery-app and social media images for restaurants in Utah, Miami and beyond.',
+      'Food and restaurant photography by JP Media Groups. Fine dining plating, menu, delivery-app and social media images for restaurants across Utah.',
     body: [
       'A dish has about one second to do its work on a delivery app, and roughly the same on a menu. Food photography is a commercial job before it is an aesthetic one: the picture either makes somebody order or it does not.',
       'Shot on location, with the kitchen plating the way it does for a customer. The point is not a styled dish that arrives looking like something else - it is the real one, lit so it looks like what the cook already made.',
@@ -730,7 +708,7 @@ export const workCategories: WorkCategory[] = [
     imageSlug: 'wedding-photography',
     lead: 'Weddings photographed the way they actually happened - the room, the light, the people, and the half-second nobody posed for.',
     metaDescription:
-      'Wedding photography by JP Media Groups. Ceremony, reception and portrait coverage in Utah, California, Florida, New York and Colombia.',
+      'Wedding photography by JP Media Groups. Ceremony, reception and portrait coverage across Utah, in English and in Spanish.',
     body: [
       'A wedding is the one shoot that cannot be done again. There is no second take on the vows and no going back for the light at six o’clock. That is why the day is planned before it starts, and why there is never only one camera on the room.',
       'Coverage runs from preparation through the reception: the ceremony, the portraits, the details that took months to choose, and the hours after dinner when people forget there is a photographer in the room. That last part is usually where the pictures people keep come from.',
@@ -746,7 +724,7 @@ export const workCategories: WorkCategory[] = [
     imageSlug: 'corporate-photography',
     lead: 'Corporate, brand and portrait photography for companies that need to look credible.',
     metaDescription:
-      'Professional photography by JP Media Groups - corporate, brand, product and portrait work for businesses across the United States and Colombia.',
+      'Professional photography by JP Media Groups - corporate, brand, product and portrait work for businesses across Utah.',
     body: [
       'The pictures a business runs on: the team page, the press shot, the product against a clean ground, the founder who needs one good portrait instead of a cropped photo from somebody else’s wedding.',
       'Everything is shot to be used, which means it is delivered in the crops and sizes the website, the deck and the social channels actually need - not as a folder of raw frames somebody else then has to work out.',
@@ -769,7 +747,7 @@ export const workCategories: WorkCategory[] = [
     imageSlug: 'quinceanera-photography',
     lead: 'Quinceañeras photographed as the event they are - the dress, the waltz, the family, and the hours nobody thinks to plan for.',
     metaDescription:
-      'Quinceañera and 15th birthday photography by JP Media Groups. Portrait sessions, ceremony and party coverage in Utah, California, Florida, New York and Colombia.',
+      'Quinceañera and 15th birthday photography by JP Media Groups. Portrait sessions, ceremony and party coverage across Utah, in English and in Spanish.',
     body: [
       'A quinceañera is two shoots in one: a portrait session built entirely around the girl and the dress, and then a party that only happens once. They are photographed differently on purpose - the first is directed, the second is left alone.',
       'The coverage runs the whole night: the entrance, the waltz, the toast, the changing of the shoes, and the part after the formalities when the room finally relaxes. That last hour is usually where the photographs the family keeps come from.',
@@ -783,9 +761,9 @@ export const workCategories: WorkCategory[] = [
   //   kind: 'video',
   //   discipline: 'Music videos',
   //   source: 'MUSIC VIDEOS',
-  //   lead: 'High-end music videos for artists working across Colombia and the United States.',
+  //   lead: 'High-end music videos for artists working in Utah.',
   //   metaDescription:
-  //     'Music video production by JP Media Groups. Concept, shoot and post for artists in Los Angeles, Miami, New York and Colombia.',
+  //     'Music video production by JP Media Groups. Concept, shoot and post for artists in Utah.',
   //   body: [
   //     'The concept is developed with the artist, not handed to them. A video that does not sound like the record looks like an advert for somebody else, and no amount of production value fixes that.',
   //     'Handled end to end - treatment, crew, shoot, edit, colour and delivery - so the artist deals with one team from the first conversation to the file that goes up.',
@@ -975,7 +953,11 @@ export const clients = {
   // third line here starts wrapping on its own and the block falls apart.
   titleLines: ['Who has', 'hired us'],
   accentLine: 1,
-  lead: 'National broadcasters and networks, restaurants, insurers and design studios - across Colombia and the United States.',
+  // Deliberately says nothing about where. These are credentials - work the
+  // studio has done, for the brands named - and the section answers "has
+  // anybody hired them", not "where do they operate". The service area is
+  // stated on the pages whose job that is.
+  lead: 'National broadcasters and networks, restaurants, insurers and design studios have trusted the studio with their work.',
   // Order is deliberate. The carousel loops, so nobody sees a "last" logo, but
   // the first cards on screen are the ones that decide whether the strip is
   // worth watching - the broadcasters lead, the local businesses follow.

@@ -5,14 +5,30 @@
    archivo es la mitad que faltaba.
 
    ── POR QUÉ EXISTE ─────────────────────────────────────────────────────────
-   `seo.ts` ya declaraba `es_CO` como locale alternativo, el copy de
-   quinceañeras dice textualmente que se trabaja de forma bilingüe y Colombia
-   tiene página propia — escrita en inglés. De catorce páginas indexables,
-   cero estaban en español y no había una sola etiqueta `hreflang`.
+   El copy de quinceañeras dice textualmente que se trabaja de forma bilingüe,
+   y de catorce páginas indexables cero estaban en español: no había una sola
+   etiqueta `hreflang`.
 
-   «Fotógrafo de quinceañeras en Utah» y «fotografía gastronómica Bogotá» son
-   búsquedas distintas de sus equivalentes en inglés, con menos competencia y
-   más intención de compra. El sitio no podía aparecer en ninguna.
+   «Fotógrafo de quinceañeras en Utah» y «fotografía gastronómica Salt Lake
+   City» son búsquedas distintas de sus equivalentes en inglés, con menos
+   competencia y más intención de compra. El sitio no podía aparecer en
+   ninguna.
+
+   ── EL ÁREA DE SERVICIO ES UTAH ────────────────────────────────────────────
+   ⚠️  Este archivo se escribió cuando Colombia era un mercado y apuntaba a
+       Bogotá tanto como a Utah. Ya no. Google estaba rechazando las
+       apelaciones del Business Profile del estudio, y un sitio que reclama
+       áreas de servicio que el negocio no puede documentar es prueba en
+       contra. Todo el copy de acá quedó reescrito a Utah.
+
+       El sitio en español SE QUEDA, y esa fue una decisión, no un descuido:
+       Utah tiene una población hispanohablante enorme y el estudio trabaja en
+       los dos idiomas. Google no penaliza publicar en español — penaliza
+       decir que atiendes donde no atiendes. Lo que se fue es la geografía,
+       no el idioma.
+
+       No vuelvas a meter un topónimo acá sin leer antes la nota de área de
+       servicio al inicio de `site.ts`.
 
    ── DOS REGLAS QUE ESTE ARCHIVO SIGUE ──────────────────────────────────────
    1. Está ESCRITO, no traducido. Una traducción literal del inglés produce
@@ -25,9 +41,8 @@
       está allí, tampoco está acá.
 
    ⚠️  ESTE COPY NECESITA REVISIÓN DEL ESTUDIO ANTES DE PUBLICARSE. Está escrito
-       en un español neutro que funciona en Utah y en Bogotá, pero el estudio es
-       colombiano y sabe cómo habla su clientela mejor que yo. Léanlo y edítenlo
-       acá; es el único lugar donde vive.
+       en un español neutro; el estudio sabe cómo habla su clientela en Utah
+       mejor que yo. Léanlo y edítenlo acá; es el único lugar donde vive.
    ========================================================================= */
 
 import { PENDING } from './site';
@@ -74,7 +89,7 @@ export const esCategories: Record<string, EsCategory> = {
     title: 'Contenido para Redes Sociales | JP Media Groups',
     lead: 'Contenido hecho para durar: video vertical, fotos y campañas que siguen rindiendo después del día del lanzamiento.',
     metaDescription:
-      'Producción de contenido para redes sociales. Video vertical, fotografía y campañas para marcas, restaurantes y artistas en Estados Unidos y Colombia.',
+      'Producción de contenido para redes sociales en Utah. Video vertical, fotografía y campañas para marcas, restaurantes y artistas.',
     body: [
       'Redes es la única disciplina donde una sola foto excelente vale menos que treinta buenas que llegan a tiempo. El trabajo está armado alrededor de eso: un día de rodaje produce un mes de contenido, no una publicación.',
       'Video vertical, fotos, cortes y los textos que los acompañan, formateados para donde de verdad van a salir — no recortados de algo que se hizo para otra pantalla.',
@@ -88,7 +103,7 @@ export const esCategories: Record<string, EsCategory> = {
     title: 'Fotografía Gastronómica y de Restaurantes | JP Media Groups',
     lead: 'Fotografía de comida hecha para vender: del menú de degustación a la vitrina de una hamburguesería.',
     metaDescription:
-      'Fotografía gastronómica y de restaurantes. Alta cocina, emplatados, menús y fotos para apps de domicilios en Utah, Miami y Colombia.',
+      'Fotografía gastronómica y de restaurantes en Utah. Alta cocina, emplatados, menús y fotos para apps de domicilios en Salt Lake City y todo el estado.',
     body: [
       'Un plato tiene alrededor de un segundo para hacer su trabajo en una app de domicilios, y más o menos lo mismo en una carta. La fotografía de comida es un oficio comercial antes que estético: la foto logra que alguien pida, o no lo logra.',
       'Se fotografía en el lugar, con la cocina emplatando como emplata para un cliente. La idea no es un plato producido que llega distinto a la mesa: es el real, iluminado para que se vea como lo que el cocinero ya hizo.',
@@ -119,7 +134,7 @@ export const esCategories: Record<string, EsCategory> = {
     title: 'Fotografía de Bodas | JP Media Groups',
     lead: 'Bodas fotografiadas como de verdad pasaron: el salón, la luz, la gente y el medio segundo que nadie posó.',
     metaDescription:
-      'Fotografía de bodas en Utah, California, Florida, Nueva York y Colombia. Cobertura de ceremonia, retratos y fiesta, en español y en inglés.',
+      'Fotografía de bodas en Utah. Cobertura de ceremonia, retratos y fiesta, en español y en inglés, en Salt Lake City y todo el estado.',
     body: [
       'Una boda es el único trabajo que no se puede repetir. No hay segunda toma de los votos y no se vuelve atrás por la luz de las seis. Por eso el día se planea antes de empezar, y por eso nunca hay una sola cámara en el salón.',
       'La cobertura va desde los preparativos hasta la fiesta: la ceremonia, los retratos, los detalles que costaron meses de decidir, y las horas después de la cena cuando la gente se olvida de que hay un fotógrafo. De ahí suelen salir las fotos que la familia se queda.',
@@ -134,7 +149,7 @@ export const esCategories: Record<string, EsCategory> = {
     title: 'Fotografía Corporativa y de Marca | JP Media Groups',
     lead: 'Fotografía corporativa, de marca y de retrato para empresas que necesitan verse creíbles.',
     metaDescription:
-      'Fotografía corporativa, de producto y de marca para empresas en Estados Unidos y Colombia. Retratos de equipo, prensa y catálogo, listos para usar.',
+      'Fotografía corporativa, de producto y de marca para empresas en Utah. Retratos de equipo, prensa y catálogo, listos para usar.',
     body: [
       'Las fotos con las que funciona una empresa: la página del equipo, la foto de prensa, el producto contra un fondo limpio, el fundador que necesita un buen retrato en vez de una foto recortada de la boda de otro.',
       'Todo se fotografía para ser usado, lo que significa que se entrega en los recortes y tamaños que la web, la presentación y las redes de verdad necesitan — no como una carpeta de archivos crudos que después alguien tiene que resolver.',
@@ -148,7 +163,7 @@ export const esCategories: Record<string, EsCategory> = {
     title: 'Fotografía de Quinceañeras | JP Media Groups',
     lead: 'Quinceañeras fotografiadas como el evento que son: el vestido, el vals, la familia y las horas que nadie planea.',
     metaDescription:
-      'Fotografía de quinceañeras en Utah, California, Florida, Nueva York y Colombia. Sesión de retrato, ceremonia y fiesta, con equipo bilingüe.',
+      'Fotografía de quinceañeras en Utah. Sesión de retrato, ceremonia y fiesta, con equipo bilingüe, en Salt Lake City y todo el estado.',
     body: [
       'Una quinceañera son dos trabajos en uno: una sesión de retrato armada por completo alrededor de la quinceañera y el vestido, y después una fiesta que ocurre una sola vez. Se fotografían distinto a propósito — la primera se dirige, la segunda se deja en paz.',
       'La cobertura va toda la noche: la entrada, el vals, el brindis, el cambio de zapatos, y la parte después de los formalismos, cuando el salón por fin se relaja. Esa última hora suele ser de donde salen las fotos que la familia se queda.',
@@ -164,7 +179,7 @@ export const esWork = {
     'Portafolio de JP Media Groups: fotografía de bodas, quinceañeras, gastronómica y corporativa, y contenido para redes sociales.',
   crumb: 'Trabajo',
   h1: ['Bodas, comida,', 'quinceañeras', 'y marcas'],
-  lead: 'Nueve años de fotografía, cine y diseño en Estados Unidos y Colombia. Elige una disciplina.',
+  lead: 'Nueve años de fotografía, cine y diseño en Utah. Elige una disciplina.',
   label: ['Trabajo seleccionado', 'Portafolio'],
   driveCta: 'Portafolio completo en Drive',
 };
@@ -173,7 +188,7 @@ export const esWork = {
 export const esHome = {
   title: 'Fotografía, Video y Marketing | JP Media Groups',
   metaDescription:
-    'Agencia creativa de producción audiovisual, fotografía profesional, videos musicales y marketing. Nueve años de trabajo en Colombia y Estados Unidos.',
+    'Agencia creativa en Utah de producción audiovisual, fotografía profesional, videos musicales y marketing. Nueve años de trabajo.',
   heroLabel: ['Agencia creativa', 'Desde 2016'],
   heroLines: [
     { text: 'Haz crecer', accent: false },
@@ -190,7 +205,7 @@ export const esHome = {
   aboutBody: [
     'En JP Media Groups somos una agencia creativa especializada en producción audiovisual, fotografía profesional, videos musicales, branding y marketing estratégico. Con más de nueve años de experiencia, ayudamos a empresas, restaurantes, marcas, emprendedores y artistas a llevar su visión a algo concreto.',
     'Hemos producido videos musicales, producciones comerciales, campañas publicitarias, contenido para redes, fotografía corporativa y fotografía gastronómica para clientes de industrias muy distintas. Cada proyecto se trabaja con criterio, atención al detalle y la intención de que sirva para algo.',
-    'El portafolio incluye colaboraciones con artistas, restaurantes, negocios y agencias de marketing en Colombia y Estados Unidos, con proyectos en Miami, Nueva York, Los Ángeles y Utah.',
+    'El portafolio incluye colaboraciones con artistas, restaurantes, negocios y agencias de marketing en todo Utah.',
   ],
   aboutMission:
     'Nuestra misión es simple: que las marcas se destaquen, conecten con su público y crezcan, a través de narrativa visual y marketing con estrategia detrás.',
@@ -217,7 +232,7 @@ export const esHome = {
     },
     {
       title: 'Videos musicales',
-      body: 'Videos musicales de alto nivel para artistas que trabajan en Colombia y Estados Unidos.',
+      body: 'Videos musicales de alto nivel para artistas que trabajan en Utah, de la idea al corte final.',
     },
     {
       title: 'Branding',
@@ -239,7 +254,7 @@ export const esContact = {
   status: PENDING,
   title: 'Contacto — Empieza un Proyecto | JP Media Groups',
   metaDescription:
-    'Cuéntale tu proyecto a JP Media Groups. Producción de video, fotografía, videos musicales, branding y marketing en Utah, Miami, Nueva York y Colombia.',
+    'Cuéntale tu proyecto a JP Media Groups. Producción de video, fotografía, videos musicales, branding y marketing en Utah, en español y en inglés.',
   crumb: 'Contacto',
   label: ['Hablemos', 'Contacto'],
   titleLines: ['Cuéntanos', 'el proyecto'],
@@ -279,11 +294,14 @@ export const esFaq = {
   items: [
     {
       q: '¿Dónde trabaja JP Media Groups?',
-      a: 'En cinco mercados de dos países: Utah, California, Florida y Nueva York en Estados Unidos, y Colombia. Las ciudades que el estudio nombra como propias son Salt Lake City, Los Ángeles, Miami, Nueva York y Bogotá. Viajar fuera de ellas es una cuestión de agenda, no una negativa — pregúntanos.',
+      // El nodo FAQPage en español, y el equivalente exacto del inglés. Los dos
+      // tienen que decir lo mismo: dos respuestas distintas sobre el área de
+      // servicio, una por idioma, es justo la contradicción que Google lee.
+      a: 'En Utah. El estudio está en Salt Lake City y trabaja en todo el estado — esa es toda el área de servicio, y cada proyecto se produce localmente, sin traer equipo de fuera por el día.',
     },
     {
       q: '¿Trabajan en español?',
-      a: 'Sí. El estudio trabaja en español y en inglés, con el mismo equipo y el mismo estándar en los dos países. En una quinceañera o en una boda familiar eso no es una comodidad: que le hablen a la gente en su idioma es la diferencia entre una foto posada y una real.',
+      a: 'Sí. El estudio trabaja en español y en inglés, con el mismo equipo y el mismo estándar en los dos idiomas. En una quinceañera o en una boda familiar eso no es una comodidad: que le hablen a la gente en su idioma es la diferencia entre una foto posada y una real.',
     },
     {
       q: '¿Qué hace el estudio exactamente?',
@@ -303,7 +321,7 @@ export const esFaq = {
     },
     {
       q: '¿Hace cuánto trabaja el estudio?',
-      a: 'JP Media Groups se fundó en 2016 — más de nueve años de trabajo en Colombia y Estados Unidos, para artistas, restaurantes, negocios y agencias de marketing.',
+      a: 'JP Media Groups se fundó en 2016 — más de nueve años de trabajo para artistas, restaurantes, negocios y agencias de marketing.',
     },
   ],
 };
