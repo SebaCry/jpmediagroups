@@ -1,0 +1,337 @@
+---
+/**
+ * Free beach photos, Oceanside — /beach-form/.
+ *
+ * The QR code on the flyer lands here. People photographed on the sand leave
+ * a name, email and phone so the photos can be sent to them.
+ *
+ * Deliberately NOT on BaseLayout: this page has its own beach look (cream,
+ * rust, sunset) taken from the flyer, and keeping it a standalone document
+ * means none of it can leak into the rest of the site — and none of the site's
+ * dark theme, header, curtain or motion leaks in here.
+ *
+ * The send reuses the contact form's EmailJS template. `discipline` and
+ * `message` are filled with the beach context and the phone number, so the
+ * lead arrives in the same inbox, readable, with no second template to set up.
+ */
+import { Image } from "astro:assets";
+import Seo from "../components/Seo.astro";
+import { pages } from "../lib/seo";
+import { emailjs, emailjsReady } from "../lib/env";
+import logo from "../assets/images/logo-lockup-inverse.png";
+import family from "../assets/beach/family.jpg";
+import friends from "../assets/beach/friends.jpg";
+import goldenHour from "../assets/beach/golden-hour.jpg";
+import pierSunset from "../assets/beach/pier-sunset.jpg";
+import pierUnder from "../assets/beach/pier-under.jpg";
+import pierAerial from "../assets/beach/pier-aerial.jpg";
+
+const pier = [
+  { src: pierSunset, alt: "Oceanside Pier at sunset" },
+  { src: pierAerial, alt: "Oceanside Pier from above, waves breaking on both sides" },
+  { src: pierUnder, alt: "Under the Oceanside Pier at golden hour" },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <Seo page={pages.beachForm} />
+    <meta name="theme-color" content="#f3eee6" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;600&display=swap"
+    />
+  </head>
+
+  <body>
+    <main class="page">
+      <header class="top">
+        <span>Oceanside, California</span>
+        <span class="rust">Golden hour</span>
+      </header>
+
+      <div class="grid">
+        <Image src={family} alt="A family sitting on the sand at sunset" class="g-main" widths={[400, 600]} sizes="(min-width: 640px) 380px, 64vw" loading="eager" />
+        <Image src={friends} alt="Two friends laughing on the beach" widths={[260]} loading="eager" />
+        <Image src={goldenHour} alt="Sun setting over the shoreline" widths={[260]} loading="eager" />
+      </div>
+
+      <h1 class="title">
+        <span class="free">Free</span>
+        <span class="beach">Beach photos</span>
+      </h1>
+      <p class="place"><span>Oceanside Beach</span></p>
+
+      <p class="lead">
+        We took your photo on the sand? Leave your details and we'll send your
+        photos straight to you — no cost, no catch.
+      </p>
+
+      <form
+        class="card"
+        data-beach
+        data-service={emailjs.serviceId}
+        data-template={emailjs.templateId}
+        data-key={emailjs.publicKey}
+        data-configured={emailjsReady ? "" : undefined}
+      >
+        {/* Honeypot: hidden from sight, screen readers and tab order. */}
+        <input type="checkbox" name="botcheck" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+        <label>
+          <span>Full name</span>
+          <input name="name" type="text" required autocomplete="name" />
+        </label>
+        <label>
+          <span>Email</span>
+          <input name="email" type="email" required autocomplete="email" inputmode="email" />
+        </label>
+        <label>
+          <span>Phone</span>
+          <input name="phone" type="tel" required autocomplete="tel" inputmode="tel" minlength="7" placeholder="(555) 123-4567" />
+        </label>
+
+        <button type="submit" data-submit>Send me my photos</button>
+        <p class="status" role="status" aria-live="polite" data-status></p>
+      </form>
+
+      <section class="pier" aria-label="Oceanside Pier">
+        <h2>See you at the pier</h2>
+        <div class="strip">
+          {pier.map((p) => (
+            <Image src={p.src} alt={p.alt} widths={[480, 800]} sizes="(min-width: 640px) 300px, 78vw" />
+          ))}
+        </div>
+      </section>
+
+      <footer class="foot">
+        <Image src={logo} alt="JP Media Groups" widths={[240]} class="logo" />
+        <a href="https://www.instagram.com/jpmediagroups/">@jpmediagroups</a>
+      </footer>
+    </main>
+
+    <script>
+      import emailjs from "@emailjs/browser";
+      import { contact } from "../content/site";
+
+      const form = document.querySelector<HTMLFormElement>("[data-beach]")!;
+      const status = form.querySelector<HTMLElement>("[data-status]")!;
+      const button = form.querySelector<HTMLButtonElement>("[data-submit]")!;
+      const say = (state: string, text: string) => {
+        status.dataset.state = state;
+        status.textContent = text;
+      };
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const f = new FormData(form);
+        const get = (k: string) => String(f.get(k) ?? "").trim();
+
+        // A bot ticks the hidden box; tell it it worked and send nothing.
+        if (f.get("botcheck")) return say("ok", "Done! Your photos are on their way.");
+
+        if (!form.hasAttribute("data-configured"))
+          return say("error", `Form not configured yet. Email us at ${contact.email}.`);
+
+        button.disabled = true;
+        say("busy", "Sending…");
+        const name = get("name");
+        const phone = get("phone");
+        try {
+          await emailjs.send(
+            form.dataset.service!,
+            form.dataset.template!,
+            {
+              name,
+              email: get("email"),
+              phone,
+              discipline: "Free beach photos — Oceanside",
+              message: `Send beach photos to:\nName: ${name}\nEmail: ${get("email")}\nPhone: ${phone}`,
+              subject: `Beach photos — ${name}`,
+            },
+            { publicKey: form.dataset.key },
+          );
+          form.reset();
+          say("ok", `Thanks, ${name.split(" ")[0]}! We'll send your photos soon.`);
+        } catch {
+          say("error", navigator.onLine === false
+            ? "No connection. Check your signal and try again."
+            : `Something went wrong. Try again or email ${contact.email}.`);
+        } finally {
+          button.disabled = false;
+        }
+      });
+    </script>
+
+    <style is:global>
+      :root {
+        --sand: #f3eee6;
+        --ink: #1c1917;
+        --rust: #b8461d;
+        --muted: #57534e;
+        --line: #d9d0c3;
+        color-scheme: light;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--sand);
+        color: var(--ink);
+        font-family: "Archivo", system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    </style>
+
+    <style>
+      .page {
+        max-width: 560px;
+        margin: 0 auto;
+        padding: 1.5rem 1rem 0;
+      }
+      .top {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+      }
+      .rust { color: var(--rust); }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        gap: 6px;
+        margin-top: 1.25rem;
+        aspect-ratio: 3 / 2;
+      }
+      .grid :global(.g-main) { grid-row: span 2; }
+
+      .title {
+        margin: 2rem 0 0;
+        text-align: center;
+        font-family: "Archivo Black", "Archivo", sans-serif;
+        font-weight: 900;
+        line-height: 0.9;
+        text-transform: uppercase;
+      }
+      .free { display: block; font-size: clamp(4.5rem, 26vw, 8.5rem); letter-spacing: -0.02em; }
+      .beach { display: block; margin-top: 0.4rem; font-size: clamp(1.9rem, 10vw, 3.2rem); color: var(--rust); letter-spacing: 0.02em; }
+
+      .place {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.9rem;
+        margin: 1rem 0 0;
+        font-size: 0.9rem;
+        font-weight: 600;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+      }
+      .place::before, .place::after { content: ""; width: 2.5rem; height: 1px; background: var(--ink); }
+
+      .lead {
+        margin: 2rem 0 0;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--ink);
+        line-height: 1.6;
+        color: var(--muted);
+      }
+
+      .card {
+        display: grid;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        padding: 1.5rem 1.25rem;
+        background: #fffdf9;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        box-shadow: 0 10px 30px -18px rgb(120 70 30 / 0.45);
+      }
+      label { display: grid; gap: 0.35rem; }
+      label span {
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+      input {
+        font: inherit;
+        font-size: 1rem; /* 16px stops iOS from zooming into the field */
+        padding: 0.8rem 0.9rem;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--sand);
+        color: var(--ink);
+      }
+      input:focus-visible { outline: 2px solid var(--rust); outline-offset: 1px; border-color: transparent; }
+      button {
+        margin-top: 0.4rem;
+        padding: 1rem;
+        border: 0;
+        border-radius: 10px;
+        background: var(--rust);
+        color: #fff;
+        font: inherit;
+        font-weight: 600;
+        font-size: 0.85rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+      button:hover { background: #9c3a17; }
+      button:disabled { opacity: 0.6; cursor: progress; }
+      .status { margin: 0; min-height: 1.2em; font-size: 0.95rem; }
+      .status[data-state="ok"] { color: #2f6b3a; font-weight: 600; }
+      .status[data-state="error"] { color: #a4161a; }
+
+      .pier { margin-top: 3rem; }
+      .pier h2 {
+        margin: 0 0 1rem;
+        font-family: "Archivo Black", "Archivo", sans-serif;
+        font-size: 1.4rem;
+        text-transform: uppercase;
+      }
+      .strip {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: 78%;
+        gap: 8px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        margin-inline: -1rem;
+        padding-inline: 1rem;
+        scrollbar-width: none;
+      }
+      .strip :global(img) { aspect-ratio: 4 / 5; border-radius: 8px; scroll-snap-align: center; }
+      @media (min-width: 560px) { .strip { grid-auto-columns: 45%; } }
+
+      .foot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin: 3rem -1rem 0;
+        padding: 1.4rem 1.25rem;
+        background: var(--ink);
+        color: #fff;
+      }
+      .foot :global(.logo) { width: 120px; height: auto; object-fit: contain; }
+      .foot a {
+        color: #f0a35e;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        text-decoration: none;
+      }
+      @media (min-width: 560px) { .foot { margin-inline: 0; margin-bottom: 1.5rem; border-radius: 10px; } }
+    </style>
+  </body>
+</html>

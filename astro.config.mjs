@@ -28,7 +28,7 @@ export default defineConfig({
     sitemap({
       // The 404 is `noindex`; listing it in the sitemap contradicts that, and
       // Search Console reports the contradiction as an error.
-      filter: (page) => !page.includes('/404'),
+      filter: (page) => !page.includes('/404') && !page.includes('/beach-form'),
 
       // Priority is a hint, not an instruction, but the ordering it states
       // should match the site's own: home first, then the market pages that

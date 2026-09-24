@@ -825,6 +825,16 @@ export const pages = {
     noindex: true,
     breadcrumbs: [],
   },
+
+  /* QR landing for the free Oceanside beach shoot. Only reachable from the
+     printed code, so it stays out of the index and the sitemap. */
+  beachForm: {
+    title: "Free Beach Photos — Oceanside | JP Media Groups",
+    description:
+      "Got your photo taken at Oceanside Beach? Leave your name, email and phone and JP Media Groups will send you your free beach photos.",
+    noindex: true,
+    breadcrumbs: [],
+  },
 } satisfies Record<
   string,
   | PageSeo
