@@ -93,6 +93,18 @@ const pier = [
           <span>Phone</span>
           <input name="phone" type="tel" required autocomplete="tel" inputmode="tel" minlength="7" placeholder="(555) 123-4567" />
         </label>
+        <label>
+          <span>Your city</span>
+          <input name="city" type="text" required autocomplete="address-level2" placeholder="e.g. Oceanside" />
+        </label>
+
+        <label class="consent">
+          <input name="consent" type="checkbox" required />
+          <small>
+            I authorize JP Media Groups to use photos of me taken at this event
+            on its website, social media and advertising.
+          </small>
+        </label>
 
         <button type="submit" data-submit>Send me my photos</button>
         <p class="status" role="status" aria-live="polite" data-status></p>
@@ -140,6 +152,7 @@ const pier = [
         say("busy", "Sending…");
         const name = get("name");
         const phone = get("phone");
+        const city = get("city");
         try {
           await emailjs.send(
             form.dataset.service!,
@@ -148,8 +161,11 @@ const pier = [
               name,
               email: get("email"),
               phone,
+              city,
               discipline: "Free beach photos — Oceanside",
-              message: `Send beach photos to:\nName: ${name}\nEmail: ${get("email")}\nPhone: ${phone}`,
+              message: `Send beach photos to:\nName: ${name}\nEmail: ${get("email")}\nPhone: ${phone}
+City: ${city}
+Image-use authorization: YES (checked ${new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" })} PT)`,
               subject: `Beach photos — ${name}`,
             },
             { publicKey: form.dataset.key },
@@ -270,6 +286,9 @@ const pier = [
         background: var(--sand);
         color: var(--ink);
       }
+      .consent { grid-template-columns: auto 1fr; align-items: start; gap: 0.7rem; }
+      .consent input { width: 1.2rem; height: 1.2rem; margin: 0.15rem 0 0; accent-color: var(--rust); }
+      .consent small { font-size: 0.85rem; line-height: 1.45; color: var(--muted); }
       input:focus-visible { outline: 2px solid var(--rust); outline-offset: 1px; border-color: transparent; }
       button {
         margin-top: 0.4rem;

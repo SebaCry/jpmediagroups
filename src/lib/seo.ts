@@ -193,6 +193,8 @@ export interface PageSeo {
   breadcrumbs?: Array<{ name: string; path: string }>;
   /** Extra schema nodes merged into the page graph. */
   schema?: Record<string, unknown>[];
+  /** Overrides the site-wide geo tags, for a page tied to another place. */
+  geo?: typeof GEO;
 }
 
 export const abs = (path: string) => new URL(path, SITE_URL).href;
@@ -834,6 +836,7 @@ export const pages = {
       "Got your photo taken at Oceanside Beach? Leave your name, email and phone and JP Media Groups will send you your free beach photos.",
     noindex: true,
     breadcrumbs: [],
+    geo: { region: "US-CA", placename: "Oceanside, California" },
   },
 } satisfies Record<
   string,

@@ -111,8 +111,8 @@ const schema = jsonLd(page, canonical);
 {
   /* Google ignores these; Bing and several local directories still read them. */
 }
-<meta name="geo.region" content={GEO.region} />
-<meta name="geo.placename" content={GEO.placename} />
+<meta name="geo.region" content={(page.geo ?? GEO).region} />
+<meta name="geo.placename" content={(page.geo ?? GEO).placename} />
 
 {/* --- Open Graph ------------------------------------------------------- */}
 {
